@@ -318,7 +318,7 @@
     <div class="hero-sub" id="heroSubtitle">Designed for 60+, built with love.</div>
   </div>
 
-  <!-- FEATURES (7 cards) -->
+  <!-- FEATURES (14 cards now) -->
   <div class="section-title"><span>✦</span> <span id="featuresHead">Öne Çıkanlar</span></div>
   <div class="grid-features" id="featuresGrid"></div>
 
@@ -354,6 +354,7 @@
 <script>
   (function() {
     // ---------- MULTI-LANGUAGE DICTIONARY (ES5 compatible) ----------
+    // Updated: includes 7 new feature cards (total 14)
     var translations = {
       TR: {
         badge: "PACDI | Onurlu Yaşam Rehberi",
@@ -367,6 +368,7 @@
         betaPlaceholder: "E-posta adresiniz",
         betaBtnText: "Katıl →",
         betaSuccessMsg: "Teşekkürler! Size ulaşacağız.",
+        // ORIGINAL 7 FEATURES + 7 NEW (total 14)
         features: [
           "🧓 Yaşlı Dostu Arayüz — Büyük yazı, sesli komutlar, basit navigasyon. Teknolojiyi herkes için erişilebilir kılıyoruz.",
           "👨‍👩‍👧 Aile Paneli — Sevdikleriniz uzaktan takip edebilir, güvende olduğunuzu bilir. Gizlilik önce gelir — her şey izninizle.",
@@ -374,7 +376,15 @@
           "🏥 Doktor Randevu Yönetimi — Randevularınızı takip edin, hatırlatın, hazırlıklı olun.",
           "📻 Nostaljik Radyo — Gençliğinizin müziği, anılarınızın sesi. Müzik ruhu besler, geçmişi yakınlaştırır.",
           "🌍 Göçmen Yaşlılar İçin — Almanya'da yaşayan 60+ yaş Türk ve göçmen topluluklar için çok dilli destek. Yalnız değilsiniz.",
-          "🤝 Nesiller Arası Bağ — KiezFlow ve CogniRoute ile bağlantılı. Deneyimini paylaş, destek ver, destek al. 'İyi İnsan Sertifikası' kazan."
+          "🤝 Nesiller Arası Bağ — KiezFlow ve CogniRoute ile bağlantılı. Deneyimini paylaş, destek ver, destek al. 'İyi İnsan Sertifikası' kazan.",
+          // NEW CARDS 8-14 (TR)
+          "🧑‍🤝‍🧑 Bakıcı Köprüsü — Bakıcılar size özel notlar bırakabilir. 'Anlaşıldı' butonuyla onaylayın. Gözetim değil, destek.",
+          "🔒 Offline-First Güvenlik — Tüm verileriniz cihazınızda kalır. Buluta gönderilmez. İnternet sadece acil arama için gereklidir.",
+          "🧠 Alzheimer Erken Uyarı — Günlük rutinlerinizdeki değişimler yerel yapay zeka ile analiz edilir. Alışılmadık düşüş tespit edildiğinde bakıcıya öneri bildirimi gönderilir. Tüm analiz cihazınızda kalır.",
+          "🌙 Gece Yarısı Kalkanı — Anormal saatte cihazı eline aldığında sistem fark eder. Sevecen bir ses karşılar: 'Merhaba, uyuyamadın mı? Ben buradayım.'",
+          "⌚ Akıllı Saat Entegrasyonu — Nabız, uyku kalitesi ve hareket verileri GlucoNavigatör ile ortak altyapıda analiz edilir. Sağlık takibi hiç bu kadar bütünsel olmamıştı.",
+          "🎙️ Sesli Arayüz — Yazmak zorunda değilsiniz. Konuşarak kullanın. 65+ yaş için özel olarak tasarlanmış sesli komut sistemi.",
+          "🏅 İyi İnsan Sertifikası — KiezFlow ve CogniRoute bağlantısıyla destek veren bakıcılar bonus ödüller ve QR kodlu 'İyi İnsan Sertifikası' kazanır. Onur ödülü, para ödülü değil."
         ],
         stats: [
           { number: "2 Milyar", label: "2050'de 60+ yaş nüfus (dünya)" },
@@ -406,7 +416,15 @@
           "🏥 Arzttermin-Management — Behalten Sie den Überblick über Ihre Termine.",
           "📻 Nostalgieradio — Die Musik Ihrer Jugend, die Stimme Ihrer Erinnerungen.",
           "🌍 Für Senior-Migranten — Mehrsprachige Unterstützung für ältere Migranten in Deutschland.",
-          "🤝 Generationenverbindung — Verbunden mit KiezFlow und CogniRoute. Teilen, geben, empfangen. 'Guter Mensch Zertifikat' verdienen."
+          "🤝 Generationenverbindung — Verbunden mit KiezFlow und CogniRoute. Teilen, geben, empfangen. 'Guter Mensch Zertifikat' verdienen.",
+          // NEW CARDS 8-14 (DE)
+          "🧑‍🤝‍🧑 Pflegebrücke — Pflegepersonen können persönliche Notizen hinterlassen. Bestätigen Sie mit 'Verstanden'. Unterstützung, keine Überwachung.",
+          "🔒 Offline-First Sicherheit — Alle Daten bleiben auf Ihrem Gerät. Keine Cloud. Internet nur für Notrufe erforderlich.",
+          "🧠 Alzheimer-Frühwarnung — Veränderungen in Ihren täglichen Routinen werden lokal analysiert. Bei ungewöhnlichen Rückgängen wird der Betreuer benachrichtigt. Alle Analysen bleiben auf Ihrem Gerät.",
+          "🌙 Nachtschild — Das System erkennt ungewöhnliche Nutzungszeiten. Eine fürsorgliche Stimme begrüßt Sie: 'Hallo, können Sie nicht schlafen? Ich bin da.'",
+          "⌚ Smartwatch-Integration — Puls, Schlafqualität und Bewegungsdaten werden mit GlucoNavigatör analysiert. Ganzheitliche Gesundheitsüberwachung.",
+          "🎙️ Sprachoberfläche — Kein Tippen erforderlich. Sprechen Sie einfach. Speziell für Menschen 60+ entwickeltes Sprachbefehlssystem.",
+          "🏅 Guter-Mensch-Zertifikat — Pflegepersonen, die über KiezFlow und CogniRoute helfen, erhalten Bonuspunkte und ein QR-codiertes Zertifikat. Ehrenpreis, kein Geldpreis."
         ],
         stats: [
           { number: "2 Milliarden", label: "Menschen 60+ bis 2050 weltweit" },
@@ -438,7 +456,15 @@
           "🏥 Doctor Appointment Management — Track, remind and prepare for your appointments.",
           "📻 Nostalgia Radio — The music of your youth, the voice of your memories.",
           "🌍 For Senior Migrants — Multilingual support for elderly migrants living in Germany.",
-          "🤝 Generational Bond — Connected with KiezFlow and CogniRoute. Share, give, receive. Earn your 'Good Human Certificate'."
+          "🤝 Generational Bond — Connected with KiezFlow and CogniRoute. Share, give, receive. Earn your 'Good Human Certificate'.",
+          // NEW CARDS 8-14 (EN)
+          "🧑‍🤝‍🧑 Caregiver Bridge — Caregivers can leave personal notes. Confirm with 'Understood'. Support, not surveillance.",
+          "🔒 Offline-First Security — All your data stays on your device. No cloud. Internet only needed for emergency calls.",
+          "🧠 Alzheimer Early Warning — Changes in your daily routines are analyzed locally by AI. Unusual declines trigger caregiver notifications. All analysis stays on your device.",
+          "🌙 Night Shield — System detects unusual usage hours. A caring voice greets you: 'Hello, can't sleep? I'm here.'",
+          "⌚ Smartwatch Integration — Heart rate, sleep quality and movement data analyzed together with GlucoNavigatör. Holistic health tracking like never before.",
+          "🎙️ Voice Interface — No typing required. Just speak. Voice command system specially designed for 60+ users.",
+          "🏅 Good Human Certificate — Caregivers supporting via KiezFlow and CogniRoute earn bonus rewards and a QR-coded certificate. An honor award, not a cash prize."
         ],
         stats: [
           { number: "2 Billion", label: "People 60+ by 2050 worldwide" },
@@ -453,7 +479,7 @@
       }
     };
 
-    // PACDI footer links (statische Links)
+    // PACDI footer links (unchanged)
     var footerLinkItems = [
       { name: "navigopro.de", url: "https://navigopro.de" },
       { name: "kiezflow.de", url: "https://kiezflow.de" },
@@ -480,21 +506,23 @@
     var crosslinksGrid = document.getElementById("crosslinksGrid");
     var footerLinksDiv = document.getElementById("footerLinks");
 
-    var currentLang = "EN"; // default
+    var currentLang = "EN";
 
-    // render features, stats, crosslinks based on lang
+    // render features, stats, crosslinks (dynamic)
     function renderDynamicContent(lang) {
       var data = translations[lang];
       if (!data) return;
 
-      // 1) Features (7 cards)
+      // 1) Features (14 cards now)
       featuresGrid.innerHTML = "";
       for (var i = 0; i < data.features.length; i++) {
         var card = document.createElement("div");
         card.className = "card";
-        var iconMatch = data.features[i].match(/^[^\w]*(🧓|👨‍👩‍👧|💊|🏥|📻|🌍|🤝)/);
+        var featureText = data.features[i];
+        // extract icon (first emoji or fallback)
+        var iconMatch = featureText.match(/^[^\w]*(🧓|👨‍👩‍👧|💊|🏥|📻|🌍|🤝|🧑‍🤝‍🧑|🔒|🧠|🌙|⌚|🎙️|🏅)/);
         var icon = iconMatch ? iconMatch[1] : "✨";
-        var descText = data.features[i];
+        var descText = featureText;
         card.innerHTML = '<div class="card-icon">' + icon + '</div><div class="card-text">' + descText + '</div>';
         featuresGrid.appendChild(card);
       }
@@ -508,7 +536,7 @@
         statsGrid.appendChild(statCard);
       }
 
-      // 3) Cross-links (3 cards, clickable with link arrow)
+      // 3) Cross-links (3 cards)
       crosslinksGrid.innerHTML = "";
       for (var c = 0; c < data.crossLinks.length; c++) {
         var crossCard = document.createElement("div");
@@ -553,15 +581,13 @@
           btn.classList.remove("active");
         }
       }
-      // also update beta success message if any message box present (non-persistent)
       var msgDiv = document.getElementById("betaMessage");
       if (msgDiv && msgDiv.innerText !== "") {
-        // optionally clear message when language changes but keep ux friendly
         msgDiv.innerHTML = "";
       }
     }
 
-    // language detection from browser
+    // language detection
     function detectLanguage() {
       var navLang = (navigator.language || navigator.userLanguage || "en").toLowerCase();
       if (navLang.indexOf("tr") === 0) return "TR";
@@ -569,7 +595,7 @@
       return "EN";
     }
 
-    // build footer links (same for all languages)
+    // build footer links (unchanged)
     function buildFooterLinks() {
       footerLinksDiv.innerHTML = "";
       for (var i = 0; i < footerLinkItems.length; i++) {
@@ -601,18 +627,16 @@
             '</div>';
           return;
         }
-        // success message based on currentLang
         var successText = translations[currentLang].betaSuccessMsg;
         msgDiv.innerHTML = '<div class="beta-success">✓ ' + successText + '</div>';
         emailInput.value = "";
-        // auto clear success after 5 sec
         setTimeout(function() {
           if (msgDiv) msgDiv.innerHTML = "";
         }, 5000);
       });
     }
 
-    // Event listeners for language switcher
+    // Language switcher event binding
     function bindLangButtons() {
       var btns = document.querySelectorAll(".lang-btn");
       for (var i = 0; i < btns.length; i++) {
@@ -623,7 +647,7 @@
       }
     }
 
-    // initial load and auto detection
+    // initialization
     function init() {
       buildFooterLinks();
       initBetaForm();

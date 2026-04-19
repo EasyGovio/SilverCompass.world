@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Kelime Türetme | Beyin Egzersizi</title>
     <style>
         * { margin:0; padding:0; box-sizing:border-box; }
@@ -27,7 +27,7 @@
         .header { background: #0a2a3b; padding: 18px; border-bottom: 3px solid #e6b422; color: #ffdf8c; }
         .stats { display: flex; justify-content: space-between; background: #1f2f3a; margin: 16px; padding: 8px 16px; border-radius: 60px; color: #f7ecc7; }
         .score { background: #00000055; padding: 4px 16px; border-radius: 40px; }
-        button { background: #e6b422; border: none; padding: 6px 18px; border-radius: 40px; font-weight: bold; cursor: pointer; font-family: inherit; }
+        button { background: #e6b422; border: none; padding: 6px 18px; border-radius: 40px; font-weight: bold; cursor: pointer; font-family: inherit; touch-action: manipulation; }
         .letters {
             display: flex;
             justify-content: center;
@@ -50,6 +50,7 @@
             cursor: pointer;
             transition: 0.05s linear;
             user-select: none;
+            touch-action: manipulation; /* mobil kaydırmayı engeller */
         }
         .letter-box:active {
             transform: translateY(2px);
@@ -122,18 +123,17 @@
     <div id="message" class="message">Harflere tıkla kelime oluştur, sonra Kontrol et.</div>
 </div>
 <script>
-    // Geçerli kelime listesi (örnek, daha genişletilebilir)
+    // Geçerli kelime listesi (örnek)
     const validWordsSet = new Set([
         "ATA", "ANA", "CAN", "DEN", "EDA", "ELMA", "KALEM", "MAS", "SAP", "TAŞ", "YOL", "SEL", "KOL", "DAL", "BAL", "GÜL", "SES", "TEST", "KASA", "MASA",
         "AL", "AT", "AN", "BE", "CE", "DE", "EL", "EN", "ES", "ET", "GE", "İL", "İN", "LA", "LE", "ME", "NE", "OL", "SE", "TE", "YE", "YA",
         "KAL", "MAL", "SAL", "TAL", "YAL", "AK", "EK", "İK", "OK", "ÜÇ", "BEŞ", "ALT", "BİR", "İKİ", "ÜÇ", "DÖRT", "BEŞ", "ALTI", "YEDİ", "SEKİZ", "DOKUZ"
     ]);
     
-    let currentLetters = [];   // örn: ['A','B','C']
+    let currentLetters = [];
     let foundWords = [];
     const letterPool = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','R','S','T','U','V','Y','Z','Ü','Ğ','Ş','İ','Ö','Ç'];
     
-    // DOM elemanları
     const lettersContainer = document.getElementById('lettersContainer');
     const wordInput = document.getElementById('wordInput');
     const submitBtn = document.getElementById('submitBtn');
@@ -152,16 +152,32 @@
         return letters;
     }
     
+    // Kaydırmayı engelleyen olay işleyici
+    function handleLetterTap(letter, event) {
+        if (event) {
+            event.preventDefault();  // sayfa kaymasını engeller
+            event.stopPropagation();
+        }
+        wordInput.value += letter;
+        wordInput.focus();
+        // İsteğe bağlı: input'un sonuna git
+        wordInput.scrollLeft = wordInput.scrollWidth;
+    }
+    
     function renderLetters() {
         lettersContainer.innerHTML = '';
-        currentLetters.forEach((letter, idx) => {
+        currentLetters.forEach((letter) => {
             const box = document.createElement('div');
             box.className = 'letter-box';
             box.innerText = letter;
-            box.addEventListener('click', () => {
-                // harfe tıklayınca inputa ekle
-                wordInput.value += letter;
-                wordInput.focus();
+            // Hem click hem touchstart için preventDefault ile kaymayı engelle
+            box.addEventListener('click', (e) => {
+                e.preventDefault();
+                handleLetterTap(letter, e);
+            });
+            box.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                handleLetterTap(letter, e);
             });
             lettersContainer.appendChild(box);
         });
@@ -195,7 +211,6 @@
             messageDiv.innerText = "🔤 Bu kelimeyi mevcut harflerle oluşturamazsınız.";
             return;
         }
-        // Başarılı
         foundWords.push(word);
         updateFoundWordsList();
         messageDiv.innerText = `✅ "${word}" bulundu! Devam et.`;
@@ -232,7 +247,6 @@
         wordInput.focus();
     }
     
-    // Event listeners
     submitBtn.addEventListener('click', checkWord);
     newLettersBtn.addEventListener('click', newGame);
     clearBtn.addEventListener('click', clearInput);
@@ -241,7 +255,6 @@
         if(e.key === 'Enter') checkWord();
     });
     
-    // Başlat
     newGame();
 </script>
 </body>

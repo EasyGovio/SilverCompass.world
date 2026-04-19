@@ -5,123 +5,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Peg Solitaire | SilverCompass</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
-    body {
-      background: #eef2f5;
-      font-family: -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif;
-      padding: 20px;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-    .game-container {
-      max-width: 700px;
-      width: 100%;
-      background: #ffffff;
-      border-radius: 48px;
-      padding: 20px;
-      box-shadow: 0 12px 28px rgba(0,0,0,0.1);
-      border: 1px solid #e0d5c0;
-    }
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      flex-wrap: wrap;
-      margin-bottom: 20px;
-      padding-bottom: 12px;
-      border-bottom: 2px solid #F6B45F;
-    }
-    .logo {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: #1e4a6e;
-    }
-    .logo span { color: #F6B45F; }
-    .back-link {
-      color: #1e4a6e;
-      text-decoration: none;
-      font-weight: 600;
-      background: #f0f0f0;
-      padding: 6px 14px;
-      border-radius: 40px;
-      font-size: 0.85rem;
-    }
-    .back-link:hover { background: #F6B45F; color: white; }
-    .board-selector {
-      margin: 15px 0 10px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      justify-content: center;
-    }
-    .board-btn {
-      background: #eef2f5;
-      border: 1px solid #cbd5e1;
-      padding: 6px 14px;
-      border-radius: 40px;
-      font-size: 0.8rem;
-      font-weight: 600;
-      color: #1e4a6e;
-      cursor: pointer;
-      transition: all 0.1s;
-    }
-    .board-btn.active {
-      background: #F6B45F;
-      border-color: #F6B45F;
-      color: #1e4a6e;
-    }
-    .stats {
-      display: flex;
-      justify-content: space-between;
-      background: #f8f4ea;
-      padding: 10px 20px;
-      border-radius: 60px;
-      margin: 15px 0;
-      color: #1e4a6e;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-    .stats div {
-      background: #ffffffcc;
-      padding: 4px 14px;
-      border-radius: 40px;
-      font-weight: 600;
-    }
-    button {
-      background: #F6B45F;
-      border: none;
-      padding: 6px 18px;
-      border-radius: 40px;
-      font-weight: bold;
-      cursor: pointer;
-      font-family: inherit;
-      color: #1e4a6e;
-    }
-    canvas {
-      display: block;
-      margin: 15px auto;
-      background: #fcf8ed;
-      border-radius: 32px;
-      width: 100%;
-      aspect-ratio: 1/1;
-      cursor: pointer;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    }
-    .message {
-      text-align: center;
-      margin-top: 15px;
-      padding: 8px;
-      background: #f0f0f0;
-      border-radius: 40px;
-      color: #1e4a6e;
-      font-size: 0.85rem;
-    }
-    @media (max-width: 550px) {
-      .board-btn { padding: 4px 10px; font-size: 0.7rem; }
-      .stats div { font-size: 0.8rem; }
-    }
+    * { margin:0; padding:0; box-sizing:border-box; user-select:none; }
+    body { background: #0F1318; font-family: -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif; padding: 20px; min-height: 100vh; display: flex; justify-content: center; align-items: center; }
+    .game-container { max-width: 700px; width: 100%; background: #1e2a3a; border-radius: 48px; padding: 24px; border: 1px solid rgba(246,180,95,0.3); box-shadow: 0 20px 35px rgba(0,0,0,0.4); }
+    .header { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; margin-bottom: 20px; color: #FFFFFF; }
+    .logo { font-size: 1.6rem; font-weight: bold; } .logo span { color: #F6B45F; }
+    .back-link { color: #F6B45F; text-decoration: none; font-size: 0.9rem; }
+    .select-row { display: flex; justify-content: space-between; align-items: center; gap: 15px; margin: 15px 0; flex-wrap: wrap; }
+    .select-label { color: #eaf2fb; font-weight: bold; background: #0a1018; padding: 6px 14px; border-radius: 40px; }
+    select { background: #1e2a3a; color: #F6B45F; border: 1px solid #F6B45F; border-radius: 40px; padding: 8px 16px; font-weight: bold; font-size: 0.9rem; cursor: pointer; font-family: monospace; outline: none; }
+    .stats { display: flex; justify-content: space-between; background: #0a1018; padding: 10px 16px; border-radius: 60px; margin: 15px 0; color: #eaf2fb; gap: 8px; flex-wrap: wrap; }
+    .stats div { background: #1e2a3a; padding: 4px 12px; border-radius: 40px; }
+    button { background: #F6B45F; border: none; padding: 6px 16px; border-radius: 40px; font-weight: bold; cursor: pointer; font-family: inherit; color: #0F1318; transition: 0.05s; }
+    button:active { transform: scale(0.96); }
+    .action-buttons { display: flex; gap: 12px; justify-content: center; margin: 10px 0 15px; }
+    canvas { display: block; margin: 15px auto; background: #eaf2fb; border-radius: 28px; width: 100%; aspect-ratio: 1/1; cursor: pointer; box-shadow: inset 0 0 0 3px #F6B45F, 0 8px 20px rgba(0,0,0,0.3); }
+    .message { text-align: center; margin-top: 15px; padding: 8px; background: #0a1018; border-radius: 40px; color: #eaf2fb; font-size: 0.85rem; }
   </style>
 </head>
 <body>
@@ -130,79 +29,134 @@
     <div class="logo">Silver<span>Compass</span></div>
     <a href="index.html" class="back-link">← Geri</a>
   </div>
-  <div class="board-selector" id="boardSelector"></div>
+
+  <div class="select-row">
+    <div class="select-label">🎯 Tahta Seçimi</div>
+    <select id="boardSelect"></select>
+    <div class="select-label" style="font-size:0.7rem;">▼ seç ve başla</div>
+  </div>
+
   <div class="stats">
     <div>📌 Hamle: <span id="moveCount">0</span></div>
     <div>⏱️ Süre: <span id="timer">00:00</span></div>
     <div>🏆 En İyi: <span id="bestScore">—</span></div>
-    <div>🟢 Kalan: <span id="pegCount">32</span></div>
+  </div>
+
+  <div class="action-buttons">
     <button id="undoBtn">↩️ Geri Al</button>
     <button id="resetBtn">🔄 Sıfırla</button>
   </div>
+
   <canvas id="pegCanvas" width="500" height="500"></canvas>
-  <div class="message" id="gameMsg">Bir tahta seç → çiviye tıkla → atlayacağın boşluğa tıkla</div>
+  <div class="message" id="gameMsg">Bir çivi seç, ardından atlayacağın boşluğa tıkla.</div>
 </div>
+
 <script>
-  // ---------- TÜM TAHTA TANIMLARI (16 varyasyon) ----------
+  // ---------- TÜM TAHTA TANIMLARI ----------
   var BOARD_DEFS = {
-    "English": { rows:7, cols:7, startEmpty:[3,3], shape: function(r,c) { return ((r<=1||r>=5)&&c>=2&&c<=4) || (r>=2&&r<=4&&c>=0&&c<=6); } },
-    "French": { rows:7, cols:7, startEmpty:[3,3], shape: function(r,c) { if((r===0||r===6)&&c>=2&&c<=4) return true; if((r===1||r===5)&&c>=1&&c<=5) return true; if(r>=2&&r<=4&&c>=0&&c<=6) return true; return false; } },
-    "European 37": { rows:7, cols:7, startEmpty:[3,3], shape: function(r,c) { return Math.abs(r-3)+Math.abs(c-3) <= 3; } },
-    "Hexagonal 61": { rows:9, cols:9, startEmpty:[4,4], shape: function(r,c) { return Math.abs(r-4)+Math.abs(c-4) <= 4 && Math.abs(r-c) <= 4; } },
-    "Square 16": { rows:4, cols:4, startEmpty:[1,1], shape: function() { return true; } },
-    "Square 25": { rows:5, cols:5, startEmpty:[2,2], shape: function() { return true; } },
-    "Square 36 #1": { rows:6, cols:6, startEmpty:[2,2], shape: function() { return true; } },
-    "Square 36 #2": { rows:6, cols:6, startEmpty:[2,3], shape: function() { return true; } },
-    "Square 36 #3": { rows:6, cols:6, startEmpty:[3,3], shape: function() { return true; } },
-    "Triangle 8x8": { rows:8, cols:15, startEmpty:[0,0], shape: function(r,c) { return c <= r; } },
-    "Trapezoid": { rows:5, cols:7, startEmpty:[2,3], shape: function(r,c) { if(r===0) return c>=2&&c<=4; if(r===1) return c>=1&&c<=5; if(r>=2) return c>=0&&c<=6; return false; } },
-    "Rhombus": { rows:7, cols:7, startEmpty:[3,3], shape: function(r,c) { return Math.abs(r-3)+Math.abs(c-3) <= 3; } },
-    "Snowflake": { rows:7, cols:7, startEmpty:[3,3], shape: function(r,c) { if((r===0||r===6)&&c===3) return true; if((r===1||r===5)&&c>=1&&c<=5) return true; if(r>=2&&r<=4&&c>=0&&c<=6) return true; return false; } },
-    "Wiegleb": { rows:7, cols:7, startEmpty:[3,3], shape: function(r,c) { if((r===0||r===6)&&c>=2&&c<=4) return true; if((r===1||r===5)&&c>=1&&c<=5) return true; if(r>=2&&r<=4&&c>=0&&c<=6) return true; return false; } },
-    "Asymmetric": { rows:7, cols:7, startEmpty:[2,2], shape: function(r,c) { return (r<=4&&c<=4&&!(r===0&&c===0)) || (r===5&&c>=1&&c<=3) || (r===6&&c===2); } }
+    "English": { rows:7, cols:7, startEmpty:[3,3], shape: function(r,c){ return ((r<=1||r>=5)&&c>=2&&c<=4) || (r>=2&&r<=4&&c>=0&&c<=6); } },
+    "French": { rows:7, cols:7, startEmpty:[3,3], shape: function(r,c){ if((r===0||r===6)&&c>=2&&c<=4) return true; if((r===1||r===5)&&c>=1&&c<=5) return true; if(r>=2&&r<=4&&c>=0&&c<=6) return true; return false; } },
+    "European 37": { rows:7, cols:7, startEmpty:[3,3], shape: function(r,c){ return Math.abs(r-3)+Math.abs(c-3) <= 3; } },
+    "Hexagonal 61": { rows:9, cols:9, startEmpty:[4,4], shape: function(r,c){ return Math.abs(r-4)+Math.abs(c-4) <= 4 && Math.abs(r-c) <= 4; } },
+    "Square 16": { rows:4, cols:4, startEmpty:[1,1], shape: function(){ return true; } },
+    "Square 25": { rows:5, cols:5, startEmpty:[2,2], shape: function(){ return true; } },
+    "Square 36 #1": { rows:6, cols:6, startEmpty:[2,2], shape: function(){ return true; } },
+    "Square 36 #2": { rows:6, cols:6, startEmpty:[2,3], shape: function(){ return true; } },
+    "Square 36 #3": { rows:6, cols:6, startEmpty:[3,3], shape: function(){ return true; } },
+    "Triangle 8x8": { rows:8, cols:15, startEmpty:[0,0], shape: function(r,c){ return c <= r; } },
+    "Trapezoid": { rows:5, cols:7, startEmpty:[2,3], shape: function(r,c){ if(r===0) return c>=2&&c<=4; if(r===1) return c>=1&&c<=5; if(r>=2) return c>=0&&c<=6; return false; } },
+    "Rhombus": { rows:7, cols:7, startEmpty:[3,3], shape: function(r,c){ return Math.abs(r-3)+Math.abs(c-3) <= 3; } },
+    "Snowflake": { rows:7, cols:7, startEmpty:[3,3], shape: function(r,c){ if((r===0||r===6)&&c===3) return true; if((r===1||r===5)&&c>=1&&c<=5) return true; if(r>=2&&r<=4&&c>=0&&c<=6) return true; return false; } },
+    "Wiegleb": { rows:7, cols:7, startEmpty:[3,3], shape: function(r,c){ if((r===0||r===6)&&c>=2&&c<=4) return true; if((r===1||r===5)&&c>=1&&c<=5) return true; if(r>=2&&r<=4&&c>=0&&c<=6) return true; return false; } },
+    "Asymmetric": { rows:7, cols:7, startEmpty:[2,2], shape: function(r,c){ return (r<=4&&c<=4&&!(r===0&&c===0)) || (r===5&&c>=1&&c<=3) || (r===6&&c===2); } }
   };
+
+  // Oyun durumu
   var currentBoardId = "English";
   var rows, cols, board, isValid, selectedRow = null, selectedCol = null;
   var moveCount = 0, timerSeconds = 0, timerInterval = null, gameActive = true;
-  var history = []; // geri al için
-  var bestKey = "pegBest";
-  var canvas = document.getElementById('pegCanvas'), ctx = canvas.getContext('2d');
+  var history = []; // geri al için hamle geçmişi (tahta durumu, hamle sayısı)
+  var bestKey = "pegBest_" + currentBoardId; // her tahta için ayrı rekor
+
+  var canvas = document.getElementById('pegCanvas');
+  var ctx = canvas.getContext('2d');
   var cellW, cellH;
 
-  // yardımcılar
-  function updateBestDisplay() { var best = localStorage.getItem(bestKey); document.getElementById("bestScore").innerText = best ? best : "—"; }
-  function stopTimer() { if(timerInterval) clearInterval(timerInterval); timerInterval = null; }
-  function startTimer() { stopTimer(); timerInterval = setInterval(function(){ if(gameActive){ timerSeconds++; updateTimerDisplay(); } },1000); }
-  function updateTimerDisplay() { var m=Math.floor(timerSeconds/60), s=timerSeconds%60; document.getElementById("timer").innerText=(m<10?"0"+m:m)+":"+(s<10?"0"+s:s); }
-  function countPegs() { var cnt=0; for(var i=0;i<rows;i++) for(var j=0;j<cols;j++) if(isValid[i][j] && board[i][j]===true) cnt++; return cnt; }
-  function updateUI() { document.getElementById("moveCount").innerText = moveCount; var left = countPegs(); document.getElementById("pegCount").innerText = left; if(left===1) document.getElementById("gameMsg").innerHTML = "🏆 Mükemmel! Tek çivi kaldı! 🎉"; else document.getElementById("gameMsg").innerHTML = "Kalan çivi: "+left+"  |  Hamle: "+moveCount; }
+  // DOM elemanları
+  var moveSpan = document.getElementById('moveCount');
+  var timerSpan = document.getElementById('timer');
+  var bestSpan = document.getElementById('bestScore');
+  var resetBtn = document.getElementById('resetBtn');
+  var undoBtn = document.getElementById('undoBtn');
+  var boardSelect = document.getElementById('boardSelect');
+  var gameMsg = document.getElementById('gameMsg');
 
+  // ---------- Yardımcı fonksiyonlar ----------
+  function stopTimer() { if(timerInterval) clearInterval(timerInterval); timerInterval = null; }
+  function startTimer() { stopTimer(); timerInterval = setInterval(function(){ if(gameActive){ timerSeconds++; updateTimerDisplay(); } }, 1000); }
+  function updateTimerDisplay() { var m = Math.floor(timerSeconds/60), s = timerSeconds%60; timerSpan.innerText = (m<10?"0"+m:m)+":"+(s<10?"0"+s:s); }
+
+  function updateBestDisplay() {
+    var best = localStorage.getItem(bestKey);
+    bestSpan.innerText = best ? best : "—";
+  }
+
+  function saveBestScore() {
+    var currentBest = localStorage.getItem(bestKey);
+    if(!currentBest || moveCount < parseInt(currentBest)) {
+      localStorage.setItem(bestKey, moveCount);
+      updateBestDisplay();
+    }
+  }
+
+  function countPegs() {
+    var cnt = 0;
+    for(var i=0;i<rows;i++) for(var j=0;j<cols;j++) if(isValid[i][j] && board[i][j] === true) cnt++;
+    return cnt;
+  }
+
+  function updateUI() {
+    moveSpan.innerText = moveCount;
+    var left = countPegs();
+    if(left === 1) gameMsg.innerHTML = "🏆 Mükemmel! Tek çivi kaldı! 🎉";
+    else gameMsg.innerHTML = "🔹 Kalan çivi: " + left;
+  }
+
+  // Tahtayı yükle (seçilen id'ye göre)
   function loadBoard(boardId) {
     stopTimer();
     var def = BOARD_DEFS[boardId];
     if(!def) return;
-    rows = def.rows; cols = def.cols;
-    isValid = Array(rows).fill().map(function(){ return Array(cols).fill(false); });
-    for(var i=0;i<rows;i++) for(var j=0;j<cols;j++) isValid[i][j] = def.shape(i,j);
-    board = Array(rows).fill().map(function(){ return Array(cols).fill(null); });
-    for(var i=0;i<rows;i++) for(var j=0;j<cols;j++) if(isValid[i][j]) board[i][j] = true;
+    rows = def.rows;
+    cols = def.cols;
+    // isValid matrisi
+    isValid = Array(rows);
+    for(var i=0;i<rows;i++) { isValid[i]=Array(cols); for(var j=0;j<cols;j++) isValid[i][j]=def.shape(i,j); }
+    // board matrisi (true=çivi, false=boş, null=geçersiz)
+    board = Array(rows);
+    for(var i=0;i<rows;i++) { board[i]=Array(cols); for(var j=0;j<cols;j++) board[i][j]= isValid[i][j] ? true : null; }
+    // başlangıç boşluğu
     var er = def.startEmpty[0], ec = def.startEmpty[1];
     if(isValid[er] && isValid[er][ec]) board[er][ec] = false;
-    else { for(var i=0;i<rows;i++) { var done=false; for(var j=0;j<cols;j++) if(isValid[i][j]){ board[i][j]=false; done=true; break; } if(done) break; } }
-    moveCount = 0; timerSeconds = 0; updateTimerDisplay(); document.getElementById("moveCount").innerText="0"; selectedRow = null; gameActive = true;
+    else {
+      for(var i=0;i<rows;i++) { var found=false; for(var j=0;j<cols;j++) if(isValid[i][j]) { board[i][j]=false; found=true; break; } if(found) break; }
+    }
+    moveCount = 0;
+    timerSeconds = 0;
+    updateTimerDisplay();
+    selectedRow = null;
     history = [];
+    gameActive = true;
     updateUI();
     drawBoard();
     startTimer();
     currentBoardId = boardId;
-    // aktif buton
-    var btns = document.querySelectorAll(".board-btn");
-    for(var i=0;i<btns.length;i++) {
-      if(btns[i].getAttribute("data-id") === boardId) btns[i].classList.add("active");
-      else btns[i].classList.remove("active");
-    }
+    bestKey = "pegBest_" + boardId;
+    updateBestDisplay();
+    boardSelect.value = boardId;
   }
 
+  // Hamle geçerlilik kontrolü
   function isValidMove(fr,fc,tr,tc) {
     if(!isValid[tr] || !isValid[tr][tc] || board[tr][tc] !== false) return false;
     if(!isValid[fr] || !isValid[fr][fc] || board[fr][fc] !== true) return false;
@@ -211,51 +165,66 @@
     if(Math.abs(dc)===2 && dr===0) { var mr=fr, mc=(fc+tc)/2; if(isValid[mr][mc] && board[mr][mc]===true) return true; }
     return false;
   }
+
+  // Hamleyi uygula ve geçmişe kaydet
   function applyMove(fr,fc,tr,tc) {
     if(!isValidMove(fr,fc,tr,tc)) return false;
+    // geçmişe kaydet (tahta kopyası, moveCount)
+    var boardCopy = Array(rows);
+    for(var i=0;i<rows;i++) { boardCopy[i]=Array(cols); for(var j=0;j<cols;j++) boardCopy[i][j]=board[i][j]; }
+    history.push({ board: boardCopy, moves: moveCount });
     var mr=(fr+tr)/2, mc=(fc+tc)/2;
-    // kaydet geri al için
-    history.push({ from:[fr,fc], mid:[mr,mc], to:[tr,tc], board: JSON.parse(JSON.stringify(board)) });
-    board[fr][fc] = false; board[mr][mc] = false; board[tr][tc] = true;
+    board[fr][fc] = false;
+    board[mr][mc] = false;
+    board[tr][tc] = true;
     moveCount++;
     updateUI();
     drawBoard();
-    if(countPegs()===1) { gameActive=false; stopTimer(); var best=localStorage.getItem(bestKey); if(!best||timerSeconds<parseInt(best)){ localStorage.setItem(bestKey,timerSeconds); updateBestDisplay(); document.getElementById("gameMsg").innerHTML = "🏆 REKOR! Tek çivi kaldı! 🎉"; } }
+    if(countPegs() === 1) {
+      gameActive = false;
+      stopTimer();
+      saveBestScore();
+      gameMsg.innerHTML = "🎉 TEBRİKLER! Oyunu kazandınız! 🎉";
+    }
     return true;
   }
-  function undo() {
-    if(history.length===0) return;
+
+  // Geri al
+  function undoMove() {
+    if(history.length === 0) { gameMsg.innerHTML = "Geri alınacak hamle yok."; return; }
     var last = history.pop();
-    board = JSON.parse(JSON.stringify(last.board));
-    moveCount--;
+    board = last.board;
+    moveCount = last.moves;
+    selectedRow = null;
     updateUI();
     drawBoard();
     gameActive = true;
-    startTimer();
-    document.getElementById("gameMsg").innerHTML = "Geri alındı.";
+    startTimer(); // timer devam etsin (süre durmaz)
+    gameMsg.innerHTML = "Son hamle geri alındı.";
   }
 
+  // Çizim
   function drawBoard() {
-    var rect = canvas.getBoundingClientRect();
-    var sz = Math.min(rect.width, rect.height);
-    canvas.width = sz; canvas.height = sz;
+    canvas.width = canvas.clientWidth;
+    canvas.height = canvas.clientHeight;
     cellW = canvas.width / cols;
     cellH = canvas.height / rows;
     ctx.clearRect(0,0,canvas.width,canvas.height);
-    ctx.fillStyle = "#fcf8ed";
+    ctx.fillStyle = "#eaf2fb";
     ctx.fillRect(0,0,canvas.width,canvas.height);
     for(var r=0;r<rows;r++) {
       for(var c=0;c<cols;c++) {
         var x = c*cellW, y = r*cellH;
         var rad = Math.min(cellW,cellH)*0.28;
         if(isValid[r][c]) {
+          // delik tabanı
           ctx.beginPath();
           ctx.arc(x+cellW/2, y+cellH/2, rad+1, 0, Math.PI*2);
-          ctx.fillStyle = "#d9cba3";
+          ctx.fillStyle = "#b8d0e8";
           ctx.fill();
           ctx.beginPath();
           ctx.arc(x+cellW/2, y+cellH/2, rad, 0, Math.PI*2);
-          ctx.fillStyle = "#fff2df";
+          ctx.fillStyle = "#FFFFFF";
           ctx.fill();
           if(board[r][c] === true) {
             ctx.beginPath();
@@ -264,12 +233,12 @@
             ctx.fill();
             ctx.beginPath();
             ctx.arc(x+cellW/2, y+cellH/2, rad-4, 0, Math.PI*2);
-            ctx.fillStyle = "#c57f1e";
+            ctx.fillStyle = "#1e2a3a";
             ctx.fill();
           } else if(board[r][c] === false) {
             ctx.beginPath();
             ctx.arc(x+cellW/2, y+cellH/2, rad-3, 0, Math.PI*2);
-            ctx.fillStyle = "#b8a77d";
+            ctx.fillStyle = "#1e2a3a";
             ctx.fill();
           }
           if(selectedRow === r && selectedCol === c && board[r][c] === true) {
@@ -280,66 +249,101 @@
             ctx.stroke();
           }
         } else {
-          ctx.fillStyle = "#e6ddc4";
-          ctx.fillRect(x+2, y+2, cellW-4, cellH-4);
+          ctx.fillStyle = "#b8d0e8";
+          ctx.fillRect(x+1, y+1, cellW-2, cellH-2);
+          ctx.fillStyle = "#8ba0b0";
+          ctx.font = Math.floor(cellW*0.3)+'px "Segoe UI"';
+          ctx.fillText("✦", x+cellW*0.4, y+cellH*0.7);
         }
       }
     }
   }
 
+  // Tıklama olayı
   function handleCanvasTap(e) {
     var rect = canvas.getBoundingClientRect();
     var scaleX = canvas.width / rect.width;
     var scaleY = canvas.height / rect.height;
     var clientX, clientY;
-    if(e.touches) { clientX = e.touches[0].clientX; clientY = e.touches[0].clientY; e.preventDefault(); }
-    else { clientX = e.clientX; clientY = e.clientY; }
+    if(e.touches) {
+      clientX = e.touches[0].clientX;
+      clientY = e.touches[0].clientY;
+      e.preventDefault();
+    } else {
+      clientX = e.clientX;
+      clientY = e.clientY;
+    }
     var canvasX = (clientX - rect.left) * scaleX;
     var canvasY = (clientY - rect.top) * scaleY;
     if(canvasX<0 || canvasY<0 || canvasX>canvas.width || canvasY>canvas.height) return;
     var col = Math.floor(canvasX / cellW);
     var row = Math.floor(canvasY / cellH);
-    if(row<0 || row>=rows || col<0 || col>=cols || !isValid[row][col]) { selectedRow=null; drawBoard(); return; }
+    if(row<0 || row>=rows || col<0 || col>=cols || !isValid[row][col]) {
+      selectedRow = null;
+      drawBoard();
+      return;
+    }
     if(selectedRow === null) {
-      if(board[row][col] === true) { selectedRow = row; selectedCol = col; drawBoard(); document.getElementById("gameMsg").innerHTML = "➡️ Şimdi atlanacak çivinin üzerinden boşluğa tıkla"; }
-      else document.getElementById("gameMsg").innerHTML = "🔔 Önce bir çivi seç!";
+      if(board[row][col] === true) {
+        selectedRow = row;
+        selectedCol = col;
+        drawBoard();
+        gameMsg.innerHTML = "➡️ Şimdi atlanacak çivinin üzerinden boşluğa tıkla";
+      } else {
+        gameMsg.innerHTML = "🔔 Önce bir çivi seç!";
+        setTimeout(function(){ updateUI(); }, 800);
+      }
     } else {
       if(isValidMove(selectedRow, selectedCol, row, col)) {
         applyMove(selectedRow, selectedCol, row, col);
         selectedRow = null;
         drawBoard();
       } else {
-        if(board[row][col] === true) { selectedRow = row; selectedCol = col; drawBoard(); document.getElementById("gameMsg").innerHTML = "🔄 Yeni çivi seçildi"; }
-        else { selectedRow = null; drawBoard(); document.getElementById("gameMsg").innerHTML = "❌ Geçersiz atlama"; }
+        if(board[row][col] === true) {
+          selectedRow = row;
+          selectedCol = col;
+          drawBoard();
+          gameMsg.innerHTML = "🔄 Yeni çivi seçildi, atlamaya hazır";
+        } else {
+          selectedRow = null;
+          drawBoard();
+          gameMsg.innerHTML = "❌ Geçersiz atlama!";
+          setTimeout(function(){ updateUI(); }, 1000);
+        }
       }
     }
     updateUI();
   }
 
-  function resetGame() { loadBoard(currentBoardId); }
-
-  // Menüyü oluştur
-  function buildBoardMenu() {
-    var container = document.getElementById("boardSelector");
-    container.innerHTML = "";
-    var boardNames = Object.keys(BOARD_DEFS);
-    for(var i=0;i<boardNames.length;i++) {
-      var btn = document.createElement("button");
-      btn.innerText = boardNames[i];
-      btn.className = "board-btn";
-      btn.setAttribute("data-id", boardNames[i]);
-      btn.addEventListener("click", (function(id){ return function(){ loadBoard(id); }; })(boardNames[i]));
-      container.appendChild(btn);
-    }
+  // Sıfırlama
+  function resetGame() {
+    loadBoard(currentBoardId);
   }
 
+  // Dropdown menüyü doldur
+  function populateBoardSelect() {
+    boardSelect.innerHTML = "";
+    var names = Object.keys(BOARD_DEFS);
+    for(var i=0; i<names.length; i++) {
+      var opt = document.createElement("option");
+      opt.value = names[i];
+      opt.innerText = names[i];
+      boardSelect.appendChild(opt);
+    }
+    boardSelect.addEventListener("change", function(e) {
+      loadBoard(e.target.value);
+    });
+  }
+
+  // Event listener'lar
   canvas.addEventListener("click", handleCanvasTap);
   canvas.addEventListener("touchstart", function(e){ e.preventDefault(); handleCanvasTap(e); });
-  document.getElementById("undoBtn").addEventListener("click", undo);
-  document.getElementById("resetBtn").addEventListener("click", resetGame);
-  buildBoardMenu();
+  resetBtn.addEventListener("click", resetGame);
+  undoBtn.addEventListener("click", undoMove);
+
+  // Başlat
+  populateBoardSelect();
   loadBoard("English");
-  updateBestDisplay();
 </script>
 </body>
 </html>

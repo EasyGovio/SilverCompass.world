@@ -6,199 +6,38 @@
   <title>Sayı Dizisi | SilverCompass</title>
   <style>
     * { margin:0; padding:0; box-sizing:border-box; user-select:none; }
-    body {
-      background: #1a3a5c;
-      font-family: -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif;
-      padding: 20px;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-    .game-container {
-      max-width: 550px;
-      width: 100%;
-      background: rgba(255,255,255,0.1);
-      border-radius: 40px;
-      padding: 20px;
-      border: 1px solid rgba(246,180,95,0.4);
-    }
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      flex-wrap: wrap;
-      margin-bottom: 20px;
-      color: #FFFFFF;
-    }
-    .logo { font-size: 1.4rem; font-weight: bold; }
-    .logo span { color: #F6B45F; }
-    .back-link { color: #F6B45F; text-decoration: none; font-size: 0.9rem; }
-    .stats {
-      display: flex;
-      justify-content: space-between;
-      background: rgba(0,0,0,0.3);
-      padding: 10px 16px;
-      border-radius: 60px;
-      margin: 15px 0;
-      color: #eaf2fb;
-    }
-    .stats div { background: #1a3a5c; padding: 4px 12px; border-radius: 40px; }
-    button {
-      background: #F6B45F;
-      border: none;
-      padding: 6px 16px;
-      border-radius: 40px;
-      font-weight: bold;
-      cursor: pointer;
-      font-family: inherit;
-    }
-    .sequence-area {
-      text-align: center;
-      font-size: 2.5rem;
-      font-weight: bold;
-      letter-spacing: 10px;
-      background: #eaf2fb;
-      padding: 30px;
-      border-radius: 30px;
-      margin: 20px 0;
-      color: #1a3a5c;
-    }
-    input {
-      width: 100%;
-      padding: 15px;
-      font-size: 1.2rem;
-      text-align: center;
-      border-radius: 60px;
-      border: none;
-      margin: 15px 0;
-      font-family: monospace;
-    }
-    .message {
-      text-align: center;
-      margin-top: 15px;
-      padding: 8px;
-      background: rgba(0,0,0,0.3);
-      border-radius: 40px;
-      color: #eaf2fb;
-    }
-    @media (max-width: 550px) {
-      .sequence-area { font-size: 1.5rem; letter-spacing: 5px; }
-    }
+    body { background: #f0e4ce; font-family: -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+    .game-container { max-width: 550px; width: 100%; background: #fffaf2; border-radius: 48px; padding: 24px; box-shadow: 0 20px 35px rgba(0,0,0,0.1); border: 1px solid #e6d5b8; text-align: center; }
+    .header { display: flex; justify-content: space-between; margin-bottom: 20px; color: #1a3a5c; }
+    .logo { font-size: 1.4rem; font-weight: bold; } .logo span { color: #d4af37; }
+    .back-link { color: #d4af37; text-decoration: none; font-weight: bold; }
+    .stats { display: flex; justify-content: space-between; background: #e6d5b8; padding: 10px; border-radius: 60px; margin: 15px 0; flex-wrap: wrap; gap: 8px; }
+    .stats div { background: #fffaf2; padding: 4px 12px; border-radius: 40px; color: #1a3a5c; font-weight: bold; }
+    button { background: #d4af37; border: none; padding: 6px 16px; border-radius: 40px; font-weight: bold; cursor: pointer; color: #1a3a5c; margin: 5px; }
+    .sequence-box { font-size: 2.5rem; letter-spacing: 12px; background: #e6d5b8; padding: 30px; border-radius: 30px; margin: 20px 0; color: #1a3a5c; font-weight: bold; }
+    input { padding: 12px; font-size: 1.2rem; text-align: center; border-radius: 60px; border: 2px solid #d4af37; width: 80%; margin: 15px 0; background: #fffaf2; color: #1a3a5c; }
+    .message { margin-top: 20px; padding: 8px; background: #e6d5b8; border-radius: 40px; color: #1a3a5c; font-weight: bold; }
   </style>
 </head>
 <body>
 <div class="game-container">
-  <div class="header">
-    <div class="logo">Silver<span>Compass</span></div>
-    <a href="index.html" class="back-link">← Geri</a>
-  </div>
-  <div class="stats">
-    <div>🔢 Uzunluk: <span id="length">1</span></div>
-    <div>🏆 En Uzun: <span id="bestLength">0</span></div>
-    <button id="resetBtn">🔄 Sıfırla</button>
-  </div>
-  <div id="sequenceDisplay" class="sequence-area">?</div>
-  <input type="text" id="userInput" placeholder="Diziyi girin (örn: 1 2 3)" autocomplete="off">
-  <div class="message" id="message">Diziyi izle, sonra aynen gir.</div>
+  <div class="header"><div class="logo">Silver<span>Compass</span></div><a href="index.html" class="back-link">← Geri</a></div>
+  <div class="stats"><div>📏 Uzunluk: <span id="length">1</span></div><div>🏆 En Uzun: <span id="bestScore">—</span></div><button id="resetBtn">Yeni Oyun</button></div>
+  <div id="sequenceDisplay" class="sequence-box">???</div>
+  <input type="text" id="userInput" placeholder="Diziyi boşlukla ayırarak girin (örn: 3 5 1)">
+  <button id="submitBtn">Kontrol Et</button>
+  <div class="message" id="message">Diziyi izle ve hatırla!</div>
 </div>
 <script>
-  var currentSequence = [];
-  var currentLength = 1;
-  var bestLength = 0;
-  var showing = false;
-  var timerInterval = null;
-
-  var lengthSpan = document.getElementById("length");
-  var bestSpan = document.getElementById("bestLength");
-  var sequenceDisplay = document.getElementById("sequenceDisplay");
-  var userInput = document.getElementById("userInput");
-  var messageDiv = document.getElementById("message");
-  var resetBtn = document.getElementById("resetBtn");
-
-  function updateBest() {
-    bestSpan.innerText = bestLength;
-    localStorage.setItem("numbersBest", bestLength);
-  }
-
-  function loadBest() {
-    var saved = localStorage.getItem("numbersBest");
-    if(saved) bestLength = parseInt(saved);
-    bestSpan.innerText = bestLength;
-  }
-
-  function generateSequence() {
-    var seq = [];
-    for(var i=0;i<currentLength;i++) {
-      seq.push(Math.floor(Math.random() * 9) + 1);
-    }
-    return seq;
-  }
-
-  function showSequence() {
-    showing = true;
-    currentSequence = generateSequence();
-    var displayText = currentSequence.join(" · ");
-    sequenceDisplay.innerText = displayText;
-    messageDiv.innerText = "Diziyi ezberle...";
-    setTimeout(function() {
-      sequenceDisplay.innerText = "? ? ?";
-      messageDiv.innerText = "Şimdi diziyi aynen gir (boşlukla ayırarak)";
-      showing = false;
-      userInput.focus();
-    }, 2000);
-  }
-
-  function checkAnswer() {
-    if(showing) return;
-    var inputVal = userInput.value.trim();
-    if(inputVal === "") return;
-    var parts = inputVal.split(/\s+/);
-    var userSeq = [];
-    for(var i=0;i<parts.length;i++) {
-      var num = parseInt(parts[i]);
-      if(isNaN(num)) { messageDiv.innerText = "Sadece sayı girin, boşlukla ayırın."; return; }
-      userSeq.push(num);
-    }
-    var correct = true;
-    if(userSeq.length !== currentSequence.length) correct = false;
-    else {
-      for(var j=0;j<userSeq.length;j++) if(userSeq[j] !== currentSequence[j]) { correct = false; break; }
-    }
-    if(correct) {
-      messageDiv.innerText = "✓ Doğru! Seviye atlıyorsunuz.";
-      currentLength++;
-      lengthSpan.innerText = currentLength;
-      if(currentLength > bestLength) {
-        bestLength = currentLength;
-        updateBest();
-        messageDiv.innerText = "✓ Doğru! YENİ REKOR! Seviye " + currentLength;
-      }
-      userInput.value = "";
-      setTimeout(function() { showSequence(); }, 1000);
-    } else {
-      messageDiv.innerText = "❌ Yanlış! Oyun bitti. En uzun diziniz: " + (currentLength-1) + ". Yeniden başlatın.";
-      currentLength = 1;
-      lengthSpan.innerText = currentLength;
-      userInput.disabled = true;
-    }
-  }
-
-  function resetGame() {
-    currentLength = 1;
-    lengthSpan.innerText = currentLength;
-    userInput.disabled = false;
-    userInput.value = "";
-    messageDiv.innerText = "Yeni oyun başlıyor. Diziyi izle.";
-    showSequence();
-  }
-
-  userInput.addEventListener("keypress", function(e) {
-    if(e.key === "Enter") checkAnswer();
-  });
-  resetBtn.addEventListener("click", resetGame);
-  loadBest();
-  resetGame();
+  var currentSequence = [], currentLength = 1, maxLength = 0, gameActive = true, showing = false, timeoutId = null, bestKey = "numbersBest";
+  function updateBestDisplay() { var b=localStorage.getItem(bestKey); document.getElementById("bestScore").innerText=b?b:"—"; }
+  function saveBest() { if(currentLength-1 > maxLength) maxLength = currentLength-1; var best = localStorage.getItem(bestKey); if(!best || maxLength > parseInt(best)) { localStorage.setItem(bestKey, maxLength); updateBestDisplay(); } }
+  function generateRandomSequence(len) { var arr=[]; for(var i=0;i<len;i++) arr.push(Math.floor(Math.random()*9)+1); return arr; }
+  function showSequence() { if(timeoutId) clearTimeout(timeoutId); showing=true; document.getElementById("sequenceDisplay").innerText = currentSequence.join(" "); timeoutId = setTimeout(function(){ document.getElementById("sequenceDisplay").innerText = "???"; showing=false; document.getElementById("message").innerText = "Şimdi diziyi aynen gir (boşlukla ayırarak)"; timeoutId=null; }, 2000); }
+  function nextRound() { currentLength++; document.getElementById("length").innerText = currentLength; currentSequence = generateRandomSequence(currentLength); showSequence(); }
+  function checkAnswer() { if(showing) { document.getElementById("message").innerText = "Lütfen dizinin gösterilmesini bekle."; return; } var input = document.getElementById("userInput").value.trim().split(/\s+/).map(Number); if(input.length !== currentSequence.length) { document.getElementById("message").innerText = "Yanlış uzunluk! ("+currentSequence.length+" sayı girmelisiniz)"; return; } var correct = true; for(var i=0;i<input.length;i++) if(input[i] !== currentSequence[i]) correct=false; if(correct) { document.getElementById("message").innerText = "Doğru! Sonraki tur..."; document.getElementById("userInput").value = ""; if(currentLength > maxLength) maxLength = currentLength; saveBest(); nextRound(); } else { gameActive=false; saveBest(); document.getElementById("message").innerHTML = "❌ Oyun bitti! En uzun doğru dizi uzunluğu: "+maxLength; document.getElementById("submitBtn").disabled = true; } }
+  function resetGame() { if(timeoutId) clearTimeout(timeoutId); gameActive=true; currentLength=1; maxLength=0; document.getElementById("length").innerText="1"; currentSequence = generateRandomSequence(1); showSequence(); document.getElementById("userInput").value=""; document.getElementById("submitBtn").disabled = false; updateBestDisplay(); document.getElementById("message").innerText = "Yeni oyun! Diziyi izle."; }
+  document.getElementById("submitBtn").addEventListener("click", checkAnswer); document.getElementById("resetBtn").addEventListener("click", resetGame); resetGame();
 </script>
 </body>
 </html>

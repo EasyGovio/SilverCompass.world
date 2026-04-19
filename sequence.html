@@ -1,203 +1,48 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Sıra Hatırlama | Simon Style</title>
-    <style>
-        * { margin:0; padding:0; box-sizing:border-box; }
-        body {
-            background: linear-gradient(145deg, #071626, #0a1f2e);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-family: 'Segoe UI', Roboto, sans-serif;
-            padding: 20px;
-        }
-        .game-container {
-            max-width: 550px;
-            width: 100%;
-            background: linear-gradient(135deg, #fffaf0, #fdf4e0);
-            border-radius: 56px;
-            box-shadow: 0 25px 45px rgba(0,0,0,0.5);
-            overflow: hidden;
-            text-align: center;
-        }
-        .header { background: #0a2a3b; padding: 18px; border-bottom: 3px solid #e6b422; color: #ffdf8c; }
-        .stats { display: flex; justify-content: space-between; background: #1f2f3a; margin: 16px; padding: 8px 16px; border-radius: 60px; color: #f7ecc7; }
-        .score { background: #00000055; padding: 4px 16px; border-radius: 40px; }
-        button { background: #e6b422; border: none; padding: 6px 18px; border-radius: 40px; font-weight: bold; cursor: pointer; }
-        .buttons-panel {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            padding: 30px;
-        }
-        .color-btn {
-            aspect-ratio: 1;
-            border-radius: 30px;
-            cursor: pointer;
-            opacity: 0.7;
-            transition: 0.05s linear;
-            box-shadow: 0 8px 0 rgba(0,0,0,0.3);
-        }
-        .color-btn.active { opacity: 1; transform: scale(0.97); box-shadow: 0 2px 0 rgba(0,0,0,0.3); }
-        .green { background: #2ecc71; }
-        .red { background: #e74c3c; }
-        .yellow { background: #f1c40f; }
-        .blue { background: #3498db; }
-        .message { margin: 0 20px 20px; background: #ebdfbd; padding: 10px; border-radius: 60px; font-weight: bold; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Sıra Hatırlama | SilverCompass</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; user-select:none; }
+    body { background: #f0e4ce; font-family: -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+    .game-container { max-width: 550px; width: 100%; background: #fffaf2; border-radius: 48px; padding: 24px; box-shadow: 0 20px 35px rgba(0,0,0,0.1); border: 1px solid #e6d5b8; text-align: center; }
+    .header { display: flex; justify-content: space-between; margin-bottom: 20px; color: #1a3a5c; }
+    .logo { font-size: 1.4rem; font-weight: bold; } .logo span { color: #d4af37; }
+    .back-link { color: #d4af37; text-decoration: none; font-weight: bold; }
+    .stats { display: flex; justify-content: space-between; background: #e6d5b8; padding: 10px; border-radius: 60px; margin: 15px 0; flex-wrap: wrap; gap: 8px; }
+    .stats div { background: #fffaf2; padding: 4px 12px; border-radius: 40px; color: #1a3a5c; font-weight: bold; }
+    button { background: #d4af37; border: none; padding: 6px 16px; border-radius: 40px; font-weight: bold; cursor: pointer; color: #1a3a5c; margin: 5px; }
+    .buttons-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 30px 20px; }
+    .color-btn { aspect-ratio: 1; border-radius: 30px; cursor: pointer; opacity: 0.8; box-shadow: 0 6px 0 #8b5a2b; }
+    .color-btn.active { opacity: 1; transform: scale(0.97); box-shadow: 0 2px 0 #8b5a2b; }
+    .green { background: #2ecc71; } .red { background: #e74c3c; } .yellow { background: #f1c40f; } .blue { background: #3498db; }
+    .message { margin-top: 20px; padding: 8px; background: #e6d5b8; border-radius: 40px; color: #1a3a5c; font-weight: bold; }
+  </style>
 </head>
 <body>
 <div class="game-container">
-    <div class="header"><h2>🎵 Sıra Hatırlama</h2></div>
-    <div class="stats">
-        <div class="score">🎯 Seviye: <span id="level">1</span></div>
-        <button id="startBtn">Başlat</button>
-        <button id="resetBtn">Sıfırla</button>
-    </div>
-    <div class="buttons-panel">
-        <div class="color-btn green" data-color="green"></div>
-        <div class="color-btn red" data-color="red"></div>
-        <div class="color-btn yellow" data-color="yellow"></div>
-        <div class="color-btn blue" data-color="blue"></div>
-    </div>
-    <div id="message" class="message">"Başlat" ile oyuna başla, sırayı tekrarla</div>
+  <div class="header"><div class="logo">Silver<span>Compass</span></div><a href="index.html" class="back-link">← Geri</a></div>
+  <div class="stats"><div>🎯 Seviye: <span id="level">1</span></div><div>🏆 En Yüksek: <span id="bestScore">—</span></div><button id="startBtn">Başlat</button><button id="resetBtn">Sıfırla</button></div>
+  <div class="buttons-panel"><div class="color-btn green" data-color="green"></div><div class="color-btn red" data-color="red"></div><div class="color-btn yellow" data-color="yellow"></div><div class="color-btn blue" data-color="blue"></div></div>
+  <div class="message" id="message">"Başlat" ile oyuna başla, sırayı tekrarla</div>
 </div>
 <script>
-    let sequence = [];
-    let playerTurn = false;
-    let currentStep = 0;
-    let level = 1;
-    let canClick = false;
-    let timeoutId = null;
-    const colors = ['green', 'red', 'yellow', 'blue'];
-    const btnMap = {
-        green: document.querySelector('.green'),
-        red: document.querySelector('.red'),
-        yellow: document.querySelector('.yellow'),
-        blue: document.querySelector('.blue')
-    };
-    const levelSpan = document.getElementById('level');
-    const messageEl = document.getElementById('message');
-    const startBtn = document.getElementById('startBtn');
-    const resetBtn = document.getElementById('resetBtn');
-
-    function playSound(color) {
-        try {
-            const AudioContext = window.AudioContext || window.webkitAudioContext;
-            const ctx = new AudioContext();
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            osc.connect(gain);
-            gain.connect(ctx.destination);
-            let freq = color === 'green' ? 523 : color === 'red' ? 392 : color === 'yellow' ? 440 : 330;
-            osc.frequency.value = freq;
-            gain.gain.value = 0.15;
-            osc.start();
-            gain.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + 0.4);
-            osc.stop(ctx.currentTime + 0.4);
-        } catch(e) { console.log("ses çalınamadı"); }
-    }
-
-    function animateButton(color) {
-        const btn = btnMap[color];
-        if(!btn) return;
-        btn.classList.add('active');
-        playSound(color);
-        setTimeout(() => btn.classList.remove('active'), 300);
-    }
-
-    function showSequence() {
-        playerTurn = false;
-        canClick = false;
-        let i = 0;
-        function showNext() {
-            if(i >= sequence.length) {
-                playerTurn = true;
-                canClick = true;
-                messageEl.innerText = "Şimdi sen tekrarla!";
-                return;
-            }
-            const col = sequence[i];
-            animateButton(col);
-            i++;
-            setTimeout(showNext, 600);
-        }
-        showNext();
-    }
-
-    function addRandomColor() {
-        const rand = colors[Math.floor(Math.random() * colors.length)];
-        sequence.push(rand);
-    }
-
-    function startGame() {
-        sequence = [];
-        level = 1;
-        currentStep = 0;
-        playerTurn = false;
-        canClick = false;
-        levelSpan.innerText = level;
-        addRandomColor();
-        messageEl.innerText = "İzle ve hatırla...";
-        setTimeout(() => showSequence(), 500);
-    }
-
-    function nextLevel() {
-        level++;
-        levelSpan.innerText = level;
-        currentStep = 0;
-        addRandomColor();
-        messageEl.innerText = `Seviye ${level}! İzle...`;
-        setTimeout(() => showSequence(), 800);
-    }
-
-    function gameOver() {
-        messageEl.innerText = `❌ Oyun bitti! Son seviye: ${level}. Başlat'a bas.`;
-        playerTurn = false;
-        canClick = false;
-    }
-
-    function handlePlayerClick(color) {
-        if(!playerTurn || !canClick) return;
-        if(color === sequence[currentStep]) {
-            animateButton(color);
-            currentStep++;
-            if(currentStep === sequence.length) {
-                playerTurn = false;
-                canClick = false;
-                messageEl.innerText = "Doğru! Sonraki seviye...";
-                setTimeout(() => nextLevel(), 1000);
-            }
-        } else {
-            animateButton(color);
-            gameOver();
-        }
-    }
-
-    function resetGame() {
-        if(timeoutId) clearTimeout(timeoutId);
-        sequence = [];
-        level = 1;
-        currentStep = 0;
-        playerTurn = false;
-        canClick = false;
-        levelSpan.innerText = level;
-        messageEl.innerText = "Oyun sıfırlandı. Başlat'a bas.";
-    }
-
-    startBtn.addEventListener('click', startGame);
-    resetBtn.addEventListener('click', resetGame);
-    document.querySelectorAll('.color-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const color = btn.getAttribute('data-color');
-            handlePlayerClick(color);
-        });
-    });
-    resetGame();
+  var sequence = [], playerTurn = false, currentStep = 0, level = 1, canClick = false, gameActive = true, bestKey = "sequenceBest";
+  var colors = ['green','red','yellow','blue']; var btnMap = { green:document.querySelector('.green'), red:document.querySelector('.red'), yellow:document.querySelector('.yellow'), blue:document.querySelector('.blue') };
+  function updateBestDisplay() { var b=localStorage.getItem(bestKey); document.getElementById("bestScore").innerText=b?b:"—"; }
+  function saveBest() { var currentBest = localStorage.getItem(bestKey); if(!currentBest || level > parseInt(currentBest)) { localStorage.setItem(bestKey, level); updateBestDisplay(); } }
+  function playSound(color) { try { var AudioContext = window.AudioContext||window.webkitAudioContext; var ctx=new AudioContext(); var osc=ctx.createOscillator(); var gain=ctx.createGain(); osc.connect(gain); gain.connect(ctx.destination); var freq=color==='green'?523:color==='red'?392:color==='yellow'?440:330; osc.frequency.value=freq; gain.gain.value=0.15; osc.start(); gain.gain.exponentialRampToValueAtTime(0.00001,ctx.currentTime+0.4); osc.stop(ctx.currentTime+0.4); } catch(e){} }
+  function animateButton(color) { var btn=btnMap[color]; if(!btn) return; btn.classList.add('active'); playSound(color); setTimeout(function(){ btn.classList.remove('active'); },300); }
+  function showSequence() { playerTurn=false; canClick=false; var i=0; function showNext() { if(i>=sequence.length) { playerTurn=true; canClick=true; document.getElementById("message").innerText="Şimdi sen tekrarla!"; return; } animateButton(sequence[i]); i++; setTimeout(showNext,600); } showNext(); }
+  function addRandomColor() { var rand=colors[Math.floor(Math.random()*colors.length)]; sequence.push(rand); }
+  function startGame() { sequence=[]; level=1; currentStep=0; playerTurn=false; canClick=false; document.getElementById("level").innerText=level; addRandomColor(); document.getElementById("message").innerText="İzle ve hatırla..."; setTimeout(function(){ showSequence(); },500); }
+  function nextLevel() { level++; document.getElementById("level").innerText=level; currentStep=0; addRandomColor(); document.getElementById("message").innerText="Seviye "+level+"! İzle..."; setTimeout(function(){ showSequence(); },800); }
+  function gameOver() { document.getElementById("message").innerHTML="❌ Oyun bitti! Son seviye: "+level+". Başlat'a bas."; saveBest(); playerTurn=false; canClick=false; }
+  function handlePlayerClick(color) { if(!playerTurn||!canClick) return; if(color===sequence[currentStep]) { animateButton(color); currentStep++; if(currentStep===sequence.length) { playerTurn=false; canClick=false; document.getElementById("message").innerText="Doğru! Sonraki seviye..."; setTimeout(function(){ nextLevel(); },1000); } } else { animateButton(color); gameOver(); } }
+  function resetGame() { sequence=[]; level=1; currentStep=0; playerTurn=false; canClick=false; document.getElementById("level").innerText=level; document.getElementById("message").innerText="Oyun sıfırlandı. Başlat'a bas."; }
+  document.getElementById("startBtn").addEventListener("click",startGame); document.getElementById("resetBtn").addEventListener("click",resetGame); document.querySelectorAll('.color-btn').forEach(function(btn){ btn.addEventListener('click',function(){ var color=this.getAttribute('data-color'); handlePlayerClick(color); }); }); resetGame(); updateBestDisplay();
 </script>
 </body>
 </html>

@@ -1,194 +1,45 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Kart Eşleştirme | Hafıza Oyunu</title>
-    <style>
-        * { margin:0; padding:0; box-sizing:border-box; user-select:none; }
-        body {
-            background: linear-gradient(145deg, #071626 0%, #0a1f2e 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-family: 'Segoe UI', Roboto, sans-serif;
-            padding: 20px;
-        }
-        .game-container {
-            max-width: 700px;
-            width: 100%;
-            background: linear-gradient(135deg, #fffaf0, #fdf4e0);
-            border-radius: 56px;
-            box-shadow: 0 25px 45px rgba(0,0,0,0.5);
-            overflow: hidden;
-        }
-        .header {
-            background: #0a2a3b;
-            padding: 18px 24px;
-            text-align: center;
-            border-bottom: 3px solid #e6b422;
-        }
-        .header h2 { color: #ffdf8c; font-size: 1.8rem; }
-        .stats {
-            display: flex;
-            justify-content: space-between;
-            background: #1f2f3a;
-            margin: 16px 20px;
-            padding: 10px 20px;
-            border-radius: 60px;
-            color: #f7ecc7;
-        }
-        .stat { background: #00000055; padding: 4px 16px; border-radius: 40px; }
-        button {
-            background: #e6b422;
-            border: none;
-            padding: 6px 18px;
-            border-radius: 40px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 12px;
-            padding: 20px;
-            justify-items: center;
-        }
-        .card {
-            aspect-ratio: 1 / 1;
-            width: 100%;
-            background: #1e3a5f;
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            cursor: pointer;
-            box-shadow: 0 6px 0 #0f2a3b;
-            transition: 0.1s linear;
-            color: #ffdf8c;
-            font-weight: bold;
-        }
-        .card.flipped, .card.matched {
-            background: #e6b422;
-            color: #0a2a3b;
-            box-shadow: 0 2px 0 #8b5a2b;
-            transform: translateY(2px);
-            cursor: default;
-        }
-        .card.matched { opacity: 0.6; cursor: default; background: #c5851a; }
-        .message {
-            text-align: center;
-            margin: 10px 20px 20px;
-            background: #ebdfbd;
-            padding: 8px;
-            border-radius: 60px;
-            font-weight: bold;
-        }
-        @media (max-width: 500px) { .grid { gap: 8px; } .card { font-size: 1.5rem; } }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Kart Eşleştirme | SilverCompass</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; user-select:none; }
+    body { background: #f0e4ce; font-family: -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+    .game-container { max-width: 650px; width: 100%; background: #fffaf2; border-radius: 48px; padding: 24px; box-shadow: 0 20px 35px rgba(0,0,0,0.1); border: 1px solid #e6d5b8; text-align: center; }
+    .header { display: flex; justify-content: space-between; margin-bottom: 20px; color: #1a3a5c; }
+    .logo { font-size: 1.4rem; font-weight: bold; } .logo span { color: #d4af37; }
+    .back-link { color: #d4af37; text-decoration: none; font-weight: bold; }
+    .stats { display: flex; justify-content: space-between; background: #e6d5b8; padding: 10px; border-radius: 60px; margin: 15px 0; flex-wrap: wrap; gap: 8px; }
+    .stats div { background: #fffaf2; padding: 4px 12px; border-radius: 40px; color: #1a3a5c; font-weight: bold; }
+    button { background: #d4af37; border: none; padding: 6px 16px; border-radius: 40px; font-weight: bold; cursor: pointer; color: #1a3a5c; }
+    .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 20px 0; }
+    .card { aspect-ratio: 1/1; background: #1a3a5c; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 2rem; cursor: pointer; box-shadow: 0 4px 8px rgba(0,0,0,0.1); color: #d4af37; transition: 0.1s; }
+    .card.flipped, .card.matched { background: #d4af37; color: #1a3a5c; transform: scale(0.97); }
+    .card.matched { opacity: 0.6; cursor: default; background: #e6d5b8; }
+    .message { margin-top: 15px; padding: 8px; background: #e6d5b8; border-radius: 40px; color: #1a3a5c; font-weight: bold; }
+  </style>
 </head>
 <body>
 <div class="game-container">
-    <div class="header"><h2>🃟 Kart Eşleştirme</h2></div>
-    <div class="stats">
-        <div class="stat">🔁 Hamle: <span id="moves">0</span></div>
-        <div class="stat">⏱️ Süre: <span id="timer">00:00</span></div>
-        <button id="resetBtn">🔄 Yeni Oyun</button>
-    </div>
-    <div id="grid" class="grid"></div>
-    <div id="message" class="message">Kartlara tıkla ve çiftleri bul!</div>
+  <div class="header"><div class="logo">Silver<span>Compass</span></div><a href="index.html" class="back-link">← Geri</a></div>
+  <div class="stats"><div>🔁 Hamle: <span id="moves">0</span></div><div>⏱️ Süre: <span id="timer">00:00</span></div><div>🏆 En İyi: <span id="bestScore">—</span></div><button id="resetBtn">Yeni Oyun</button></div>
+  <div id="grid" class="grid"></div>
+  <div class="message" id="message">Kartlara tıkla ve çiftleri bul!</div>
 </div>
 <script>
-    const emojis = ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼'];
-    let cards = [];
-    let flippedCards = [];
-    let lockBoard = false;
-    let moves = 0;
-    let timerSeconds = 0;
-    let timerInterval = null;
-    let matchedCount = 0;
-    const gridEl = document.getElementById('grid');
-    const movesEl = document.getElementById('moves');
-    const timerEl = document.getElementById('timer');
-    const resetBtn = document.getElementById('resetBtn');
-    const messageEl = document.getElementById('message');
-
-    function stopTimer() { if(timerInterval) clearInterval(timerInterval); timerInterval = null; }
-    function startTimer() { if(timerInterval) stopTimer(); timerInterval = setInterval(() => { timerSeconds++; updateTimer(); }, 1000); }
-    function updateTimer() { let m = Math.floor(timerSeconds/60), s = timerSeconds%60; timerEl.innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`; }
-
-    function initGame() {
-        let doubled = [...emojis, ...emojis];
-        for (let i = doubled.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [doubled[i], doubled[j]] = [doubled[j], doubled[i]]; }
-        cards = doubled.map((emoji, idx) => ({ id: idx, emoji: emoji, flipped: false, matched: false }));
-        flippedCards = [];
-        lockBoard = false;
-        moves = 0;
-        matchedCount = 0;
-        movesEl.innerText = moves;
-        stopTimer(); timerSeconds = 0; updateTimer(); startTimer();
-        renderBoard();
-        messageEl.innerText = "Kartlara tıkla ve çiftleri bul!";
-    }
-
-    function renderBoard() {
-        gridEl.innerHTML = '';
-        cards.forEach((card, idx) => {
-            const cardDiv = document.createElement('div');
-            cardDiv.className = 'card';
-            if (card.flipped || card.matched) cardDiv.classList.add('flipped');
-            if (card.matched) cardDiv.classList.add('matched');
-            cardDiv.innerText = (card.flipped || card.matched) ? card.emoji : '?';
-            cardDiv.addEventListener('click', () => onCardClick(idx));
-            gridEl.appendChild(cardDiv);
-        });
-    }
-
-    function onCardClick(idx) {
-        if (lockBoard) return;
-        if (cards[idx].matched) return;
-        if (cards[idx].flipped) return;
-        if (flippedCards.length === 2) return;
-        cards[idx].flipped = true;
-        renderBoard();
-        flippedCards.push(idx);
-        if (flippedCards.length === 2) {
-            moves++;
-            movesEl.innerText = moves;
-            checkMatch();
-        }
-    }
-
-    function checkMatch() {
-        const [i1, i2] = flippedCards;
-        if (cards[i1].emoji === cards[i2].emoji) {
-            cards[i1].matched = true;
-            cards[i2].matched = true;
-            cards[i1].flipped = false;
-            cards[i2].flipped = false;
-            matchedCount += 2;
-            flippedCards = [];
-            renderBoard();
-            if (matchedCount === cards.length) {
-                stopTimer();
-                messageEl.innerText = "🎉 TEBRİKLER! Tüm çiftleri buldunuz! 🎉";
-            }
-        } else {
-            lockBoard = true;
-            setTimeout(() => {
-                cards[i1].flipped = false;
-                cards[i2].flipped = false;
-                flippedCards = [];
-                lockBoard = false;
-                renderBoard();
-            }, 800);
-        }
-    }
-
-    resetBtn.addEventListener('click', () => { initGame(); });
-    initGame();
+  var emojis = ['🐶','🐱','🐭','🐹','🐰','🦊','🐻','🐼'];
+  var cards = [], flippedCards = [], lockBoard = false, moves = 0, timerSeconds = 0, timerInterval = null, matchedCount = 0, gameActive = true, bestKey = "memoryBest";
+  function updateBestDisplay() { var b=localStorage.getItem(bestKey); document.getElementById("bestScore").innerText=b?b:"—"; }
+  function stopTimer() { if(timerInterval) clearInterval(timerInterval); timerInterval=null; }
+  function startTimer() { stopTimer(); timerInterval=setInterval(function(){ if(gameActive){ timerSeconds++; var m=Math.floor(timerSeconds/60), s=timerSeconds%60; document.getElementById("timer").innerText=(m<10?"0"+m:m)+":"+(s<10?"0"+s:s); } },1000); }
+  function initGame() { var doubled = emojis.concat(emojis); for(var i=doubled.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var temp=doubled[i]; doubled[i]=doubled[j]; doubled[j]=temp; } cards = doubled.map(function(emoji,idx){ return { id:idx, emoji:emoji, flipped:false, matched:false }; }); flippedCards=[]; lockBoard=false; moves=0; matchedCount=0; document.getElementById("moves").innerText=moves; renderBoard(); if(timerSeconds===0) startTimer(); }
+  function renderBoard() { var container=document.getElementById("grid"); container.innerHTML=""; for(var i=0;i<cards.length;i++){ var cardDiv=document.createElement("div"); cardDiv.className="card"; if(cards[i].flipped||cards[i].matched) cardDiv.classList.add("flipped"); if(cards[i].matched) cardDiv.classList.add("matched"); cardDiv.innerText=(cards[i].flipped||cards[i].matched)?cards[i].emoji:"?"; cardDiv.addEventListener("click",(function(idx){ return function(){ onCardClick(idx); }; })(i)); container.appendChild(cardDiv); } }
+  function onCardClick(idx){ if(lockBoard) return; if(cards[idx].matched) return; if(cards[idx].flipped) return; if(flippedCards.length===2) return; cards[idx].flipped=true; renderBoard(); flippedCards.push(idx); if(flippedCards.length===2){ moves++; document.getElementById("moves").innerText=moves; checkMatch(); } }
+  function checkMatch(){ var i1=flippedCards[0], i2=flippedCards[1]; if(cards[i1].emoji===cards[i2].emoji){ cards[i1].matched=true; cards[i2].matched=true; cards[i1].flipped=false; cards[i2].flipped=false; matchedCount+=2; flippedCards=[]; renderBoard(); if(matchedCount===cards.length){ gameActive=false; stopTimer(); var best=localStorage.getItem(bestKey); if(!best||timerSeconds<parseInt(best)){ localStorage.setItem(bestKey,timerSeconds); updateBestDisplay(); document.getElementById("message").innerHTML="🎉 MÜKEMMEL! YENİ REKOR! 🎉"; } else document.getElementById("message").innerHTML="🎉 TEBRİKLER! Oyunu tamamladın!"; } } else { lockBoard=true; setTimeout(function(){ cards[i1].flipped=false; cards[i2].flipped=false; flippedCards=[]; lockBoard=false; renderBoard(); },800); } }
+  function resetGame(){ stopTimer(); timerSeconds=0; document.getElementById("timer").innerText="00:00"; gameActive=true; initGame(); }
+  document.getElementById("resetBtn").addEventListener("click",resetGame); initGame(); updateBestDisplay();
 </script>
 </body>
 </html>

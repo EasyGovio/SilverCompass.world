@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Hızlı Matematik</title>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            background: linear-gradient(145deg, #071626, #0a1f2e);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            padding: 20px;
+        }
+        .game-container {
+            max-width: 500px;
+            width: 100%;
+            background: linear-gradient(135deg, #fffaf0, #fdf4e0);
+            border-radius: 56px;
+            box-shadow: 0 25px 45px rgba(0,0,0,0.5);
+            overflow: hidden;
+            text-align: center;
+        }
+        .header { background: #0a2a3b; padding: 18px; border-bottom: 3px solid #e6b422; color: #ffdf8c; }
+        .stats { display: flex; justify-content: space-between; background: #1f2f3a; margin: 16px; padding: 8px 16px; border-radius: 60px; color: #f7ecc7; }
+        .question {
+            font-size: 3rem;
+            font-weight: bold;
+            margin: 30px 0;
+            color: #1e4a6e;
+        }
+        .options {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px;
+        }
+        .option {
+            background: #e6b422;
+            padding: 12px 20px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            border-radius: 60px;
+            cursor: pointer;
+            min-width: 80px;
+            color: #0a2a3b;
+            transition: 0.05s;
+            box-shadow: 0 3px 0 #8b5a2b;
+        }
+        .option:active { transform: translateY(2px); box-shadow: none; }
+        .score { font-size: 1.2rem; background: #00000055; padding: 5px 15px; border-radius: 40px; }
+        button { background: #e6b422; border: none; padding: 6px 18px; border-radius: 40px; font-weight: bold; cursor: pointer; }
+        .message { margin: 10px 20px 20px; background: #ebdfbd; padding: 8px; border-radius: 60px; }
+    </style>
+</head>
+<body>
+<div class="game-container">
+    <div class="header"><h2>🧮 Hızlı Matematik</h2></div>
+    <div class="stats">
+        <div class="score">⭐ Doğru: <span id="correct">0</span></div>
+        <div class="score">⏱️ Süre: <span id="timer">00:00</span></div>
+        <button id="resetBtn">Yeni Oyun</button>
+    </div>
+    <div class="question" id="question">5 + 3 = ?</div>
+    <div class="options" id="options"></div>
+    <div id="message" class="message">Doğru cevaba tıkla!</div>
+</div>
+<script>
+    let currentQuestion = null;
+    let correctCount = 0;
+    let timerSeconds = 0;
+    let timerInterval = null;
+    let active = true;
+    const correctSpan = document.getElementById('correct');
+    const timerSpan = document.getElementById('timer');
+    const questionDiv = document.getElementById('question');
+    const optionsDiv = document.getElementById('options');
+    const resetBtn = document.getElementById('resetBtn');
+    const messageDiv = document.getElementById('message');
+
+    function stopTimer() { if(timerInterval) clearInterval(timerInterval); timerInterval = null; }
+    function startTimer() { stopTimer(); timerInterval = setInterval(() => { if(active) { timerSeconds++; updateTimer(); } }, 1000); }
+    function updateTimer() { let m=Math.floor(timerSeconds/60), s=timerSeconds%60; timerSpan.innerText=`${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`; }
+
+    function generateQuestion() {
+        const ops = ['+', '-'];
+        const op = ops[Math.floor(Math.random() * 2)];
+        let a = Math.floor(Math.random() * 20) + 1;
+        let b = Math.floor(Math.random() * 20) + 1;
+        if(op === '-') { if(a < b) [a,b] = [b,a]; }
+        let answer = op === '+' ? a+b : a-b;
+        let wrong1 = answer + Math.floor(Math.random() * 5) + 1;
+        let wrong2 = answer - Math.floor(Math.random() * 5) - 1;
+        if(wrong1 === answer) wrong1++;
+        if(wrong2 === answer) wrong2--;
+        if(wrong2 < 0) wrong2 = answer+1;
+        let options = [answer, wrong1, wrong2];
+        for(let i=options.length - 1; i>0; i--) { const j=Math.floor(Math.random()*(i+1)); [options[i], options[j]] = [options[j], options[i]]; }
+        return { text: `${a} ${op} ${b} = ?`, answer, options };
+    }
+
+    function renderNewQuestion() {
+        currentQuestion = generateQuestion();
+        questionDiv.innerText = currentQuestion.text;
+        optionsDiv.innerHTML = '';
+        currentQuestion.options.forEach(opt => {
+            const btn = document.createElement('div');
+            btn.className = 'option';
+            btn.innerText = opt;
+            btn.onclick = () => checkAnswer(opt);
+            optionsDiv.appendChild(btn);
+        });
+    }
+
+    function checkAnswer(selected) {
+        if(!active) return;
+        if(selected === currentQuestion.answer) {
+            correctCount++;
+            correctSpan.innerText = correctCount;
+            messageDiv.innerText = "✅ Doğru! +1 puan";
+            renderNewQuestion();
+        } else {
+            messageDiv.innerText = `❌ Yanlış! Doğru cevap ${currentQuestion.answer} idi. Yeni soru.`;
+            renderNewQuestion();
+        }
+    }
+
+    function resetGame() {
+        active = true;
+        correctCount = 0;
+        timerSeconds = 0;
+        correctSpan.innerText = "0";
+        updateTimer();
+        stopTimer();
+        startTimer();
+        renderNewQuestion();
+        messageDiv.innerText = "Yeni oyun başladı!";
+    }
+
+    resetBtn.addEventListener('click', resetGame);
+    resetGame();
+</script>
+</body>
+</html>

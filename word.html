@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Kelime Türetme</title>
+    <title>Kelime Türetme | Beyin Egzersizi</title>
     <style>
         * { margin:0; padding:0; box-sizing:border-box; }
         body {
@@ -16,7 +16,7 @@
             padding: 20px;
         }
         .game-container {
-            max-width: 550px;
+            max-width: 600px;
             width: 100%;
             background: linear-gradient(135deg, #fffaf0, #fdf4e0);
             border-radius: 56px;
@@ -26,16 +26,18 @@
         }
         .header { background: #0a2a3b; padding: 18px; border-bottom: 3px solid #e6b422; color: #ffdf8c; }
         .stats { display: flex; justify-content: space-between; background: #1f2f3a; margin: 16px; padding: 8px 16px; border-radius: 60px; color: #f7ecc7; }
+        .score { background: #00000055; padding: 4px 16px; border-radius: 40px; }
+        button { background: #e6b422; border: none; padding: 6px 18px; border-radius: 40px; font-weight: bold; cursor: pointer; font-family: inherit; }
         .letters {
             display: flex;
             justify-content: center;
             gap: 15px;
-            margin: 25px 0;
+            margin: 25px 20px;
             flex-wrap: wrap;
         }
         .letter-box {
-            width: 60px;
-            height: 60px;
+            width: 70px;
+            height: 70px;
             background: #e6b422;
             display: flex;
             align-items: center;
@@ -45,44 +47,102 @@
             border-radius: 20px;
             color: #0a2a3b;
             box-shadow: 0 4px 0 #8b5a2b;
+            cursor: pointer;
+            transition: 0.05s linear;
+            user-select: none;
+        }
+        .letter-box:active {
+            transform: translateY(2px);
+            box-shadow: 0 1px 0 #8b5a2b;
+        }
+        .input-area {
+            display: flex;
+            gap: 10px;
+            margin: 10px 20px;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: center;
         }
         input {
-            padding: 12px;
+            flex: 2;
+            padding: 14px;
             font-size: 1.2rem;
             text-align: center;
             border-radius: 60px;
             border: 2px solid #e6b422;
             outline: none;
-            width: 80%;
-            margin: 10px;
+            background: #fffef7;
+            font-weight: bold;
+            letter-spacing: 1px;
         }
-        button { background: #e6b422; border: none; padding: 8px 20px; border-radius: 40px; font-weight: bold; cursor: pointer; margin: 5px; }
-        .word-list { background: #ebdfbd; margin: 20px; padding: 10px; border-radius: 40px; max-height: 150px; overflow-y: auto; }
-        .message { margin: 10px 20px 20px; background: #ebdfbd; padding: 8px; border-radius: 60px; }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 10px 20px 20px;
+        }
+        .word-list { background: #ebdfbd; margin: 20px; padding: 12px; border-radius: 40px; max-height: 160px; overflow-y: auto; text-align: left; }
+        .word-list strong { display: block; margin-bottom: 8px; color: #1e4a6e; }
+        #foundWords { display: flex; flex-wrap: wrap; gap: 8px; }
+        .word-tag {
+            background: #e6b42230;
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: #2c5a44;
+        }
+        .message { margin: 10px 20px 20px; background: #ebdfbd; padding: 8px; border-radius: 60px; font-weight: bold; font-size: 0.85rem; }
+        @media (max-width: 550px) {
+            .letter-box { width: 55px; height: 55px; font-size: 1.5rem; }
+            input { font-size: 1rem; padding: 10px; }
+        }
     </style>
 </head>
 <body>
 <div class="game-container">
     <div class="header"><h2>📖 Kelime Türetme</h2></div>
     <div class="stats">
-        <div>📝 Bulunan: <span id="foundCount">0</span></div>
-        <button id="newLettersBtn">Yeni Harfler</button>
+        <div class="score">📝 Bulunan: <span id="foundCount">0</span></div>
+        <button id="newLettersBtn">🔄 Yeni Harfler</button>
     </div>
     <div id="lettersContainer" class="letters"></div>
-    <input type="text" id="wordInput" placeholder="Harfleri kullanarak kelime yaz...">
-    <button id="submitBtn">Kontrol Et</button>
+    <div class="input-area">
+        <input type="text" id="wordInput" placeholder="Harflere tıkla veya yaz...">
+        <button id="submitBtn">✓ Kontrol</button>
+    </div>
+    <div class="action-buttons">
+        <button id="clearBtn">🗑️ Temizle</button>
+        <button id="backspaceBtn">⌫ Geri Al</button>
+    </div>
     <div class="word-list">
-        <strong>Bulduğun kelimeler:</strong>
+        <strong>✅ Bulduğun kelimeler:</strong>
         <div id="foundWords"></div>
     </div>
-    <div id="message" class="message">Verilen harflerden anlamlı kelimeler türet.</div>
+    <div id="message" class="message">Harflere tıkla kelime oluştur, sonra Kontrol et.</div>
 </div>
 <script>
-    let currentLetters = [];
+    // Geçerli kelime listesi (örnek, daha genişletilebilir)
+    const validWordsSet = new Set([
+        "ATA", "ANA", "CAN", "DEN", "EDA", "ELMA", "KALEM", "MAS", "SAP", "TAŞ", "YOL", "SEL", "KOL", "DAL", "BAL", "GÜL", "SES", "TEST", "KASA", "MASA",
+        "AL", "AT", "AN", "BE", "CE", "DE", "EL", "EN", "ES", "ET", "GE", "İL", "İN", "LA", "LE", "ME", "NE", "OL", "SE", "TE", "YE", "YA",
+        "KAL", "MAL", "SAL", "TAL", "YAL", "AK", "EK", "İK", "OK", "ÜÇ", "BEŞ", "ALT", "BİR", "İKİ", "ÜÇ", "DÖRT", "BEŞ", "ALTI", "YEDİ", "SEKİZ", "DOKUZ"
+    ]);
+    
+    let currentLetters = [];   // örn: ['A','B','C']
     let foundWords = [];
-    const letterPool = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','R','S','T','U','V','Y','Z'];
-    // Örnek kelime listesi (gerçek uygulamada daha kapsamlı bir sözlük gerekir)
-    const validWords = ["ATA", "ANA", "CAN", "DEN", "EDA", "ELMA", "KALEM", "MAS", "SAP", "TAŞ", "YOL", "SEL", "KOL", "DAL", "BAL", "GÜL", "SES", "TEST", "KASA", "MASA"];
+    const letterPool = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','R','S','T','U','V','Y','Z','Ü','Ğ','Ş','İ','Ö','Ç'];
+    
+    // DOM elemanları
+    const lettersContainer = document.getElementById('lettersContainer');
+    const wordInput = document.getElementById('wordInput');
+    const submitBtn = document.getElementById('submitBtn');
+    const newLettersBtn = document.getElementById('newLettersBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const backspaceBtn = document.getElementById('backspaceBtn');
+    const foundWordsDiv = document.getElementById('foundWords');
+    const foundCountSpan = document.getElementById('foundCount');
+    const messageDiv = document.getElementById('message');
     
     function getRandomLetters(count = 6) {
         let letters = [];
@@ -91,67 +151,97 @@
         }
         return letters;
     }
-
+    
     function renderLetters() {
-        const container = document.getElementById('lettersContainer');
-        container.innerHTML = '';
-        currentLetters.forEach(l => {
+        lettersContainer.innerHTML = '';
+        currentLetters.forEach((letter, idx) => {
             const box = document.createElement('div');
             box.className = 'letter-box';
-            box.innerText = l;
-            container.appendChild(box);
+            box.innerText = letter;
+            box.addEventListener('click', () => {
+                // harfe tıklayınca inputa ekle
+                wordInput.value += letter;
+                wordInput.focus();
+            });
+            lettersContainer.appendChild(box);
         });
     }
-
+    
     function canFormWord(word, letters) {
         let temp = [...letters];
         for(let ch of word) {
             let idx = temp.indexOf(ch);
             if(idx === -1) return false;
-            temp.splice(idx,1);
+            temp.splice(idx, 1);
         }
         return true;
     }
-
+    
     function checkWord() {
-        const input = document.getElementById('wordInput');
-        let word = input.value.trim().toUpperCase();
+        let word = wordInput.value.trim().toUpperCase();
         if(word.length < 2) {
-            document.getElementById('message').innerText = "En az 2 harfli kelime girin.";
+            messageDiv.innerText = "❌ En az 2 harfli kelime girin veya oluşturun.";
             return;
         }
         if(foundWords.includes(word)) {
-            document.getElementById('message').innerText = "Bu kelimeyi zaten buldunuz!";
+            messageDiv.innerText = "⚠️ Bu kelimeyi zaten buldunuz!";
             return;
         }
-        if(!validWords.includes(word)) {
-            document.getElementById('message').innerText = "Geçerli bir kelime değil (örnek liste).";
+        if(!validWordsSet.has(word)) {
+            messageDiv.innerText = "📖 Geçerli bir kelime değil (örnek liste).";
             return;
         }
         if(!canFormWord(word, currentLetters)) {
-            document.getElementById('message').innerText = "Bu kelimeyi mevcut harflerle oluşturamazsınız.";
+            messageDiv.innerText = "🔤 Bu kelimeyi mevcut harflerle oluşturamazsınız.";
             return;
         }
+        // Başarılı
         foundWords.push(word);
-        document.getElementById('foundWords').innerHTML = foundWords.join(', ');
-        document.getElementById('foundCount').innerText = foundWords.length;
-        document.getElementById('message').innerText = `✓ "${word}" bulundu! Devam et.`;
-        input.value = '';
+        updateFoundWordsList();
+        messageDiv.innerText = `✅ "${word}" bulundu! Devam et.`;
+        wordInput.value = '';
     }
-
+    
+    function updateFoundWordsList() {
+        foundWordsDiv.innerHTML = '';
+        foundWords.forEach(w => {
+            const tag = document.createElement('span');
+            tag.className = 'word-tag';
+            tag.innerText = w;
+            foundWordsDiv.appendChild(tag);
+        });
+        foundCountSpan.innerText = foundWords.length;
+    }
+    
     function newGame() {
         currentLetters = getRandomLetters(6);
         renderLetters();
         foundWords = [];
-        document.getElementById('foundWords').innerHTML = '';
-        document.getElementById('foundCount').innerText = '0';
-        document.getElementById('message').innerText = "Yeni harfler! Kelime türetmeye başla.";
-        document.getElementById('wordInput').value = '';
+        updateFoundWordsList();
+        wordInput.value = '';
+        messageDiv.innerText = "Yeni harfler! Tıkla veya yazarak kelime türet.";
     }
-
-    document.getElementById('newLettersBtn').addEventListener('click', newGame);
-    document.getElementById('submitBtn').addEventListener('click', checkWord);
-    document.getElementById('wordInput').addEventListener('keypress', (e) => { if(e.key === 'Enter') checkWord(); });
+    
+    function clearInput() {
+        wordInput.value = '';
+        wordInput.focus();
+    }
+    
+    function backspace() {
+        wordInput.value = wordInput.value.slice(0, -1);
+        wordInput.focus();
+    }
+    
+    // Event listeners
+    submitBtn.addEventListener('click', checkWord);
+    newLettersBtn.addEventListener('click', newGame);
+    clearBtn.addEventListener('click', clearInput);
+    backspaceBtn.addEventListener('click', backspace);
+    wordInput.addEventListener('keypress', (e) => {
+        if(e.key === 'Enter') checkWord();
+    });
+    
+    // Başlat
     newGame();
 </script>
 </body>

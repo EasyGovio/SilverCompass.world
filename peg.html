@@ -5,46 +5,208 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Peg Solitaire | SilverCompass</title>
   <style>
-    * { margin:0; padding:0; box-sizing:border-box; user-select:none; }
-    body { background: #0F1318; font-family: -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif; padding: 20px; min-height: 100vh; display: flex; justify-content: center; align-items: center; }
-    .game-container { max-width: 650px; width: 100%; background: #1e2a3a; border-radius: 40px; padding: 20px; border: 1px solid rgba(246,180,95,0.3); box-shadow: 0 8px 20px rgba(0,0,0,0.3); }
-    .header { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; margin-bottom: 20px; color: #FFFFFF; }
-    .logo { font-size: 1.4rem; font-weight: bold; } .logo span { color: #F6B45F; }
-    .back-link { color: #F6B45F; text-decoration: none; font-size: 0.9rem; }
-    .stats { display: flex; justify-content: space-between; background: #0a1018; padding: 10px 16px; border-radius: 60px; margin: 15px 0; color: #eaf2fb; gap: 8px; flex-wrap: wrap; }
-    .stats div { background: #1e2a3a; padding: 4px 12px; border-radius: 40px; }
-    button { background: #F6B45F; border: none; padding: 6px 16px; border-radius: 40px; font-weight: bold; cursor: pointer; font-family: inherit; color: #0F1318; }
-    canvas { display: block; margin: 15px auto; background: #eaf2fb; border-radius: 24px; width: 100%; aspect-ratio: 1/1; cursor: pointer; }
-    .message { text-align: center; margin-top: 15px; padding: 8px; background: #0a1018; border-radius: 40px; color: #eaf2fb; }
+    * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
+    body {
+      background: #eef2f5;
+      font-family: -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif;
+      padding: 20px;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .game-container {
+      max-width: 700px;
+      width: 100%;
+      background: #ffffff;
+      border-radius: 48px;
+      padding: 20px;
+      box-shadow: 0 12px 28px rgba(0,0,0,0.1);
+      border: 1px solid #e0d5c0;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #F6B45F;
+    }
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #1e4a6e;
+    }
+    .logo span { color: #F6B45F; }
+    .back-link {
+      color: #1e4a6e;
+      text-decoration: none;
+      font-weight: 600;
+      background: #f0f0f0;
+      padding: 6px 14px;
+      border-radius: 40px;
+      font-size: 0.85rem;
+    }
+    .back-link:hover { background: #F6B45F; color: white; }
+    .board-selector {
+      margin: 15px 0 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+    }
+    .board-btn {
+      background: #eef2f5;
+      border: 1px solid #cbd5e1;
+      padding: 6px 14px;
+      border-radius: 40px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #1e4a6e;
+      cursor: pointer;
+      transition: all 0.1s;
+    }
+    .board-btn.active {
+      background: #F6B45F;
+      border-color: #F6B45F;
+      color: #1e4a6e;
+    }
+    .stats {
+      display: flex;
+      justify-content: space-between;
+      background: #f8f4ea;
+      padding: 10px 20px;
+      border-radius: 60px;
+      margin: 15px 0;
+      color: #1e4a6e;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .stats div {
+      background: #ffffffcc;
+      padding: 4px 14px;
+      border-radius: 40px;
+      font-weight: 600;
+    }
+    button {
+      background: #F6B45F;
+      border: none;
+      padding: 6px 18px;
+      border-radius: 40px;
+      font-weight: bold;
+      cursor: pointer;
+      font-family: inherit;
+      color: #1e4a6e;
+    }
+    canvas {
+      display: block;
+      margin: 15px auto;
+      background: #fcf8ed;
+      border-radius: 32px;
+      width: 100%;
+      aspect-ratio: 1/1;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    .message {
+      text-align: center;
+      margin-top: 15px;
+      padding: 8px;
+      background: #f0f0f0;
+      border-radius: 40px;
+      color: #1e4a6e;
+      font-size: 0.85rem;
+    }
+    @media (max-width: 550px) {
+      .board-btn { padding: 4px 10px; font-size: 0.7rem; }
+      .stats div { font-size: 0.8rem; }
+    }
   </style>
 </head>
 <body>
 <div class="game-container">
-  <div class="header"><div class="logo">Silver<span>Compass</span></div><a href="index.html" class="back-link">← Geri</a></div>
-  <div class="stats"><div>📌 Hamle: <span id="moveCount">0</span></div><div>⏱️ Süre: <span id="timer">00:00</span></div><div>🏆 En İyi: <span id="bestScore">—</span></div><button id="resetBtn">🔄 Sıfırla</button></div>
+  <div class="header">
+    <div class="logo">Silver<span>Compass</span></div>
+    <a href="index.html" class="back-link">← Geri</a>
+  </div>
+  <div class="board-selector" id="boardSelector"></div>
+  <div class="stats">
+    <div>📌 Hamle: <span id="moveCount">0</span></div>
+    <div>⏱️ Süre: <span id="timer">00:00</span></div>
+    <div>🏆 En İyi: <span id="bestScore">—</span></div>
+    <div>🟢 Kalan: <span id="pegCount">32</span></div>
+    <button id="undoBtn">↩️ Geri Al</button>
+    <button id="resetBtn">🔄 Sıfırla</button>
+  </div>
   <canvas id="pegCanvas" width="500" height="500"></canvas>
-  <div class="message" id="gameMsg">Bir çivi seç, ardından atlayacağın boşluğa tıkla.</div>
+  <div class="message" id="gameMsg">Bir tahta seç → çiviye tıkla → atlayacağın boşluğa tıkla</div>
 </div>
 <script>
-  var rows=7, cols=7, board, isValid, selectedRow=null, selectedCol=null, moveCount=0, timerSeconds=0, timerInterval=null, gameActive=true;
-  var canvas = document.getElementById('pegCanvas'), ctx = canvas.getContext('2d'), cellW, cellH, bestKey = "pegBest";
-  function updateBestDisplay() { var best=localStorage.getItem(bestKey); document.getElementById("bestScore").innerText=best?best:"—"; }
-  function stopTimer() { if(timerInterval) clearInterval(timerInterval); timerInterval=null; }
-  function startTimer() { stopTimer(); timerInterval=setInterval(function(){ if(gameActive){ timerSeconds++; updateTimerDisplay(); } },1000); }
+  // ---------- TÜM TAHTA TANIMLARI (16 varyasyon) ----------
+  var BOARD_DEFS = {
+    "English": { rows:7, cols:7, startEmpty:[3,3], shape: function(r,c) { return ((r<=1||r>=5)&&c>=2&&c<=4) || (r>=2&&r<=4&&c>=0&&c<=6); } },
+    "French": { rows:7, cols:7, startEmpty:[3,3], shape: function(r,c) { if((r===0||r===6)&&c>=2&&c<=4) return true; if((r===1||r===5)&&c>=1&&c<=5) return true; if(r>=2&&r<=4&&c>=0&&c<=6) return true; return false; } },
+    "European 37": { rows:7, cols:7, startEmpty:[3,3], shape: function(r,c) { return Math.abs(r-3)+Math.abs(c-3) <= 3; } },
+    "Hexagonal 61": { rows:9, cols:9, startEmpty:[4,4], shape: function(r,c) { return Math.abs(r-4)+Math.abs(c-4) <= 4 && Math.abs(r-c) <= 4; } },
+    "Square 16": { rows:4, cols:4, startEmpty:[1,1], shape: function() { return true; } },
+    "Square 25": { rows:5, cols:5, startEmpty:[2,2], shape: function() { return true; } },
+    "Square 36 #1": { rows:6, cols:6, startEmpty:[2,2], shape: function() { return true; } },
+    "Square 36 #2": { rows:6, cols:6, startEmpty:[2,3], shape: function() { return true; } },
+    "Square 36 #3": { rows:6, cols:6, startEmpty:[3,3], shape: function() { return true; } },
+    "Triangle 8x8": { rows:8, cols:15, startEmpty:[0,0], shape: function(r,c) { return c <= r; } },
+    "Trapezoid": { rows:5, cols:7, startEmpty:[2,3], shape: function(r,c) { if(r===0) return c>=2&&c<=4; if(r===1) return c>=1&&c<=5; if(r>=2) return c>=0&&c<=6; return false; } },
+    "Rhombus": { rows:7, cols:7, startEmpty:[3,3], shape: function(r,c) { return Math.abs(r-3)+Math.abs(c-3) <= 3; } },
+    "Snowflake": { rows:7, cols:7, startEmpty:[3,3], shape: function(r,c) { if((r===0||r===6)&&c===3) return true; if((r===1||r===5)&&c>=1&&c<=5) return true; if(r>=2&&r<=4&&c>=0&&c<=6) return true; return false; } },
+    "Wiegleb": { rows:7, cols:7, startEmpty:[3,3], shape: function(r,c) { if((r===0||r===6)&&c>=2&&c<=4) return true; if((r===1||r===5)&&c>=1&&c<=5) return true; if(r>=2&&r<=4&&c>=0&&c<=6) return true; return false; } },
+    "Asymmetric": { rows:7, cols:7, startEmpty:[2,2], shape: function(r,c) { return (r<=4&&c<=4&&!(r===0&&c===0)) || (r===5&&c>=1&&c<=3) || (r===6&&c===2); } }
+  };
+  var currentBoardId = "English";
+  var rows, cols, board, isValid, selectedRow = null, selectedCol = null;
+  var moveCount = 0, timerSeconds = 0, timerInterval = null, gameActive = true;
+  var history = []; // geri al için
+  var bestKey = "pegBest";
+  var canvas = document.getElementById('pegCanvas'), ctx = canvas.getContext('2d');
+  var cellW, cellH;
+
+  // yardımcılar
+  function updateBestDisplay() { var best = localStorage.getItem(bestKey); document.getElementById("bestScore").innerText = best ? best : "—"; }
+  function stopTimer() { if(timerInterval) clearInterval(timerInterval); timerInterval = null; }
+  function startTimer() { stopTimer(); timerInterval = setInterval(function(){ if(gameActive){ timerSeconds++; updateTimerDisplay(); } },1000); }
   function updateTimerDisplay() { var m=Math.floor(timerSeconds/60), s=timerSeconds%60; document.getElementById("timer").innerText=(m<10?"0"+m:m)+":"+(s<10?"0"+s:s); }
   function countPegs() { var cnt=0; for(var i=0;i<rows;i++) for(var j=0;j<cols;j++) if(isValid[i][j] && board[i][j]===true) cnt++; return cnt; }
-  function updateUI() { document.getElementById("moveCount").innerText=moveCount; var left=countPegs(); if(left===1) document.getElementById("gameMsg").innerHTML="🏆 Mükemmel! Tek çivi kaldı!"; else document.getElementById("gameMsg").innerHTML="Kalan çivi: "+left; }
-  function initBoard() {
-    isValid=Array(rows).fill().map(function(){return Array(cols).fill(false);});
-    for(var r=0;r<rows;r++) for(var c=0;c<cols;c++) { if((r<=1||r>=5)&&c>=2&&c<=4) isValid[r][c]=true; else if(r>=2&&r<=4&&c>=0&&c<=6) isValid[r][c]=true; }
-    board=Array(rows).fill().map(function(){return Array(cols).fill(null);});
-    for(var i=0;i<rows;i++) for(var j=0;j<cols;j++) if(isValid[i][j]) board[i][j]=true;
-    board[3][3]=false;
+  function updateUI() { document.getElementById("moveCount").innerText = moveCount; var left = countPegs(); document.getElementById("pegCount").innerText = left; if(left===1) document.getElementById("gameMsg").innerHTML = "🏆 Mükemmel! Tek çivi kaldı! 🎉"; else document.getElementById("gameMsg").innerHTML = "Kalan çivi: "+left+"  |  Hamle: "+moveCount; }
+
+  function loadBoard(boardId) {
+    stopTimer();
+    var def = BOARD_DEFS[boardId];
+    if(!def) return;
+    rows = def.rows; cols = def.cols;
+    isValid = Array(rows).fill().map(function(){ return Array(cols).fill(false); });
+    for(var i=0;i<rows;i++) for(var j=0;j<cols;j++) isValid[i][j] = def.shape(i,j);
+    board = Array(rows).fill().map(function(){ return Array(cols).fill(null); });
+    for(var i=0;i<rows;i++) for(var j=0;j<cols;j++) if(isValid[i][j]) board[i][j] = true;
+    var er = def.startEmpty[0], ec = def.startEmpty[1];
+    if(isValid[er] && isValid[er][ec]) board[er][ec] = false;
+    else { for(var i=0;i<rows;i++) { var done=false; for(var j=0;j<cols;j++) if(isValid[i][j]){ board[i][j]=false; done=true; break; } if(done) break; } }
+    moveCount = 0; timerSeconds = 0; updateTimerDisplay(); document.getElementById("moveCount").innerText="0"; selectedRow = null; gameActive = true;
+    history = [];
+    updateUI();
+    drawBoard();
+    startTimer();
+    currentBoardId = boardId;
+    // aktif buton
+    var btns = document.querySelectorAll(".board-btn");
+    for(var i=0;i<btns.length;i++) {
+      if(btns[i].getAttribute("data-id") === boardId) btns[i].classList.add("active");
+      else btns[i].classList.remove("active");
+    }
   }
+
   function isValidMove(fr,fc,tr,tc) {
-    if(!isValid[tr]||!isValid[tr][tc]||board[tr][tc]!==false) return false;
-    if(!isValid[fr]||!isValid[fr][fc]||board[fr][fc]!==true) return false;
-    var dr=tr-fr, dc=tc-fc;
+    if(!isValid[tr] || !isValid[tr][tc] || board[tr][tc] !== false) return false;
+    if(!isValid[fr] || !isValid[fr][fc] || board[fr][fc] !== true) return false;
+    var dr = tr-fr, dc = tc-fc;
     if(Math.abs(dr)===2 && dc===0) { var mr=(fr+tr)/2, mc=fc; if(isValid[mr][mc] && board[mr][mc]===true) return true; }
     if(Math.abs(dc)===2 && dr===0) { var mr=fr, mc=(fc+tc)/2; if(isValid[mr][mc] && board[mr][mc]===true) return true; }
     return false;
@@ -52,49 +214,132 @@
   function applyMove(fr,fc,tr,tc) {
     if(!isValidMove(fr,fc,tr,tc)) return false;
     var mr=(fr+tr)/2, mc=(fc+tc)/2;
-    board[fr][fc]=false; board[mr][mc]=false; board[tr][tc]=true;
-    moveCount++; updateUI(); drawBoard(); return true;
+    // kaydet geri al için
+    history.push({ from:[fr,fc], mid:[mr,mc], to:[tr,tc], board: JSON.parse(JSON.stringify(board)) });
+    board[fr][fc] = false; board[mr][mc] = false; board[tr][tc] = true;
+    moveCount++;
+    updateUI();
+    drawBoard();
+    if(countPegs()===1) { gameActive=false; stopTimer(); var best=localStorage.getItem(bestKey); if(!best||timerSeconds<parseInt(best)){ localStorage.setItem(bestKey,timerSeconds); updateBestDisplay(); document.getElementById("gameMsg").innerHTML = "🏆 REKOR! Tek çivi kaldı! 🎉"; } }
+    return true;
   }
+  function undo() {
+    if(history.length===0) return;
+    var last = history.pop();
+    board = JSON.parse(JSON.stringify(last.board));
+    moveCount--;
+    updateUI();
+    drawBoard();
+    gameActive = true;
+    startTimer();
+    document.getElementById("gameMsg").innerHTML = "Geri alındı.";
+  }
+
   function drawBoard() {
-    canvas.width=canvas.clientWidth; canvas.height=canvas.clientHeight;
-    cellW=canvas.width/cols; cellH=canvas.height/rows;
+    var rect = canvas.getBoundingClientRect();
+    var sz = Math.min(rect.width, rect.height);
+    canvas.width = sz; canvas.height = sz;
+    cellW = canvas.width / cols;
+    cellH = canvas.height / rows;
     ctx.clearRect(0,0,canvas.width,canvas.height);
-    ctx.fillStyle="#eaf2fb"; ctx.fillRect(0,0,canvas.width,canvas.height);
-    for(var r=0;r<rows;r++) for(var c=0;c<cols;c++) {
-      var x=c*cellW, y=r*cellH, rad=Math.min(cellW,cellH)*0.28;
-      if(isValid[r][c]) {
-        ctx.beginPath(); ctx.arc(x+cellW/2,y+cellH/2,rad+1,0,Math.PI*2); ctx.fillStyle="#b8d0e8"; ctx.fill();
-        ctx.beginPath(); ctx.arc(x+cellW/2,y+cellH/2,rad,0,Math.PI*2); ctx.fillStyle="#FFFFFF"; ctx.fill();
-        if(board[r][c]===true) {
-          ctx.beginPath(); ctx.arc(x+cellW/2,y+cellH/2,rad-2,0,Math.PI*2); ctx.fillStyle="#F6B45F"; ctx.fill();
-          ctx.beginPath(); ctx.arc(x+cellW/2,y+cellH/2,rad-4,0,Math.PI*2); ctx.fillStyle="#1e2a3a"; ctx.fill();
-        } else if(board[r][c]===false) {
-          ctx.beginPath(); ctx.arc(x+cellW/2,y+cellH/2,rad-3,0,Math.PI*2); ctx.fillStyle="#1e2a3a"; ctx.fill();
+    ctx.fillStyle = "#fcf8ed";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+    for(var r=0;r<rows;r++) {
+      for(var c=0;c<cols;c++) {
+        var x = c*cellW, y = r*cellH;
+        var rad = Math.min(cellW,cellH)*0.28;
+        if(isValid[r][c]) {
+          ctx.beginPath();
+          ctx.arc(x+cellW/2, y+cellH/2, rad+1, 0, Math.PI*2);
+          ctx.fillStyle = "#d9cba3";
+          ctx.fill();
+          ctx.beginPath();
+          ctx.arc(x+cellW/2, y+cellH/2, rad, 0, Math.PI*2);
+          ctx.fillStyle = "#fff2df";
+          ctx.fill();
+          if(board[r][c] === true) {
+            ctx.beginPath();
+            ctx.arc(x+cellW/2, y+cellH/2, rad-2, 0, Math.PI*2);
+            ctx.fillStyle = "#F6B45F";
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(x+cellW/2, y+cellH/2, rad-4, 0, Math.PI*2);
+            ctx.fillStyle = "#c57f1e";
+            ctx.fill();
+          } else if(board[r][c] === false) {
+            ctx.beginPath();
+            ctx.arc(x+cellW/2, y+cellH/2, rad-3, 0, Math.PI*2);
+            ctx.fillStyle = "#b8a77d";
+            ctx.fill();
+          }
+          if(selectedRow === r && selectedCol === c && board[r][c] === true) {
+            ctx.beginPath();
+            ctx.arc(x+cellW/2, y+cellH/2, rad+4, 0, Math.PI*2);
+            ctx.strokeStyle = "#F6B45F";
+            ctx.lineWidth = 3;
+            ctx.stroke();
+          }
+        } else {
+          ctx.fillStyle = "#e6ddc4";
+          ctx.fillRect(x+2, y+2, cellW-4, cellH-4);
         }
-        if(selectedRow===r && selectedCol===c) { ctx.beginPath(); ctx.arc(x+cellW/2,y+cellH/2,rad+3,0,Math.PI*2); ctx.strokeStyle="#F6B45F"; ctx.lineWidth=3; ctx.stroke(); }
-      } else { ctx.fillStyle="#b8d0e8"; ctx.fillRect(x+1,y+1,cellW-2,cellH-2); }
+      }
     }
   }
-  function handleClick(e) {
-    var rect=canvas.getBoundingClientRect(), scaleX=canvas.width/rect.width, scaleY=canvas.height/rect.height;
-    var clientX=e.touches?e.touches[0].clientX:e.clientX, clientY=e.touches?e.touches[0].clientY:e.clientY;
-    var canvasX=(clientX-rect.left)*scaleX, canvasY=(clientY-rect.top)*scaleY;
-    if(canvasX<0||canvasY<0||canvasX>canvas.width||canvasY>canvas.height) return;
-    var col=Math.floor(canvasX/cellW), row=Math.floor(canvasY/cellH);
-    if(row<0||row>=rows||col<0||col>=cols||!isValid[row][col]) { selectedRow=null; drawBoard(); return; }
-    if(selectedRow===null) {
-      if(board[row][col]===true) { selectedRow=row; selectedCol=col; drawBoard(); }
-      else document.getElementById("gameMsg").innerHTML="Önce bir çivi seç!";
+
+  function handleCanvasTap(e) {
+    var rect = canvas.getBoundingClientRect();
+    var scaleX = canvas.width / rect.width;
+    var scaleY = canvas.height / rect.height;
+    var clientX, clientY;
+    if(e.touches) { clientX = e.touches[0].clientX; clientY = e.touches[0].clientY; e.preventDefault(); }
+    else { clientX = e.clientX; clientY = e.clientY; }
+    var canvasX = (clientX - rect.left) * scaleX;
+    var canvasY = (clientY - rect.top) * scaleY;
+    if(canvasX<0 || canvasY<0 || canvasX>canvas.width || canvasY>canvas.height) return;
+    var col = Math.floor(canvasX / cellW);
+    var row = Math.floor(canvasY / cellH);
+    if(row<0 || row>=rows || col<0 || col>=cols || !isValid[row][col]) { selectedRow=null; drawBoard(); return; }
+    if(selectedRow === null) {
+      if(board[row][col] === true) { selectedRow = row; selectedCol = col; drawBoard(); document.getElementById("gameMsg").innerHTML = "➡️ Şimdi atlanacak çivinin üzerinden boşluğa tıkla"; }
+      else document.getElementById("gameMsg").innerHTML = "🔔 Önce bir çivi seç!";
     } else {
-      if(isValidMove(selectedRow,selectedCol,row,col)) { applyMove(selectedRow,selectedCol,row,col); selectedRow=null; drawBoard(); if(countPegs()===1) { gameActive=false; stopTimer(); var best=localStorage.getItem(bestKey); if(!best||timerSeconds<parseInt(best)){ localStorage.setItem(bestKey,timerSeconds); updateBestDisplay(); } } }
-      else { if(board[row][col]===true) { selectedRow=row; selectedCol=col; drawBoard(); } else { selectedRow=null; drawBoard(); } }
+      if(isValidMove(selectedRow, selectedCol, row, col)) {
+        applyMove(selectedRow, selectedCol, row, col);
+        selectedRow = null;
+        drawBoard();
+      } else {
+        if(board[row][col] === true) { selectedRow = row; selectedCol = col; drawBoard(); document.getElementById("gameMsg").innerHTML = "🔄 Yeni çivi seçildi"; }
+        else { selectedRow = null; drawBoard(); document.getElementById("gameMsg").innerHTML = "❌ Geçersiz atlama"; }
+      }
     }
     updateUI();
   }
-  function resetGame() { stopTimer(); timerSeconds=0; updateTimerDisplay(); moveCount=0; gameActive=true; initBoard(); selectedRow=null; drawBoard(); updateUI(); startTimer(); }
-  canvas.addEventListener("click",handleClick); canvas.addEventListener("touchstart",function(e){ e.preventDefault(); handleClick(e); });
-  document.getElementById("resetBtn").addEventListener("click",resetGame);
-  initBoard(); drawBoard(); updateUI(); startTimer(); updateBestDisplay();
+
+  function resetGame() { loadBoard(currentBoardId); }
+
+  // Menüyü oluştur
+  function buildBoardMenu() {
+    var container = document.getElementById("boardSelector");
+    container.innerHTML = "";
+    var boardNames = Object.keys(BOARD_DEFS);
+    for(var i=0;i<boardNames.length;i++) {
+      var btn = document.createElement("button");
+      btn.innerText = boardNames[i];
+      btn.className = "board-btn";
+      btn.setAttribute("data-id", boardNames[i]);
+      btn.addEventListener("click", (function(id){ return function(){ loadBoard(id); }; })(boardNames[i]));
+      container.appendChild(btn);
+    }
+  }
+
+  canvas.addEventListener("click", handleCanvasTap);
+  canvas.addEventListener("touchstart", function(e){ e.preventDefault(); handleCanvasTap(e); });
+  document.getElementById("undoBtn").addEventListener("click", undo);
+  document.getElementById("resetBtn").addEventListener("click", resetGame);
+  buildBoardMenu();
+  loadBoard("English");
+  updateBestDisplay();
 </script>
 </body>
 </html>

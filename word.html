@@ -14,6 +14,7 @@
             align-items: center;
             font-family: 'Segoe UI', Roboto, sans-serif;
             padding: 20px;
+            overflow-y: auto; /* sayfa kaymasına izin ver ama içerikte engelleyeceğiz */
         }
         .game-container {
             max-width: 600px;
@@ -23,6 +24,8 @@
             box-shadow: 0 25px 45px rgba(0,0,0,0.5);
             overflow: hidden;
             text-align: center;
+            /* mobil kaydırmayı engellemek için */
+            touch-action: pan-y pinch-zoom; /* yatay kaydırmayı engelle, dikeye izin ver */
         }
         .header { background: #0a2a3b; padding: 18px; border-bottom: 3px solid #e6b422; color: #ffdf8c; }
         .stats { display: flex; justify-content: space-between; background: #1f2f3a; margin: 16px; padding: 8px 16px; border-radius: 60px; color: #f7ecc7; }
@@ -50,7 +53,7 @@
             cursor: pointer;
             transition: 0.05s linear;
             user-select: none;
-            touch-action: manipulation; /* mobil kaydırmayı engeller */
+            touch-action: manipulation; /* mobil yakınlaştırma/kaydırmayı engeller */
         }
         .letter-box:active {
             transform: translateY(2px);
@@ -123,13 +126,6 @@
     <div id="message" class="message">Harflere tıkla kelime oluştur, sonra Kontrol et.</div>
 </div>
 <script>
-    // Geçerli kelime listesi (örnek)
-    const validWordsSet = new Set([
-        "ATA", "ANA", "CAN", "DEN", "EDA", "ELMA", "KALEM", "MAS", "SAP", "TAŞ", "YOL", "SEL", "KOL", "DAL", "BAL", "GÜL", "SES", "TEST", "KASA", "MASA",
-        "AL", "AT", "AN", "BE", "CE", "DE", "EL", "EN", "ES", "ET", "GE", "İL", "İN", "LA", "LE", "ME", "NE", "OL", "SE", "TE", "YE", "YA",
-        "KAL", "MAL", "SAL", "TAL", "YAL", "AK", "EK", "İK", "OK", "ÜÇ", "BEŞ", "ALT", "BİR", "İKİ", "ÜÇ", "DÖRT", "BEŞ", "ALTI", "YEDİ", "SEKİZ", "DOKUZ"
-    ]);
-    
     let currentLetters = [];
     let foundWords = [];
     const letterPool = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','R','S','T','U','V','Y','Z','Ü','Ğ','Ş','İ','Ö','Ç'];
@@ -152,15 +148,21 @@
         return letters;
     }
     
-    // Kaydırmayı engelleyen olay işleyici
+    // Kaydırmayı engelleyen olay işleyici - kesin çözüm
+    function preventScroll(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+    }
+    
     function handleLetterTap(letter, event) {
         if (event) {
-            event.preventDefault();  // sayfa kaymasını engeller
+            event.preventDefault();
             event.stopPropagation();
         }
         wordInput.value += letter;
         wordInput.focus();
-        // İsteğe bağlı: input'un sonuna git
+        // input sonuna kaydır (isteğe bağlı)
         wordInput.scrollLeft = wordInput.scrollWidth;
     }
     
@@ -183,6 +185,7 @@
         });
     }
     
+    // Sadece harf kombinasyonunu kontrol et (anlamlı kelime kontrolü yok)
     function canFormWord(word, letters) {
         let temp = [...letters];
         for(let ch of word) {
@@ -193,24 +196,28 @@
         return true;
     }
     
+    // Basit kelime geçerlilik: en az 2 harf ve sadece harflerden oluşmalı (Türkçe karakterlere izin ver)
+    function isValidWord(word) {
+        if (word.length < 2) return false;
+        // sadece harf ve Türkçe karakterler
+        return /^[A-ZÜĞŞİÖÇ]+$/i.test(word);
+    }
+    
     function checkWord() {
         let word = wordInput.value.trim().toUpperCase();
-        if(word.length < 2) {
-            messageDiv.innerText = "❌ En az 2 harfli kelime girin veya oluşturun.";
+        if (!isValidWord(word)) {
+            messageDiv.innerText = "❌ En az 2 harfli ve sadece harf içeren bir kelime girin.";
             return;
         }
-        if(foundWords.includes(word)) {
+        if (foundWords.includes(word)) {
             messageDiv.innerText = "⚠️ Bu kelimeyi zaten buldunuz!";
             return;
         }
-        if(!validWordsSet.has(word)) {
-            messageDiv.innerText = "📖 Geçerli bir kelime değil (örnek liste).";
-            return;
-        }
-        if(!canFormWord(word, currentLetters)) {
+        if (!canFormWord(word, currentLetters)) {
             messageDiv.innerText = "🔤 Bu kelimeyi mevcut harflerle oluşturamazsınız.";
             return;
         }
+        // Artık tüm kontroller geçildi, kelime geçerli sayılıyor
         foundWords.push(word);
         updateFoundWordsList();
         messageDiv.innerText = `✅ "${word}" bulundu! Devam et.`;
@@ -234,7 +241,7 @@
         foundWords = [];
         updateFoundWordsList();
         wordInput.value = '';
-        messageDiv.innerText = "Yeni harfler! Tıkla veya yazarak kelime türet.";
+        messageDiv.innerText = "Yeni harfler! Harflere tıkla veya yazarak kelime oluştur.";
     }
     
     function clearInput() {
@@ -254,6 +261,15 @@
     wordInput.addEventListener('keypress', (e) => {
         if(e.key === 'Enter') checkWord();
     });
+    
+    // Sayfa kaymasını tamamen engellemek için document seviyesinde touchmove yakalama (sadece oyun alanında)
+    document.body.addEventListener('touchmove', function(e) {
+        // Eğer dokunulan hedef .letter-box veya onun içindeyse kaydırmayı engelle
+        let target = e.target;
+        if (target.closest && target.closest('.letter-box')) {
+            e.preventDefault();
+        }
+    }, { passive: false });
     
     newGame();
 </script>

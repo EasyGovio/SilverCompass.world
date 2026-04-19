@@ -28,28 +28,121 @@
 <body>
 <div class="game-container">
   <div class="header"><div class="logo">Silver<span>Compass</span></div><a href="index.html" class="back-link">← Geri</a></div>
-  <div class="stats"><div>📝 Bulunan: <span id="foundCount">0</span>/15</div><div>⏱️ Süre: <span id="timer">00:00</span></div><div>🏆 En İyi: <span id="bestScore">—</span></div><button id="resetBtn">🔄 Yeni Harfler</button></div>
+  <div class="stats"><div>📝 Bulunan: <span id="foundCount">0</span></div><div>⏱️ Süre: <span id="timer">00:00</span></div><div>🏆 En İyi: <span id="bestScore">—</span></div><button id="resetBtn">🔄 Yeni Harfler</button></div>
   <div id="lettersContainer" class="letters"></div>
   <div class="input-area"><input type="text" id="wordInput" placeholder="Harflere tıkla veya yaz..."><button id="submitBtn">✓ Kontrol</button></div>
   <div class="action-buttons"><button id="clearBtn">🗑️ Temizle</button><button id="backspaceBtn">⌫ Geri Al</button></div>
   <div class="word-list" id="foundWordsList"></div>
-  <div class="message" id="message">Harflere tıkla, kelime oluştur.</div>
+  <div class="message" id="message">Harflere tıkla, kelime oluştur (en az 3 harf, geçerli Türkçe kelime olmalı).</div>
 </div>
 <script>
-  var validWords = new Set(["ATA","ANA","CAN","DEN","EDA","ELMA","KALEM","MAS","SAP","TAS","YOL","SEL","KOL","DAL","BAL","GUL","SES","TEST","KASA","MASA","AL","AT","AN","BE","CE","DE","EL","EN","ES","ET","GE","IL","IN","LA","LE","ME","NE","OL","SE","TE","YE","YA","KAL","MAL","SAL","TAL","YAL","AK","EK","IK","OK","UC","BES","ALT","BIR","IKI","DORT","ALTI","YEDI","SEKIZ","DOKUZ","CAN","DEN","GUN","SU","IS","SUT","CAM","KAP","KIT","TIP","DIP","LALE","MAL","SAL","YOL","TEL","HAL","BAL","GUL","KUL","SEL","KOL","DAL","YAL","KAR","MAR","PAR","TAR","ZAR","FIR","SIR","KIR","TIR","MIR","NAR","SAR","VAR","YAR","CIR","KIS","TIS","VIS","MIS","NIS","PIS","SIS","TIS","YIS","ZIS"]);
-  var currentLetters = [], foundWords = [], timerSeconds = 0, timerInterval = null, gameActive = true, targetWords = 15, bestKey = "wordBest";
-  function updateBestDisplay() { var b=localStorage.getItem(bestKey); document.getElementById("bestScore").innerText=b?b:"—"; }
-  function saveBest() { var best = localStorage.getItem(bestKey); if(!best || timerSeconds < parseInt(best)) { localStorage.setItem(bestKey, timerSeconds); updateBestDisplay(); } }
-  function stopTimer() { if(timerInterval) clearInterval(timerInterval); timerInterval=null; }
-  function startTimer() { stopTimer(); timerInterval=setInterval(function(){ if(gameActive){ timerSeconds++; var m=Math.floor(timerSeconds/60), s=timerSeconds%60; document.getElementById("timer").innerText=(m<10?"0"+m:m)+":"+(s<10?"0"+s:s); } },1000); }
-  function getRandomLetters() { var pool = ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","R","S","T","U","V","Y","Z","U","G","S","I","O","C"]; var arr=[]; for(var i=0;i<6;i++) arr.push(pool[Math.floor(Math.random()*pool.length)]); return arr; }
-  function renderLetters() { var container = document.getElementById("lettersContainer"); container.innerHTML = ""; for(var i=0;i<currentLetters.length;i++) { var box = document.createElement("div"); box.className = "letter-box"; box.innerText = currentLetters[i]; box.addEventListener("click", (function(letter){ return function(e){ e.preventDefault(); document.getElementById("wordInput").value += letter; }; })(currentLetters[i])); box.addEventListener("touchstart", (function(letter){ return function(e){ e.preventDefault(); document.getElementById("wordInput").value += letter; }; })(currentLetters[i])); container.appendChild(box); } }
-  function canFormWord(word, letters) { var temp = letters.slice(); for(var i=0;i<word.length;i++) { var idx = temp.indexOf(word[i]); if(idx===-1) return false; temp.splice(idx,1); } return true; }
-  function updateFoundList() { var container = document.getElementById("foundWordsList"); container.innerHTML = ""; for(var i=0;i<foundWords.length;i++) { var tag = document.createElement("span"); tag.className = "word-tag"; tag.innerText = foundWords[i]; container.appendChild(tag); } document.getElementById("foundCount").innerText = foundWords.length; }
-  function checkWord() { var input = document.getElementById("wordInput"); var word = input.value.trim().toUpperCase(); if(word.length<2) { document.getElementById("message").innerText = "En az 2 harfli kelime girin."; return; } if(foundWords.indexOf(word)!==-1) { document.getElementById("message").innerText = "Bu kelimeyi zaten buldunuz!"; return; } if(!validWords.has(word)) { document.getElementById("message").innerText = "Geçerli bir kelime değil."; return; } if(!canFormWord(word, currentLetters)) { document.getElementById("message").innerText = "Bu harflerle oluşamaz."; return; } foundWords.push(word); updateFoundList(); document.getElementById("message").innerText = "✓ "+word+" bulundu!"; input.value = ""; if(foundWords.length >= targetWords) { gameActive=false; stopTimer(); saveBest(); document.getElementById("message").innerHTML = "🎉 TEBRİKLER! 15 kelime tamamlandı! 🎉"; } }
-  function resetGame() { stopTimer(); timerSeconds=0; document.getElementById("timer").innerText="00:00"; gameActive=true; currentLetters = getRandomLetters(); renderLetters(); foundWords=[]; updateFoundList(); document.getElementById("wordInput").value=""; document.getElementById("message").innerText="Yeni harfler! Tıkla veya yaz."; startTimer(); }
-  document.getElementById("submitBtn").addEventListener("click", checkWord); document.getElementById("resetBtn").addEventListener("click", resetGame); document.getElementById("clearBtn").addEventListener("click", function(){ document.getElementById("wordInput").value=""; }); document.getElementById("backspaceBtn").addEventListener("click", function(){ var inp=document.getElementById("wordInput"); inp.value = inp.value.slice(0,-1); }); document.getElementById("wordInput").addEventListener("keypress", function(e){ if(e.key==="Enter") checkWord(); });
-  resetGame(); updateBestDisplay();
+  // Basit bir Türkçe kelime listesi (demo amaçlı, genişletilebilir)
+  var validWords = new Set([
+    "ATA", "ANA", "CAN", "DEN", "EDA", "ELMA", "KALEM", "MAS", "SAP", "TAŞ", "YOL", "SEL", "KOL", "DAL", "BAL", "GÜL", "SES", "TEST", "KASA", "MASA",
+    "AL", "AT", "AN", "BE", "CE", "DE", "EL", "EN", "ES", "ET", "GE", "İL", "İN", "LA", "LE", "ME", "NE", "OL", "SE", "TE", "YE", "YA",
+    "KAL", "MAL", "SAL", "TAL", "YAL", "AK", "EK", "İK", "OK", "ÜÇ", "BEŞ", "ALT", "BİR", "İKİ", "ÜÇ", "DÖRT", "BEŞ", "ALTI", "YEDİ", "SEKİZ", "DOKUZ",
+    "GÜN", "SU", "IŞIK", "SÜT", "KAP", "KİT", "TİP", "DİP", "LALE", "TEL", "HAL", "KUL", "KAR", "MAR", "PAR", "TAR", "ZAR", "FIR", "SIR", "KIR", "TIR",
+    "MİR", "NAR", "SAR", "VAR", "YAR", "CİR", "KIS", "TIS", "MIS", "NİS", "PİS", "SİS"
+  ]);
+
+  var currentLetters = [], foundWords = [], timerSeconds = 0, timerInterval = null, gameActive = true;
+  var bestKey = "wordBest";
+
+  function updateBestDisplay() { var b = localStorage.getItem(bestKey); document.getElementById("bestScore").innerText = b ? b : "—"; }
+  function saveBest() { var best = localStorage.getItem(bestKey); if (!best || foundWords.length > parseInt(best)) { localStorage.setItem(bestKey, foundWords.length); updateBestDisplay(); } }
+  function stopTimer() { if (timerInterval) clearInterval(timerInterval); timerInterval = null; }
+  function startTimer() { stopTimer(); timerInterval = setInterval(function() { if (gameActive) { timerSeconds++; var m = Math.floor(timerSeconds/60), s = timerSeconds%60; document.getElementById("timer").innerText = (m<10?"0"+m:m)+":"+(s<10?"0"+s:s); } }, 1000); }
+
+  function getRandomLetters() {
+    var pool = ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","R","S","T","U","V","Y","Z","Ü","Ğ","Ş","İ","Ö","Ç"];
+    var arr = [];
+    for (var i = 0; i < 6; i++) arr.push(pool[Math.floor(Math.random() * pool.length)]);
+    return arr;
+  }
+
+  function renderLetters() {
+    var container = document.getElementById("lettersContainer");
+    container.innerHTML = "";
+    for (var i = 0; i < currentLetters.length; i++) {
+      var box = document.createElement("div");
+      box.className = "letter-box";
+      box.innerText = currentLetters[i];
+      box.addEventListener("click", (function(letter) { return function(e) { e.preventDefault(); document.getElementById("wordInput").value += letter; }; })(currentLetters[i]));
+      box.addEventListener("touchstart", (function(letter) { return function(e) { e.preventDefault(); document.getElementById("wordInput").value += letter; }; })(currentLetters[i]));
+      container.appendChild(box);
+    }
+  }
+
+  function canFormWord(word, letters) {
+    var temp = letters.slice();
+    for (var i = 0; i < word.length; i++) {
+      var idx = temp.indexOf(word[i]);
+      if (idx === -1) return false;
+      temp.splice(idx, 1);
+    }
+    return true;
+  }
+
+  function updateFoundList() {
+    var container = document.getElementById("foundWordsList");
+    container.innerHTML = "";
+    for (var i = 0; i < foundWords.length; i++) {
+      var tag = document.createElement("span");
+      tag.className = "word-tag";
+      tag.innerText = foundWords[i];
+      container.appendChild(tag);
+    }
+    document.getElementById("foundCount").innerText = foundWords.length;
+  }
+
+  function checkWord() {
+    var input = document.getElementById("wordInput");
+    var word = input.value.trim().toUpperCase();
+    if (word.length < 3) {
+      document.getElementById("message").innerText = "En az 3 harfli kelime girin.";
+      return;
+    }
+    if (foundWords.indexOf(word) !== -1) {
+      document.getElementById("message").innerText = "Bu kelimeyi zaten buldunuz!";
+      return;
+    }
+    if (!validWords.has(word)) {
+      document.getElementById("message").innerText = "Geçerli bir kelime değil (Türkçe kelime listesinde yok).";
+      return;
+    }
+    if (!canFormWord(word, currentLetters)) {
+      document.getElementById("message").innerText = "Bu harflerle oluşturulamaz.";
+      return;
+    }
+    foundWords.push(word);
+    updateFoundList();
+    document.getElementById("message").innerText = "✓ " + word + " bulundu!";
+    input.value = "";
+    saveBest();
+  }
+
+  function resetGame() {
+    stopTimer();
+    timerSeconds = 0;
+    document.getElementById("timer").innerText = "00:00";
+    gameActive = true;
+    currentLetters = getRandomLetters();
+    renderLetters();
+    foundWords = [];
+    updateFoundList();
+    document.getElementById("wordInput").value = "";
+    document.getElementById("message").innerText = "Yeni harfler! Tıkla veya yaz.";
+    startTimer();
+  }
+
+  document.getElementById("submitBtn").addEventListener("click", checkWord);
+  document.getElementById("resetBtn").addEventListener("click", resetGame);
+  document.getElementById("clearBtn").addEventListener("click", function() { document.getElementById("wordInput").value = ""; });
+  document.getElementById("backspaceBtn").addEventListener("click", function() { var inp = document.getElementById("wordInput"); inp.value = inp.value.slice(0, -1); });
+  document.getElementById("wordInput").addEventListener("keypress", function(e) { if (e.key === "Enter") checkWord(); });
+
+  resetGame();
+  updateBestDisplay();
 </script>
 </body>
 </html>

@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Sayı Dizisi | SilverCompass</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; user-select:none; }
+    body {
+      background: #1a3a5c;
+      font-family: -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif;
+      padding: 20px;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .game-container {
+      max-width: 550px;
+      width: 100%;
+      background: rgba(255,255,255,0.1);
+      border-radius: 40px;
+      padding: 20px;
+      border: 1px solid rgba(246,180,95,0.4);
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+      color: #FFFFFF;
+    }
+    .logo { font-size: 1.4rem; font-weight: bold; }
+    .logo span { color: #F6B45F; }
+    .back-link { color: #F6B45F; text-decoration: none; font-size: 0.9rem; }
+    .stats {
+      display: flex;
+      justify-content: space-between;
+      background: rgba(0,0,0,0.3);
+      padding: 10px 16px;
+      border-radius: 60px;
+      margin: 15px 0;
+      color: #eaf2fb;
+    }
+    .stats div { background: #1a3a5c; padding: 4px 12px; border-radius: 40px; }
+    button {
+      background: #F6B45F;
+      border: none;
+      padding: 6px 16px;
+      border-radius: 40px;
+      font-weight: bold;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .sequence-area {
+      text-align: center;
+      font-size: 2.5rem;
+      font-weight: bold;
+      letter-spacing: 10px;
+      background: #eaf2fb;
+      padding: 30px;
+      border-radius: 30px;
+      margin: 20px 0;
+      color: #1a3a5c;
+    }
+    input {
+      width: 100%;
+      padding: 15px;
+      font-size: 1.2rem;
+      text-align: center;
+      border-radius: 60px;
+      border: none;
+      margin: 15px 0;
+      font-family: monospace;
+    }
+    .message {
+      text-align: center;
+      margin-top: 15px;
+      padding: 8px;
+      background: rgba(0,0,0,0.3);
+      border-radius: 40px;
+      color: #eaf2fb;
+    }
+    @media (max-width: 550px) {
+      .sequence-area { font-size: 1.5rem; letter-spacing: 5px; }
+    }
+  </style>
+</head>
+<body>
+<div class="game-container">
+  <div class="header">
+    <div class="logo">Silver<span>Compass</span></div>
+    <a href="index.html" class="back-link">← Geri</a>
+  </div>
+  <div class="stats">
+    <div>🔢 Uzunluk: <span id="length">1</span></div>
+    <div>🏆 En Uzun: <span id="bestLength">0</span></div>
+    <button id="resetBtn">🔄 Sıfırla</button>
+  </div>
+  <div id="sequenceDisplay" class="sequence-area">?</div>
+  <input type="text" id="userInput" placeholder="Diziyi girin (örn: 1 2 3)" autocomplete="off">
+  <div class="message" id="message">Diziyi izle, sonra aynen gir.</div>
+</div>
+<script>
+  var currentSequence = [];
+  var currentLength = 1;
+  var bestLength = 0;
+  var showing = false;
+  var timerInterval = null;
+
+  var lengthSpan = document.getElementById("length");
+  var bestSpan = document.getElementById("bestLength");
+  var sequenceDisplay = document.getElementById("sequenceDisplay");
+  var userInput = document.getElementById("userInput");
+  var messageDiv = document.getElementById("message");
+  var resetBtn = document.getElementById("resetBtn");
+
+  function updateBest() {
+    bestSpan.innerText = bestLength;
+    localStorage.setItem("numbersBest", bestLength);
+  }
+
+  function loadBest() {
+    var saved = localStorage.getItem("numbersBest");
+    if(saved) bestLength = parseInt(saved);
+    bestSpan.innerText = bestLength;
+  }
+
+  function generateSequence() {
+    var seq = [];
+    for(var i=0;i<currentLength;i++) {
+      seq.push(Math.floor(Math.random() * 9) + 1);
+    }
+    return seq;
+  }
+
+  function showSequence() {
+    showing = true;
+    currentSequence = generateSequence();
+    var displayText = currentSequence.join(" · ");
+    sequenceDisplay.innerText = displayText;
+    messageDiv.innerText = "Diziyi ezberle...";
+    setTimeout(function() {
+      sequenceDisplay.innerText = "? ? ?";
+      messageDiv.innerText = "Şimdi diziyi aynen gir (boşlukla ayırarak)";
+      showing = false;
+      userInput.focus();
+    }, 2000);
+  }
+
+  function checkAnswer() {
+    if(showing) return;
+    var inputVal = userInput.value.trim();
+    if(inputVal === "") return;
+    var parts = inputVal.split(/\s+/);
+    var userSeq = [];
+    for(var i=0;i<parts.length;i++) {
+      var num = parseInt(parts[i]);
+      if(isNaN(num)) { messageDiv.innerText = "Sadece sayı girin, boşlukla ayırın."; return; }
+      userSeq.push(num);
+    }
+    var correct = true;
+    if(userSeq.length !== currentSequence.length) correct = false;
+    else {
+      for(var j=0;j<userSeq.length;j++) if(userSeq[j] !== currentSequence[j]) { correct = false; break; }
+    }
+    if(correct) {
+      messageDiv.innerText = "✓ Doğru! Seviye atlıyorsunuz.";
+      currentLength++;
+      lengthSpan.innerText = currentLength;
+      if(currentLength > bestLength) {
+        bestLength = currentLength;
+        updateBest();
+        messageDiv.innerText = "✓ Doğru! YENİ REKOR! Seviye " + currentLength;
+      }
+      userInput.value = "";
+      setTimeout(function() { showSequence(); }, 1000);
+    } else {
+      messageDiv.innerText = "❌ Yanlış! Oyun bitti. En uzun diziniz: " + (currentLength-1) + ". Yeniden başlatın.";
+      currentLength = 1;
+      lengthSpan.innerText = currentLength;
+      userInput.disabled = true;
+    }
+  }
+
+  function resetGame() {
+    currentLength = 1;
+    lengthSpan.innerText = currentLength;
+    userInput.disabled = false;
+    userInput.value = "";
+    messageDiv.innerText = "Yeni oyun başlıyor. Diziyi izle.";
+    showSequence();
+  }
+
+  userInput.addEventListener("keypress", function(e) {
+    if(e.key === "Enter") checkAnswer();
+  });
+  resetBtn.addEventListener("click", resetGame);
+  loadBest();
+  resetGame();
+</script>
+</body>
+</html>

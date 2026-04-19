@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Stroop Testi | SilverCompass</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; user-select:none; }
+    body {
+      background: #1a3a5c;
+      font-family: -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif;
+      padding: 20px;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .game-container {
+      max-width: 550px;
+      width: 100%;
+      background: rgba(255,255,255,0.1);
+      border-radius: 40px;
+      padding: 20px;
+      border: 1px solid rgba(246,180,95,0.4);
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+      color: #FFFFFF;
+    }
+    .logo { font-size: 1.4rem; font-weight: bold; }
+    .logo span { color: #F6B45F; }
+    .back-link { color: #F6B45F; text-decoration: none; font-size: 0.9rem; }
+    .stats {
+      display: flex;
+      justify-content: space-between;
+      background: rgba(0,0,0,0.3);
+      padding: 10px 16px;
+      border-radius: 60px;
+      margin: 15px 0;
+      color: #eaf2fb;
+    }
+    .stats div { background: #1a3a5c; padding: 4px 12px; border-radius: 40px; }
+    button {
+      background: #F6B45F;
+      border: none;
+      padding: 6px 16px;
+      border-radius: 40px;
+      font-weight: bold;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .stimulus {
+      text-align: center;
+      font-size: 4rem;
+      font-weight: bold;
+      margin: 40px 0;
+      padding: 30px;
+      background: #eaf2fb;
+      border-radius: 40px;
+    }
+    .options {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      margin: 20px 0;
+    }
+    .color-btn {
+      width: 100px;
+      height: 100px;
+      border-radius: 30px;
+      cursor: pointer;
+      border: 3px solid #FFFFFF;
+      transition: 0.05s linear;
+    }
+    .color-btn:active { transform: scale(0.95); }
+    .message {
+      text-align: center;
+      margin-top: 15px;
+      padding: 8px;
+      background: rgba(0,0,0,0.3);
+      border-radius: 40px;
+      color: #eaf2fb;
+    }
+    .result-screen {
+      text-align: center;
+      background: rgba(0,0,0,0.5);
+      border-radius: 40px;
+      padding: 20px;
+      margin-top: 20px;
+    }
+    @media (max-width: 550px) {
+      .color-btn { width: 70px; height: 70px; }
+      .stimulus { font-size: 2.5rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="game-container">
+  <div class="header">
+    <div class="logo">Silver<span>Compass</span></div>
+    <a href="index.html" class="back-link">← Geri</a>
+  </div>
+  <div class="stats">
+    <div>🎯 Tur: <span id="round">1</span>/20</div>
+    <div>⏱️ Süre: <span id="timer">00:00</span></div>
+    <div>🏆 En İyi: <span id="bestScore">—</span></div>
+    <button id="resetBtn">🔄 Sıfırla</button>
+  </div>
+  <div id="stimulus" class="stimulus">KIRMIZI</div>
+  <div class="options" id="options"></div>
+  <div class="message" id="message">Kelimenin RENGİNE tıkla (yazılan kelimeye değil!)</div>
+  <div id="resultScreen" style="display:none;" class="result-screen"></div>
+</div>
+<script>
+  var COLORS = [
+    { name: "KIRMIZI", code: "#FF4136" },
+    { name: "MAVİ", code: "#0074D9" },
+    { name: "YEŞİL", code: "#2ECC40" },
+    { name: "SARI", code: "#FFDC00" }
+  ];
+  var currentRound = 1;
+  var totalRounds = 20;
+  var reactionTimes = [];
+  var roundStartTime = 0;
+  var timerSeconds = 0, timerInterval = null;
+  var gameActive = true;
+  var waitingForResponse = false;
+  var bestKey = "stroopBest";
+  var currentStimulus = { word: "", colorCode: "" };
+
+  var roundSpan = document.getElementById("round");
+  var timerSpan = document.getElementById("timer");
+  var bestSpan = document.getElementById("bestScore");
+  var resetBtn = document.getElementById("resetBtn");
+  var stimulusDiv = document.getElementById("stimulus");
+  var optionsDiv = document.getElementById("options");
+  var messageDiv = document.getElementById("message");
+  var resultScreen = document.getElementById("resultScreen");
+
+  function updateBestDisplay() {
+    var best = localStorage.getItem(bestKey);
+    bestSpan.innerText = best ? best : "—";
+  }
+  function stopTimer() { if(timerInterval) clearInterval(timerInterval); timerInterval = null; }
+  function startTimer() { stopTimer(); timerInterval = setInterval(function(){ if(gameActive){ timerSeconds++; updateTimerDisplay(); } }, 1000); }
+  function updateTimerDisplay() { var m=Math.floor(timerSeconds/60), s=timerSeconds%60; timerSpan.innerText = (m<10?"0"+m:m)+":"+(s<10?"0"+s:s); }
+
+  function randomStimulus() {
+    var wordIdx = Math.floor(Math.random() * COLORS.length);
+    var colorIdx = Math.floor(Math.random() * COLORS.length);
+    return { word: COLORS[wordIdx].name, colorCode: COLORS[colorIdx].code };
+  }
+
+  function renderOptions() {
+    optionsDiv.innerHTML = "";
+    for(var i=0;i<COLORS.length;i++) {
+      var btn = document.createElement("div");
+      btn.className = "color-btn";
+      btn.style.backgroundColor = COLORS[i].code;
+      btn.setAttribute("data-color", COLORS[i].name);
+      btn.addEventListener("click", (function(colorName){ return function(){ checkAnswer(colorName); }; })(COLORS[i].name));
+      optionsDiv.appendChild(btn);
+    }
+  }
+
+  function nextRound() {
+    if(currentRound > totalRounds) {
+      endGame();
+      return;
+    }
+    currentStimulus = randomStimulus();
+    stimulusDiv.innerText = currentStimulus.word;
+    stimulusDiv.style.color = currentStimulus.colorCode;
+    roundStartTime = Date.now();
+    waitingForResponse = true;
+    roundSpan.innerText = currentRound;
+    messageDiv.innerText = "Kelimenin RENGİNE tıkla!";
+  }
+
+  function checkAnswer(selectedColorName) {
+    if(!waitingForResponse) return;
+    var reaction = (Date.now() - roundStartTime);
+    var isCorrect = (selectedColorName === getColorNameFromCode(currentStimulus.colorCode));
+    if(isCorrect) {
+      reactionTimes.push(reaction);
+      messageDiv.innerText = "✓ Doğru! Süre: " + reaction + " ms";
+      currentRound++;
+      if(currentRound <= totalRounds) nextRound();
+      else endGame();
+    } else {
+      messageDiv.innerText = "❌ Yanlış! " + currentStimulus.word + " kelimesinin rengi " + getColorNameFromCode(currentStimulus.colorCode) + " idi. Tekrar dene.";
+      // Hatalı cevapta aynı soru tekrar gösterilir, süre sıfırlanmaz
+      roundStartTime = Date.now();
+    }
+  }
+
+  function getColorNameFromCode(code) {
+    for(var i=0;i<COLORS.length;i++) if(COLORS[i].code === code) return COLORS[i].name;
+    return "";
+  }
+
+  function endGame() {
+    waitingForResponse = false;
+    gameActive = false;
+    stopTimer();
+    var avgTime = 0;
+    for(var i=0;i<reactionTimes.length;i++) avgTime += reactionTimes[i];
+    avgTime = Math.round(avgTime / reactionTimes.length);
+    var score = avgTime;
+    var best = localStorage.getItem(bestKey);
+    if(!best || score < parseInt(best)) {
+      localStorage.setItem(bestKey, score);
+      updateBestDisplay();
+    }
+    resultScreen.style.display = "block";
+    resultScreen.innerHTML = '<h3>🎉 Oyun Bitti!</h3><p>Ortalama Tepki Süresi: ' + score + ' ms</p><p>Toplam Süre: ' + timerSpan.innerText + '</p><button id="playAgainBtn">Tekrar Oyna</button>';
+    document.getElementById("playAgainBtn").addEventListener("click", function() { resetGame(); });
+    messageDiv.innerText = "Oyun tamamlandı!";
+    stimulusDiv.style.display = "none";
+    optionsDiv.style.display = "none";
+  }
+
+  function resetGame() {
+    currentRound = 1;
+    reactionTimes = [];
+    gameActive = true;
+    waitingForResponse = false;
+    timerSeconds = 0;
+    updateTimerDisplay();
+    resultScreen.style.display = "none";
+    stimulusDiv.style.display = "block";
+    optionsDiv.style.display = "flex";
+    stopTimer();
+    startTimer();
+    nextRound();
+  }
+
+  renderOptions();
+  resetGame();
+  updateBestDisplay();
+</script>
+</body>
+</html>

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Görsel Dikkat | SilverCompass</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; user-select:none; }
+    body {
+      background: #1a3a5c;
+      font-family: -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif;
+      padding: 20px;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .game-container {
+      max-width: 650px;
+      width: 100%;
+      background: rgba(255,255,255,0.1);
+      border-radius: 40px;
+      padding: 20px;
+      border: 1px solid rgba(246,180,95,0.4);
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+      color: #FFFFFF;
+    }
+    .logo { font-size: 1.4rem; font-weight: bold; }
+    .logo span { color: #F6B45F; }
+    .back-link { color: #F6B45F; text-decoration: none; font-size: 0.9rem; }
+    .stats {
+      display: flex;
+      justify-content: space-between;
+      background: rgba(0,0,0,0.3);
+      padding: 10px 16px;
+      border-radius: 60px;
+      margin: 15px 0;
+      color: #eaf2fb;
+    }
+    .stats div { background: #1a3a5c; padding: 4px 12px; border-radius: 40px; }
+    button {
+      background: #F6B45F;
+      border: none;
+      padding: 6px 16px;
+      border-radius: 40px;
+      font-weight: bold;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .grid {
+      display: grid;
+      gap: 10px;
+      margin: 20px 0;
+      justify-content: center;
+    }
+    .grid-item {
+      background: #eaf2fb;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      aspect-ratio: 1 / 1;
+      cursor: pointer;
+      transition: 0.05s linear;
+    }
+    .grid-item:active { transform: scale(0.96); }
+    .message {
+      text-align: center;
+      margin-top: 15px;
+      padding: 8px;
+      background: rgba(0,0,0,0.3);
+      border-radius: 40px;
+      color: #eaf2fb;
+    }
+    @media (max-width: 550px) {
+      .grid-item { font-size: 1.3rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="game-container">
+  <div class="header">
+    <div class="logo">Silver<span>Compass</span></div>
+    <a href="index.html" class="back-link">← Geri</a>
+  </div>
+  <div class="stats">
+    <div>🎯 Skor: <span id="score">0</span></div>
+    <div>⏱️ Süre: <span id="timer">00:00</span></div>
+    <div>🏆 En İyi: <span id="bestScore">—</span></div>
+    <button id="resetBtn">🔄 Sıfırla</button>
+  </div>
+  <div id="grid" class="grid"></div>
+  <div class="message" id="message">Farklı olan nesneyi bul!</div>
+</div>
+<script>
+  var SYMBOLS = ['🐶','🐱','🐭','🐹','🐰','🦊','🐻','🐼'];
+  var currentSize = 2;
+  var score = 0;
+  var oddIndex = -1;
+  var oddSymbol = "";
+  var commonSymbol = "";
+  var timerSeconds = 0, timerInterval = null;
+  var gameActive = true;
+  var bestKey = "visualBest";
+
+  var gridDiv = document.getElementById("grid");
+  var scoreSpan = document.getElementById("score");
+  var timerSpan = document.getElementById("timer");
+  var bestSpan = document.getElementById("bestScore");
+  var resetBtn = document.getElementById("resetBtn");
+  var messageDiv = document.getElementById("message");
+
+  function updateBestDisplay() {
+    var best = localStorage.getItem(bestKey);
+    bestSpan.innerText = best ? best : "—";
+  }
+  function stopTimer() { if(timerInterval) clearInterval(timerInterval); timerInterval = null; }
+  function startTimer() { stopTimer(); timerInterval = setInterval(function(){ if(gameActive){ timerSeconds++; updateTimerDisplay(); } }, 1000); }
+  function updateTimerDisplay() { var m=Math.floor(timerSeconds/60), s=timerSeconds%60; timerSpan.innerText = (m<10?"0"+m:m)+":"+(s<10?"0"+s:s); }
+
+  function nextRound() {
+    var total = currentSize * currentSize;
+    var commonIdx = Math.floor(Math.random() * SYMBOLS.length);
+    commonSymbol = SYMBOLS[commonIdx];
+    var oddIdx = Math.floor(Math.random() * SYMBOLS.length);
+    while(oddIdx === commonIdx) oddIdx = Math.floor(Math.random() * SYMBOLS.length);
+    oddSymbol = SYMBOLS[oddIdx];
+    oddIndex = Math.floor(Math.random() * total);
+    renderGrid();
+  }
+
+  function renderGrid() {
+    var total = currentSize * currentSize;
+    gridDiv.style.gridTemplateColumns = "repeat(" + currentSize + ", 1fr)";
+    gridDiv.innerHTML = "";
+    for(var i=0;i<total;i++) {
+      var symbol = (i === oddIndex) ? oddSymbol : commonSymbol;
+      var item = document.createElement("div");
+      item.className = "grid-item";
+      item.innerText = symbol;
+      item.addEventListener("click", (function(idx){ return function(){ checkAnswer(idx); }; })(i));
+      gridDiv.appendChild(item);
+    }
+  }
+
+  function checkAnswer(clickedIdx) {
+    if(!gameActive) return;
+    if(clickedIdx === oddIndex) {
+      score++;
+      scoreSpan.innerText = score;
+      messageDiv.innerText = "✓ Doğru! Hızlanıyor...";
+      if(currentSize < 6) currentSize++;
+      nextRound();
+    } else {
+      gameActive = false;
+      stopTimer();
+      messageDiv.innerText = "❌ Oyun bitti! Skorunuz: " + score + ". Yeniden başlatın.";
+      var best = localStorage.getItem(bestKey);
+      if(!best || score > parseInt(best)) {
+        localStorage.setItem(bestKey, score);
+        updateBestDisplay();
+        messageDiv.innerText += " YENİ REKOR!";
+      }
+    }
+  }
+
+  function resetGame() {
+    stopTimer();
+    timerSeconds = 0;
+    updateTimerDisplay();
+    score = 0;
+    scoreSpan.innerText = "0";
+    currentSize = 2;
+    gameActive = true;
+    startTimer();
+    nextRound();
+    messageDiv.innerText = "Farklı olan nesneyi bul!";
+  }
+
+  resetBtn.addEventListener("click", resetGame);
+  resetGame();
+  updateBestDisplay();
+</script>
+</body>
+</html>

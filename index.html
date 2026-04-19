@@ -119,7 +119,7 @@
     }
 
     /* card grids */
-    .grid-3, .grid-features {
+    .grid-3, .grid-features, .grid-games {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
       gap: 1.5rem;
@@ -187,6 +187,24 @@
       gap: 0.7rem;
       text-decoration: underline;
       color: #C0C0C0;
+    }
+    /* oyun butonu stili */
+    .play-btn {
+      display: inline-block;
+      background: #F6B45F;
+      color: #0F1318;
+      font-weight: bold;
+      padding: 0.5rem 1.2rem;
+      border-radius: 40px;
+      margin-top: 1rem;
+      text-decoration: none;
+      font-size: 0.85rem;
+      transition: 0.1s linear;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    .play-btn:hover {
+      background: #C0C0C0;
+      transform: translateY(-2px);
     }
 
     /* beta form */
@@ -318,17 +336,21 @@
     <div class="hero-sub" id="heroSubtitle">Designed for 60+, built with love.</div>
   </div>
 
-  <!-- FEATURES (14 cards now) -->
+  <!-- FEATURES (14 cards) -->
   <div class="section-title"><span>✦</span> <span id="featuresHead">Öne Çıkanlar</span></div>
   <div class="grid-features" id="featuresGrid"></div>
 
-  <!-- STATISTICS (Biliyor muydun?) -->
+  <!-- STATISTICS -->
   <div class="section-title"><span>📊</span> <span id="statsTitle">Biliyor muydun?</span></div>
   <div class="grid-3" id="statsGrid"></div>
 
-  <!-- CROSS-LINKS (3 kart) -->
+  <!-- CROSS-LINKS (3 cards) -->
   <div class="section-title"><span>🔗</span> <span id="crosslinksTitle">PACDI Dijital Ekosistemi</span></div>
   <div class="grid-3" id="crosslinksGrid"></div>
+
+  <!-- ========= YENİ: ZİHİN EGZERSİZLERİ OYUNLARI ========= -->
+  <div class="section-title"><span>🧠</span> <span id="gamesHead">Zihin Egzersizleri</span></div>
+  <div class="grid-games" id="gamesGrid"></div>
 
   <!-- BETA FORM -->
   <div class="beta-box" id="betaBox">
@@ -354,7 +376,6 @@
 <script>
   (function() {
     // ---------- MULTI-LANGUAGE DICTIONARY (ES5 compatible) ----------
-    // Updated: includes 7 new feature cards (total 14)
     var translations = {
       TR: {
         badge: "PACDI | Onurlu Yaşam Rehberi",
@@ -363,12 +384,13 @@
         featuresHead: "Öne Çıkanlar",
         statsTitle: "Biliyor muydun?",
         crosslinksTitle: "PACDI Dijital Ekosistemi",
+        gamesHead: "Zihin Egzersizleri",
         betaTitle: "Beta listesine katılın",
         betaDesc: "SilverCompass'ı ilk deneyenlerden olun. Yaşınız bir sayı, deneyiminiz bir hazinedir.",
         betaPlaceholder: "E-posta adresiniz",
         betaBtnText: "Katıl →",
         betaSuccessMsg: "Teşekkürler! Size ulaşacağız.",
-        // ORIGINAL 7 FEATURES + 7 NEW (total 14)
+        // 14 ana özellik (mevcut)
         features: [
           "🧓 Yaşlı Dostu Arayüz — Büyük yazı, sesli komutlar, basit navigasyon. Teknolojiyi herkes için erişilebilir kılıyoruz.",
           "👨‍👩‍👧 Aile Paneli — Sevdikleriniz uzaktan takip edebilir, güvende olduğunuzu bilir. Gizlilik önce gelir — her şey izninizle.",
@@ -377,7 +399,6 @@
           "📻 Nostaljik Radyo — Gençliğinizin müziği, anılarınızın sesi. Müzik ruhu besler, geçmişi yakınlaştırır.",
           "🌍 Göçmen Yaşlılar İçin — Almanya'da yaşayan 60+ yaş Türk ve göçmen topluluklar için çok dilli destek. Yalnız değilsiniz.",
           "🤝 Nesiller Arası Bağ — KiezFlow ve CogniRoute ile bağlantılı. Deneyimini paylaş, destek ver, destek al. 'İyi İnsan Sertifikası' kazan.",
-          // NEW CARDS 8-14 (TR)
           "🧑‍🤝‍🧑 Bakıcı Köprüsü — Bakıcılar size özel notlar bırakabilir. 'Anlaşıldı' butonuyla onaylayın. Gözetim değil, destek.",
           "🔒 Offline-First Güvenlik — Tüm verileriniz cihazınızda kalır. Buluta gönderilmez. İnternet sadece acil arama için gereklidir.",
           "🧠 Alzheimer Erken Uyarı — Günlük rutinlerinizdeki değişimler yerel yapay zeka ile analiz edilir. Alışılmadık düşüş tespit edildiğinde bakıcıya öneri bildirimi gönderilir. Tüm analiz cihazınızda kalır.",
@@ -395,6 +416,14 @@
           { name: "CogniRoute", desc: "Bilişsel navigasyon için tamamlayıcı rehberiniz.", url: "https://cogniroute.de" },
           { name: "GlucoNavigatör", desc: "Sağlıklı kan şekeri, sağlıklı yaşlanma.", url: "https://gluconavigator.io" },
           { name: "EasyGov", desc: "Pflegegrad ve bakım yardımları için rehberiniz.", url: "https://easygov.io" }
+        ],
+        // YENİ: Oyunlar
+        games: [
+          { icon: "🧩", name: "Peg Solitaire", desc: "Klasik zeka oyunu, tek çivi kalana kadar atla.", link: "peg.html" },
+          { icon: "🃟", name: "Kart Eşleştirme", desc: "Hafızanı test et, çiftleri bul.", link: "memory.html" },
+          { icon: "🎵", name: "Sıra Hatırlama", desc: "Işık ve ses dizisini tekrarla.", link: "sequence.html" },
+          { icon: "🧮", name: "Hızlı Matematik", desc: "Basit işlemleri süreye karşı yap.", link: "math.html" },
+          { icon: "📖", name: "Kelime Türetme", desc: "Verilen harflerle anlamlı kelimeler bul.", link: "word.html" }
         ]
       },
       DE: {
@@ -404,6 +433,7 @@
         featuresHead: "Highlights",
         statsTitle: "Wussten Sie schon?",
         crosslinksTitle: "PACDI Ökosystem",
+        gamesHead: "Gehirntraining",
         betaTitle: "Beta-Liste beitreten",
         betaDesc: "Seien Sie unter den Ersten. Ihr Alter ist eine Zahl, Ihre Erfahrung ein Schatz.",
         betaPlaceholder: "Ihre E-Mail-Adresse",
@@ -417,7 +447,6 @@
           "📻 Nostalgieradio — Die Musik Ihrer Jugend, die Stimme Ihrer Erinnerungen.",
           "🌍 Für Senior-Migranten — Mehrsprachige Unterstützung für ältere Migranten in Deutschland.",
           "🤝 Generationenverbindung — Verbunden mit KiezFlow und CogniRoute. Teilen, geben, empfangen. 'Guter Mensch Zertifikat' verdienen.",
-          // NEW CARDS 8-14 (DE)
           "🧑‍🤝‍🧑 Pflegebrücke — Pflegepersonen können persönliche Notizen hinterlassen. Bestätigen Sie mit 'Verstanden'. Unterstützung, keine Überwachung.",
           "🔒 Offline-First Sicherheit — Alle Daten bleiben auf Ihrem Gerät. Keine Cloud. Internet nur für Notrufe erforderlich.",
           "🧠 Alzheimer-Frühwarnung — Veränderungen in Ihren täglichen Routinen werden lokal analysiert. Bei ungewöhnlichen Rückgängen wird der Betreuer benachrichtigt. Alle Analysen bleiben auf Ihrem Gerät.",
@@ -435,6 +464,13 @@
           { name: "CogniRoute", desc: "Ihr ergänzender Begleiter für kognitive Navigation.", url: "https://cogniroute.de" },
           { name: "GlucoNavigatör", desc: "Gesunder Blutzucker, gesundes Altern.", url: "https://gluconavigator.io" },
           { name: "EasyGov", desc: "Ihr Wegweiser für Pflegegrad und Sozialleistungen.", url: "https://easygov.io" }
+        ],
+        games: [
+          { icon: "🧩", name: "Peg Solitaire", desc: "Klassisches Logikspiel. Springe, bis ein Stift übrig bleibt.", link: "peg.html" },
+          { icon: "🃟", name: "Paare Memory", desc: "Teste dein Gedächtnis, finde die Paare.", link: "memory.html" },
+          { icon: "🎵", name: "Sequenz erinnern", desc: "Wiederhole die Licht- und Ton-Sequenz.", link: "sequence.html" },
+          { icon: "🧮", name: "Schnelles Rechnen", desc: "Einfache Aufgaben gegen die Zeit.", link: "math.html" },
+          { icon: "📖", name: "Wortbildung", desc: "Bilde sinnvolle Wörter aus den Buchstaben.", link: "word.html" }
         ]
       },
       EN: {
@@ -444,6 +480,7 @@
         featuresHead: "Key Features",
         statsTitle: "Did you know?",
         crosslinksTitle: "PACDI Digital Ecosystem",
+        gamesHead: "Brain Training",
         betaTitle: "Join Beta List",
         betaDesc: "Be among the first. Your age is a number, your experience is a treasure.",
         betaPlaceholder: "Your email address",
@@ -457,7 +494,6 @@
           "📻 Nostalgia Radio — The music of your youth, the voice of your memories.",
           "🌍 For Senior Migrants — Multilingual support for elderly migrants living in Germany.",
           "🤝 Generational Bond — Connected with KiezFlow and CogniRoute. Share, give, receive. Earn your 'Good Human Certificate'.",
-          // NEW CARDS 8-14 (EN)
           "🧑‍🤝‍🧑 Caregiver Bridge — Caregivers can leave personal notes. Confirm with 'Understood'. Support, not surveillance.",
           "🔒 Offline-First Security — All your data stays on your device. No cloud. Internet only needed for emergency calls.",
           "🧠 Alzheimer Early Warning — Changes in your daily routines are analyzed locally by AI. Unusual declines trigger caregiver notifications. All analysis stays on your device.",
@@ -475,11 +511,17 @@
           { name: "CogniRoute", desc: "Your complementary guide for cognitive navigation.", url: "https://cogniroute.de" },
           { name: "GlucoNavigatör", desc: "Healthy blood sugar, healthy aging.", url: "https://gluconavigator.io" },
           { name: "EasyGov", desc: "Your guide for care grade and social benefits.", url: "https://easygov.io" }
+        ],
+        games: [
+          { icon: "🧩", name: "Peg Solitaire", desc: "Classic logic game. Jump pegs until one remains.", link: "peg.html" },
+          { icon: "🃟", name: "Memory Match", desc: "Test your memory, find the matching pairs.", link: "memory.html" },
+          { icon: "🎵", name: "Sequence Recall", desc: "Repeat the light and sound sequence.", link: "sequence.html" },
+          { icon: "🧮", name: "Quick Math", desc: "Solve simple arithmetic against the clock.", link: "math.html" },
+          { icon: "📖", name: "Word Builder", desc: "Form meaningful words from given letters.", link: "word.html" }
         ]
       }
     };
 
-    // PACDI footer links (unchanged)
     var footerLinkItems = [
       { name: "navigopro.de", url: "https://navigopro.de" },
       { name: "kiezflow.de", url: "https://kiezflow.de" },
@@ -497,6 +539,7 @@
     var featuresHeadEl = document.getElementById("featuresHead");
     var statsTitleEl = document.getElementById("statsTitle");
     var crosslinksTitleEl = document.getElementById("crosslinksTitle");
+    var gamesHeadEl = document.getElementById("gamesHead");
     var betaTitleEl = document.getElementById("betaTitle");
     var betaDescEl = document.getElementById("betaDesc");
     var betaEmailInput = document.getElementById("betaEmailInput");
@@ -504,22 +547,22 @@
     var featuresGrid = document.getElementById("featuresGrid");
     var statsGrid = document.getElementById("statsGrid");
     var crosslinksGrid = document.getElementById("crosslinksGrid");
+    var gamesGrid = document.getElementById("gamesGrid");
     var footerLinksDiv = document.getElementById("footerLinks");
 
     var currentLang = "EN";
 
-    // render features, stats, crosslinks (dynamic)
+    // render features, stats, crosslinks, games
     function renderDynamicContent(lang) {
       var data = translations[lang];
       if (!data) return;
 
-      // 1) Features (14 cards now)
+      // 1) Features (14 cards)
       featuresGrid.innerHTML = "";
       for (var i = 0; i < data.features.length; i++) {
         var card = document.createElement("div");
         card.className = "card";
         var featureText = data.features[i];
-        // extract icon (first emoji or fallback)
         var iconMatch = featureText.match(/^[^\w]*(🧓|👨‍👩‍👧|💊|🏥|📻|🌍|🤝|🧑‍🤝‍🧑|🔒|🧠|🌙|⌚|🎙️|🏅)/);
         var icon = iconMatch ? iconMatch[1] : "✨";
         var descText = featureText;
@@ -548,6 +591,20 @@
                               (lang === "TR" ? "Siteyi ziyaret et →" : (lang === "DE" ? "Website besuchen →" : "Visit website →")) + '</a>';
         crosslinksGrid.appendChild(crossCard);
       }
+
+      // 4) Games (5 cards)
+      gamesGrid.innerHTML = "";
+      for (var g = 0; g < data.games.length; g++) {
+        var game = data.games[g];
+        var gameCard = document.createElement("div");
+        gameCard.className = "card";
+        gameCard.innerHTML = '<div class="card-icon">' + game.icon + '</div>' +
+                             '<div class="cross-link-title">' + game.name + '</div>' +
+                             '<div class="cross-link-desc">' + game.desc + '</div>' +
+                             '<a href="' + game.link + '" class="play-btn">' + 
+                             (lang === "TR" ? "Oyna →" : (lang === "DE" ? "Spielen →" : "Play →")) + '</a>';
+        gamesGrid.appendChild(gameCard);
+      }
     }
 
     // update static texts & placeholder, button text
@@ -560,6 +617,7 @@
       featuresHeadEl.innerText = data.featuresHead;
       statsTitleEl.innerText = data.statsTitle;
       crosslinksTitleEl.innerText = data.crosslinksTitle;
+      gamesHeadEl.innerText = data.gamesHead;
       betaTitleEl.innerText = data.betaTitle;
       betaDescEl.innerText = data.betaDesc;
       if (betaEmailInput) betaEmailInput.placeholder = data.betaPlaceholder;
@@ -595,7 +653,7 @@
       return "EN";
     }
 
-    // build footer links (unchanged)
+    // build footer links
     function buildFooterLinks() {
       footerLinksDiv.innerHTML = "";
       for (var i = 0; i < footerLinkItems.length; i++) {
@@ -612,7 +670,7 @@
       }
     }
 
-    // Beta form submit (ES5, fake success)
+    // Beta form submit
     function initBetaForm() {
       var form = document.getElementById("betaForm");
       if (!form) return;

@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
@@ -194,6 +195,20 @@
       background: #FFFFFF;
       transform: translateY(-2px);
     }
+    /* NEW badge for new games */
+    .game-new-badge {
+      display: inline-block;
+      background: rgba(46,204,113,0.2);
+      color: #2ECC71;
+      font-size: 0.62rem;
+      font-weight: bold;
+      padding: 2px 8px;
+      border-radius: 20px;
+      border: 1px solid rgba(46,204,113,0.4);
+      margin-left: 6px;
+      vertical-align: middle;
+      letter-spacing: 1px;
+    }
     .beta-box {
       background: rgba(255,255,255,0.05);
       border-radius: 32px;
@@ -321,7 +336,6 @@
   <div class="section-title"><span>🔗</span> <span id="crosslinksTitle">PACDI Dijital Ekosistemi</span></div>
   <div class="grid-3" id="crosslinksGrid"></div>
 
-  <!-- ZİHİN EGZERSİZLERİ - 11 OYUN -->
   <div class="section-title"><span>🧠</span> <span id="gamesHead">Zihin Egzersizleri</span></div>
   <div class="grid-games" id="gamesGrid"></div>
 
@@ -345,321 +359,357 @@
 </div>
 
 <script>
-  (function() {
-    // Çoklu dil verileri (TR, DE, EN)
-    var translations = {
-      TR: {
-        heroTitle: "Onurla Yaşlanmak Bir Haktır.",
-        heroSubtitle: "60+ yaş için tasarlanmış, sevgiyle inşa edilmiş.",
-        featuresHead: "Öne Çıkanlar",
-        statsTitle: "Biliyor muydun?",
-        crosslinksTitle: "PACDI Dijital Ekosistemi",
-        gamesHead: "Zihin Egzersizleri",
-        betaTitle: "Beta listesine katılın",
-        betaDesc: "SilverCompass'ı ilk deneyenlerden olun. Yaşınız bir sayı, deneyiminiz bir hazinedir.",
-        betaPlaceholder: "E-posta adresiniz",
-        betaBtnText: "Katıl →",
-        betaSuccessMsg: "Teşekkürler! Size ulaşacağız.",
-        features: [
-          "🧓 Yaşlı Dostu Arayüz — Büyük yazı, sesli komutlar, basit navigasyon.",
-          "👨‍👩‍👧 Aile Paneli — Sevdikleriniz uzaktan takip edebilir, güvende olduğunuzu bilir.",
-          "💊 İlaç Hatırlatıcı — Doğru zamanda, sevecen bir hatırlatmayla.",
-          "🏥 Doktor Randevu Yönetimi — Randevularınızı takip edin, hatırlatın.",
-          "📻 Nostaljik Radyo — Gençliğinizin müziği, anılarınızın sesi.",
-          "🌍 Göçmen Yaşlılar İçin — Almanya'da yaşayan 60+ yaş Türk ve göçmen topluluklar için çok dilli destek.",
-          "🤝 Nesiller Arası Bağ — KiezFlow ve CogniRoute ile bağlantılı. Deneyimini paylaş, destek ver.",
-          "🧑‍🤝‍🧑 Bakıcı Köprüsü — Bakıcılar size özel notlar bırakabilir. 'Anlaşıldı' butonuyla onaylayın.",
-          "🔒 Offline-First Güvenlik — Tüm verileriniz cihazınızda kalır. Buluta gönderilmez.",
-          "🧠 Alzheimer Erken Uyarı — Günlük rutinlerinizdeki değişimler yerel yapay zeka ile analiz edilir.",
-          "🌙 Gece Yarısı Kalkanı — Anormal saatte cihazı eline aldığında sistem fark eder.",
-          "⌚ Akıllı Saat Entegrasyonu — Nabız, uyku kalitesi ve hareket verileri GlucoNavigatör ile analiz edilir.",
-          "🎙️ Sesli Arayüz — Yazmak zorunda değilsiniz. Konuşarak kullanın.",
-          "🏅 İyi İnsan Sertifikası — KiezFlow ve CogniRoute bağlantısıyla destek veren bakıcılar bonus ödüller kazanır."
-        ],
-        stats: [
-          { number: "2 Milyar", label: "2050'de 60+ yaş nüfus (dünya)" },
-          { number: "%35", label: "Almanya'daki yaşlıların yalnızlık hissi" },
-          { number: "10 Yıl", label: "Erken müdahaleyle kazanılan sağlıklı yaşam süresi" }
-        ],
-        crossLinks: [
-          { name: "CogniRoute", desc: "Bilişsel navigasyon için tamamlayıcı rehberiniz.", url: "https://cogniroute.de" },
-          { name: "GlucoNavigatör", desc: "Sağlıklı kan şekeri, sağlıklı yaşlanma.", url: "https://gluconavigator.io" },
-          { name: "EasyGov", desc: "Pflegegrad ve bakım yardımları için rehberiniz.", url: "https://easygov.io" }
-        ],
-        games: [
-          { icon: "🧩", name: "Peg Solitaire", desc: "Klasik zeka oyunu, tek çivi kalana kadar atla.", link: "peg.html" },
-          { icon: "🧮", name: "Hızlı Matematik", desc: "Basit işlemleri süreye karşı yap.", link: "math.html" },
-          { icon: "🃟", name: "Kart Eşleştirme", desc: "Hafızanı test et, çiftleri bul.", link: "memory.html" },
-          { icon: "🎵", name: "Sıra Hatırlama", desc: "Işık ve ses dizisini tekrarla.", link: "sequence.html" },
-          { icon: "📖", name: "Kelime Türetme", desc: "Verilen harflerle anlamlı kelimeler bul.", link: "word.html" },
-          { icon: "🔢", name: "Sudoku", desc: "9x9 Sudoku, 3 zorluk seviyesi.", link: "sudoku.html" },
-          { icon: "🀄", name: "Mahjong", desc: "Eşleşen taşları kaldır, zihni rahatlat.", link: "mahjong.html" },
-          { icon: "🎨", name: "Stroop Testi", desc: "Renk ve kelime çatışması, reaksiyon süreni ölç.", link: "stroop.html" },
-          { icon: "🌈", name: "Renk Eşleştirme", desc: "Hedef rengi karışık kartlar arasında bul.", link: "color.html" },
-          { icon: "🔢", name: "Sayı Dizisi", desc: "Giderek uzayan sayı dizilerini hatırla.", link: "numbers.html" },
-          { icon: "👁️", name: "Görsel Dikkat", desc: "Farklı olan nesneyi hızla bul.", link: "visual.html" }
-        ]
-      },
-      DE: {
-        heroTitle: "Würdevoll Altern ist ein Recht.",
-        heroSubtitle: "Für Menschen 60+, mit Liebe gestaltet.",
-        featuresHead: "Highlights",
-        statsTitle: "Wussten Sie schon?",
-        crosslinksTitle: "PACDI Ökosystem",
-        gamesHead: "Gehirntraining",
-        betaTitle: "Beta-Liste beitreten",
-        betaDesc: "Seien Sie unter den Ersten. Ihr Alter ist eine Zahl, Ihre Erfahrung ein Schatz.",
-        betaPlaceholder: "Ihre E-Mail-Adresse",
-        betaBtnText: "Beitreten →",
-        betaSuccessMsg: "Vielen Dank! Wir werden Sie kontaktieren.",
-        features: [
-          "🧓 Seniorenfreundliche Oberfläche — Große Schrift, Sprachbefehle.",
-          "👨‍👩‍👧 Familien-Panel — Ihre Liebsten können aus der Ferne für Sie da sein.",
-          "💊 Medikamenten-Erinnerung — Zur richtigen Zeit, mit einer fürsorglichen Erinnerung.",
-          "🏥 Arzttermin-Management — Behalten Sie den Überblick über Ihre Termine.",
-          "📻 Nostalgieradio — Die Musik Ihrer Jugend, die Stimme Ihrer Erinnerungen.",
-          "🌍 Für Senior-Migranten — Mehrsprachige Unterstützung für ältere Migranten in Deutschland.",
-          "🤝 Generationenverbindung — Verbunden mit KiezFlow und CogniRoute.",
-          "🧑‍🤝‍🧑 Pflegebrücke — Pflegepersonen können persönliche Notizen hinterlassen.",
-          "🔒 Offline-First Sicherheit — Alle Daten bleiben auf Ihrem Gerät.",
-          "🧠 Alzheimer-Frühwarnung — Veränderungen in Ihren täglichen Routinen werden lokal analysiert.",
-          "🌙 Nachtschild — Das System erkennt ungewöhnliche Nutzungszeiten.",
-          "⌚ Smartwatch-Integration — Puls, Schlafqualität und Bewegungsdaten werden analysiert.",
-          "🎙️ Sprachoberfläche — Kein Tippen erforderlich. Sprechen Sie einfach.",
-          "🏅 Guter-Mensch-Zertifikat — Pflegepersonen erhalten Bonuspunkte."
-        ],
-        stats: [
-          { number: "2 Milliarden", label: "Menschen 60+ bis 2050 weltweit" },
-          { number: "35%", label: "Ältere Menschen in Deutschland fühlen sich einsam" },
-          { number: "10 Jahre", label: "Gewonnene gesunde Lebensjahre durch Früherkennung" }
-        ],
-        crossLinks: [
-          { name: "CogniRoute", desc: "Ihr ergänzender Begleiter für kognitive Navigation.", url: "https://cogniroute.de" },
-          { name: "GlucoNavigatör", desc: "Gesunder Blutzucker, gesundes Altern.", url: "https://gluconavigator.io" },
-          { name: "EasyGov", desc: "Ihr Wegweiser für Pflegegrad und Sozialleistungen.", url: "https://easygov.io" }
-        ],
-        games: [
-          { icon: "🧩", name: "Peg Solitaire", desc: "Klassisches Logikspiel.", link: "peg.html" },
-          { icon: "🧮", name: "Schnelles Rechnen", desc: "Einfache Aufgaben gegen die Zeit.", link: "math.html" },
-          { icon: "🃟", name: "Paare Memory", desc: "Teste dein Gedächtnis.", link: "memory.html" },
-          { icon: "🎵", name: "Sequenz erinnern", desc: "Wiederhole die Licht- und Ton-Sequenz.", link: "sequence.html" },
-          { icon: "📖", name: "Wortbildung", desc: "Bilde sinnvolle Wörter aus Buchstaben.", link: "word.html" },
-          { icon: "🔢", name: "Sudoku", desc: "9x9 Sudoku, 3 Schwierigkeitsstufen.", link: "sudoku.html" },
-          { icon: "🀄", name: "Mahjong", desc: "Entferne passende Steine.", link: "mahjong.html" },
-          { icon: "🎨", name: "Stroop Test", desc: "Farbe und Wort Konflikt.", link: "stroop.html" },
-          { icon: "🌈", name: "Farbe zuordnen", desc: "Finde die Ziel-Farbe.", link: "color.html" },
-          { icon: "🔢", name: "Zahlenfolge", desc: "Merke dir die Zahlenreihen.", link: "numbers.html" },
-          { icon: "👁️", name: "Visuelle Aufmerksamkeit", desc: "Finde das andersartige Objekt.", link: "visual.html" }
-        ]
-      },
-      EN: {
-        heroTitle: "Aging with Dignity is a Right.",
-        heroSubtitle: "Designed for 60+, built with love.",
-        featuresHead: "Key Features",
-        statsTitle: "Did you know?",
-        crosslinksTitle: "PACDI Digital Ecosystem",
-        gamesHead: "Brain Training",
-        betaTitle: "Join Beta List",
-        betaDesc: "Be among the first. Your age is a number, your experience is a treasure.",
-        betaPlaceholder: "Your email address",
-        betaBtnText: "Join →",
-        betaSuccessMsg: "Thank you! We'll reach out.",
-        features: [
-          "🧓 Senior-Friendly Interface — Large text, voice commands.",
-          "👨‍👩‍👧 Family Panel — Loved ones can check in remotely.",
-          "💊 Medication Reminder — At the right time, with a caring reminder.",
-          "🏥 Doctor Appointment Management — Track, remind and prepare.",
-          "📻 Nostalgia Radio — The music of your youth, the voice of your memories.",
-          "🌍 For Senior Migrants — Multilingual support for elderly migrants in Germany.",
-          "🤝 Generational Bond — Connected with KiezFlow and CogniRoute.",
-          "🧑‍🤝‍🧑 Caregiver Bridge — Caregivers can leave personal notes.",
-          "🔒 Offline-First Security — All your data stays on your device.",
-          "🧠 Alzheimer Early Warning — Changes in daily routines analyzed locally.",
-          "🌙 Night Shield — Detects unusual usage hours.",
-          "⌚ Smartwatch Integration — Heart rate, sleep, movement analyzed.",
-          "🎙️ Voice Interface — No typing required. Just speak.",
-          "🏅 Good Human Certificate — Caregivers earn bonus rewards."
-        ],
-        stats: [
-          { number: "2 Billion", label: "People 60+ by 2050 worldwide" },
-          { number: "35%", label: "Elderly in Germany feel lonely" },
-          { number: "10 Years", label: "Healthy life years gained through early intervention" }
-        ],
-        crossLinks: [
-          { name: "CogniRoute", desc: "Your complementary guide for cognitive navigation.", url: "https://cogniroute.de" },
-          { name: "GlucoNavigatör", desc: "Healthy blood sugar, healthy aging.", url: "https://gluconavigator.io" },
-          { name: "EasyGov", desc: "Your guide for care grade and social benefits.", url: "https://easygov.io" }
-        ],
-        games: [
-          { icon: "🧩", name: "Peg Solitaire", desc: "Classic logic game. Jump pegs until one remains.", link: "peg.html" },
-          { icon: "🧮", name: "Quick Math", desc: "Solve simple arithmetic against the clock.", link: "math.html" },
-          { icon: "🃟", name: "Memory Match", desc: "Test your memory, find matching pairs.", link: "memory.html" },
-          { icon: "🎵", name: "Sequence Recall", desc: "Repeat the light and sound sequence.", link: "sequence.html" },
-          { icon: "📖", name: "Word Builder", desc: "Form meaningful words from given letters.", link: "word.html" },
-          { icon: "🔢", name: "Sudoku", desc: "9x9 Sudoku, 3 difficulty levels.", link: "sudoku.html" },
-          { icon: "🀄", name: "Mahjong", desc: "Remove matching tiles, relax your mind.", link: "mahjong.html" },
-          { icon: "🎨", name: "Stroop Test", desc: "Color-word conflict, measure reaction time.", link: "stroop.html" },
-          { icon: "🌈", name: "Color Match", desc: "Find the target color among mixed cards.", link: "color.html" },
-          { icon: "🔢", name: "Number Sequence", desc: "Remember increasingly longer sequences.", link: "numbers.html" },
-          { icon: "👁️", name: "Visual Attention", desc: "Quickly find the odd object.", link: "visual.html" }
-        ]
-      }
-    };
+(function() {
 
-    var footerLinkItems = [
-      { name: "navigopro.de", url: "https://navigopro.de" },
-      { name: "kiezflow.de", url: "https://kiezflow.de" },
-      { name: "easygov.io", url: "https://easygov.io" },
-      { name: "gluconavigator.io", url: "https://gluconavigator.io" },
-      { name: "schulroute.de", url: "https://schulroute.de" },
-      { name: "wohnroute.de", url: "https://wohnroute.de" },
-      { name: "cogniroute.de", url: "https://cogniroute.de" }
-    ];
+  var translations = {
+    TR: {
+      heroTitle: "Onurla Yaşlanmak Bir Haktır.",
+      heroSubtitle: "60+ yaş için tasarlanmış, sevgiyle inşa edilmiş.",
+      featuresHead: "Öne Çıkanlar",
+      statsTitle: "Biliyor muydun?",
+      crosslinksTitle: "PACDI Dijital Ekosistemi",
+      gamesHead: "Zihin Egzersizleri",
+      betaTitle: "Beta listesine katılın",
+      betaDesc: "SilverCompass'ı ilk deneyenlerden olun. Yaşınız bir sayı, deneyiminiz bir hazinedir.",
+      betaPlaceholder: "E-posta adresiniz",
+      betaBtnText: "Katıl →",
+      betaSuccessMsg: "Teşekkürler! Size ulaşacağız.",
+      features: [
+        "🧓 Yaşlı Dostu Arayüz — Büyük yazı, sesli komutlar, basit navigasyon.",
+        "👨‍👩‍👧 Aile Paneli — Sevdikleriniz uzaktan takip edebilir, güvende olduğunuzu bilir.",
+        "💊 İlaç Hatırlatıcı — Doğru zamanda, sevecen bir hatırlatmayla.",
+        "🏥 Doktor Randevu Yönetimi — Randevularınızı takip edin, hatırlatın.",
+        "📻 Nostaljik Radyo — Gençliğinizin müziği, anılarınızın sesi.",
+        "🌍 Göçmen Yaşlılar İçin — Almanya'da yaşayan 60+ yaş Türk ve göçmen topluluklar için çok dilli destek.",
+        "🤝 Nesiller Arası Bağ — KiezFlow ve CogniRoute ile bağlantılı. Deneyimini paylaş, destek ver.",
+        "🧑‍🤝‍🧑 Bakıcı Köprüsü — Bakıcılar size özel notlar bırakabilir. 'Anlaşıldı' butonuyla onaylayın.",
+        "🔒 Offline-First Güvenlik — Tüm verileriniz cihazınızda kalır. Buluta gönderilmez.",
+        "🧠 Alzheimer Erken Uyarı — Günlük rutinlerinizdeki değişimler yerel yapay zeka ile analiz edilir.",
+        "🌙 Gece Yarısı Kalkanı — Anormal saatte cihazı eline aldığında sistem fark eder.",
+        "⌚ Akıllı Saat Entegrasyonu — Nabız, uyku kalitesi ve hareket verileri GlucoNavigatör ile analiz edilir.",
+        "🎙️ Sesli Arayüz — Yazmak zorunda değilsiniz. Konuşarak kullanın.",
+        "🏅 İyi İnsan Sertifikası — KiezFlow ve CogniRoute bağlantısıyla destek veren bakıcılar bonus ödüller kazanır."
+      ],
+      stats: [
+        { number: "2 Milyar", label: "2050'de 60+ yaş nüfus (dünya)" },
+        { number: "%35", label: "Almanya'daki yaşlıların yalnızlık hissi" },
+        { number: "10 Yıl", label: "Erken müdahaleyle kazanılan sağlıklı yaşam süresi" }
+      ],
+      crossLinks: [
+        { name: "CogniRoute", desc: "Bilişsel navigasyon için tamamlayıcı rehberiniz.", url: "https://cogniroute.de" },
+        { name: "GlucoNavigatör", desc: "Sağlıklı kan şekeri, sağlıklı yaşlanma.", url: "https://gluconavigator.io" },
+        { name: "EasyGov", desc: "Pflegegrad ve bakım yardımları için rehberiniz.", url: "https://easygov.io" }
+      ],
+      games: [
+        { icon: "🧩", name: "Peg Solitaire", desc: "Klasik zeka oyunu, tek çivi kalana kadar atla.", link: "peg.html", isNew: false },
+        { icon: "🧮", name: "Hızlı Matematik", desc: "Basit işlemleri süreye karşı yap.", link: "math.html", isNew: false },
+        { icon: "🃟", name: "Kart Eşleştirme", desc: "Hafızanı test et, çiftleri bul.", link: "memory.html", isNew: false },
+        { icon: "🎵", name: "Sıra Hatırlama", desc: "Işık ve ses dizisini tekrarla.", link: "sequence.html", isNew: false },
+        { icon: "📖", name: "Kelime Türetme", desc: "Verilen harflerle anlamlı kelimeler bul.", link: "word.html", isNew: false },
+        { icon: "🔢", name: "Sudoku", desc: "9x9 Sudoku, 3 zorluk seviyesi.", link: "sudoku.html", isNew: false },
+        { icon: "🀄", name: "Mahjong", desc: "Eşleşen taşları kaldır, zihni rahatlat.", link: "mahjong.html", isNew: false },
+        { icon: "🎨", name: "Stroop Testi", desc: "Renk ve kelime çatışması, reaksiyon süreni ölç.", link: "stroop.html", isNew: false },
+        { icon: "🌈", name: "Renk Eşleştirme", desc: "Hedef rengi karışık kartlar arasında bul.", link: "color.html", isNew: false },
+        { icon: "🔢", name: "Sayı Dizisi", desc: "Giderek uzayan sayı dizilerini hatırla.", link: "numbers.html", isNew: false },
+        { icon: "👁️", name: "Görsel Dikkat", desc: "Farklı olan nesneyi hızla bul.", link: "visual.html", isNew: false },
+        { icon: "🎯", name: "Mastermind", desc: "Gizli renk kodunu mantık yürüterek bul. 3 zorluk.", link: "mastermind.html", isNew: true },
+        { icon: "🔄", name: "Rotate", desc: "Şekli döndür, hedefe hizala. Uzamsal algı.", link: "rotate.html", isNew: true },
+        { icon: "🟦", name: "Pattern Match", desc: "Deseni ezberle, doğru hücreleri seç.", link: "pattern-match.html", isNew: true },
+        { icon: "🔍", name: "Number Hunt", desc: "Sayıları küçükten büyüğe sırayla bul!", link: "number-hunt.html", isNew: true },
+        { icon: "⚡", name: "Reaction Tap", desc: "Hedefe olabildiğince hızlı dokun.", link: "reaction-tap.html", isNew: true },
+        { icon: "💵", name: "Counterfeit", desc: "Sahte banknotları gerçeklerinden ayırt et.", link: "counterfeit.html", isNew: true },
+        { icon: "🎨", name: "Color Lines", desc: "Renkli topları sırala, 5'li çizgi yap, patlat!", link: "color-lines.html", isNew: true },
+        { icon: "🌬️", name: "Nefes & Dinlenme", desc: "Nefes egzersizleri ile stres azalt, vagus sinirini aktive et.", link: "breathing.html", isNew: true }
+      ]
+    },
+    DE: {
+      heroTitle: "Würdevoll Altern ist ein Recht.",
+      heroSubtitle: "Für Menschen 60+, mit Liebe gestaltet.",
+      featuresHead: "Highlights",
+      statsTitle: "Wussten Sie schon?",
+      crosslinksTitle: "PACDI Ökosystem",
+      gamesHead: "Gehirntraining",
+      betaTitle: "Beta-Liste beitreten",
+      betaDesc: "Seien Sie unter den Ersten. Ihr Alter ist eine Zahl, Ihre Erfahrung ein Schatz.",
+      betaPlaceholder: "Ihre E-Mail-Adresse",
+      betaBtnText: "Beitreten →",
+      betaSuccessMsg: "Vielen Dank! Wir werden Sie kontaktieren.",
+      features: [
+        "🧓 Seniorenfreundliche Oberfläche — Große Schrift, Sprachbefehle.",
+        "👨‍👩‍👧 Familien-Panel — Ihre Liebsten können aus der Ferne für Sie da sein.",
+        "💊 Medikamenten-Erinnerung — Zur richtigen Zeit, mit einer fürsorglichen Erinnerung.",
+        "🏥 Arzttermin-Management — Behalten Sie den Überblick über Ihre Termine.",
+        "📻 Nostalgieradio — Die Musik Ihrer Jugend, die Stimme Ihrer Erinnerungen.",
+        "🌍 Für Senior-Migranten — Mehrsprachige Unterstützung für ältere Migranten in Deutschland.",
+        "🤝 Generationenverbindung — Verbunden mit KiezFlow und CogniRoute.",
+        "🧑‍🤝‍🧑 Pflegebrücke — Pflegepersonen können persönliche Notizen hinterlassen.",
+        "🔒 Offline-First Sicherheit — Alle Daten bleiben auf Ihrem Gerät.",
+        "🧠 Alzheimer-Frühwarnung — Veränderungen in Ihren täglichen Routinen werden lokal analysiert.",
+        "🌙 Nachtschild — Das System erkennt ungewöhnliche Nutzungszeiten.",
+        "⌚ Smartwatch-Integration — Puls, Schlafqualität und Bewegungsdaten werden analysiert.",
+        "🎙️ Sprachoberfläche — Kein Tippen erforderlich. Sprechen Sie einfach.",
+        "🏅 Guter-Mensch-Zertifikat — Pflegepersonen erhalten Bonuspunkte."
+      ],
+      stats: [
+        { number: "2 Milliarden", label: "Menschen 60+ bis 2050 weltweit" },
+        { number: "35%", label: "Ältere Menschen in Deutschland fühlen sich einsam" },
+        { number: "10 Jahre", label: "Gewonnene gesunde Lebensjahre durch Früherkennung" }
+      ],
+      crossLinks: [
+        { name: "CogniRoute", desc: "Ihr ergänzender Begleiter für kognitive Navigation.", url: "https://cogniroute.de" },
+        { name: "GlucoNavigatör", desc: "Gesunder Blutzucker, gesundes Altern.", url: "https://gluconavigator.io" },
+        { name: "EasyGov", desc: "Ihr Wegweiser für Pflegegrad und Sozialleistungen.", url: "https://easygov.io" }
+      ],
+      games: [
+        { icon: "🧩", name: "Peg Solitaire", desc: "Klassisches Logikspiel.", link: "peg.html", isNew: false },
+        { icon: "🧮", name: "Schnelles Rechnen", desc: "Einfache Aufgaben gegen die Zeit.", link: "math.html", isNew: false },
+        { icon: "🃟", name: "Paare Memory", desc: "Teste dein Gedächtnis.", link: "memory.html", isNew: false },
+        { icon: "🎵", name: "Sequenz erinnern", desc: "Wiederhole die Licht- und Ton-Sequenz.", link: "sequence.html", isNew: false },
+        { icon: "📖", name: "Wortbildung", desc: "Bilde sinnvolle Wörter aus Buchstaben.", link: "word.html", isNew: false },
+        { icon: "🔢", name: "Sudoku", desc: "9x9 Sudoku, 3 Schwierigkeitsstufen.", link: "sudoku.html", isNew: false },
+        { icon: "🀄", name: "Mahjong", desc: "Entferne passende Steine.", link: "mahjong.html", isNew: false },
+        { icon: "🎨", name: "Stroop Test", desc: "Farbe und Wort Konflikt.", link: "stroop.html", isNew: false },
+        { icon: "🌈", name: "Farbe zuordnen", desc: "Finde die Ziel-Farbe.", link: "color.html", isNew: false },
+        { icon: "🔢", name: "Zahlenfolge", desc: "Merke dir die Zahlenreihen.", link: "numbers.html", isNew: false },
+        { icon: "👁️", name: "Visuelle Aufmerksamkeit", desc: "Finde das andersartige Objekt.", link: "visual.html", isNew: false },
+        { icon: "🎯", name: "Mastermind", desc: "Knacke den geheimen Farbcode. 3 Schwierigkeitsstufen.", link: "mastermind.html", isNew: true },
+        { icon: "🔄", name: "Rotate", desc: "Drehe die Form, bis sie mit dem Ziel übereinstimmt.", link: "rotate.html", isNew: true },
+        { icon: "🟦", name: "Pattern Match", desc: "Muster einprägen und richtige Felder auswählen.", link: "pattern-match.html", isNew: true },
+        { icon: "🔍", name: "Number Hunt", desc: "Finde die Zahlen in aufsteigender Reihenfolge!", link: "number-hunt.html", isNew: true },
+        { icon: "⚡", name: "Reaction Tap", desc: "Tippe so schnell wie möglich auf das Ziel.", link: "reaction-tap.html", isNew: true },
+        { icon: "💵", name: "Counterfeit", desc: "Erkenne die gefälschten Banknoten.", link: "counterfeit.html", isNew: true },
+        { icon: "🎨", name: "Color Lines", desc: "Sortiere Bälle, bilde 5er-Reihen, lass sie platzen!", link: "color-lines.html", isNew: true },
+        { icon: "🌬️", name: "Atemübungen", desc: "Stressabbau und Vagusnerv-Aktivierung.", link: "breathing.html", isNew: true }
+      ]
+    },
+    EN: {
+      heroTitle: "Aging with Dignity is a Right.",
+      heroSubtitle: "Designed for 60+, built with love.",
+      featuresHead: "Key Features",
+      statsTitle: "Did you know?",
+      crosslinksTitle: "PACDI Digital Ecosystem",
+      gamesHead: "Brain Training",
+      betaTitle: "Join Beta List",
+      betaDesc: "Be among the first. Your age is a number, your experience is a treasure.",
+      betaPlaceholder: "Your email address",
+      betaBtnText: "Join →",
+      betaSuccessMsg: "Thank you! We'll reach out.",
+      features: [
+        "🧓 Senior-Friendly Interface — Large text, voice commands.",
+        "👨‍👩‍👧 Family Panel — Loved ones can check in remotely.",
+        "💊 Medication Reminder — At the right time, with a caring reminder.",
+        "🏥 Doctor Appointment Management — Track, remind and prepare.",
+        "📻 Nostalgia Radio — The music of your youth, the voice of your memories.",
+        "🌍 For Senior Migrants — Multilingual support for elderly migrants in Germany.",
+        "🤝 Generational Bond — Connected with KiezFlow and CogniRoute.",
+        "🧑‍🤝‍🧑 Caregiver Bridge — Caregivers can leave personal notes.",
+        "🔒 Offline-First Security — All your data stays on your device.",
+        "🧠 Alzheimer Early Warning — Changes in daily routines analyzed locally.",
+        "🌙 Night Shield — Detects unusual usage hours.",
+        "⌚ Smartwatch Integration — Heart rate, sleep, movement analyzed.",
+        "🎙️ Voice Interface — No typing required. Just speak.",
+        "🏅 Good Human Certificate — Caregivers earn bonus rewards."
+      ],
+      stats: [
+        { number: "2 Billion", label: "People 60+ by 2050 worldwide" },
+        { number: "35%", label: "Elderly in Germany feel lonely" },
+        { number: "10 Years", label: "Healthy life years gained through early intervention" }
+      ],
+      crossLinks: [
+        { name: "CogniRoute", desc: "Your complementary guide for cognitive navigation.", url: "https://cogniroute.de" },
+        { name: "GlucoNavigatör", desc: "Healthy blood sugar, healthy aging.", url: "https://gluconavigator.io" },
+        { name: "EasyGov", desc: "Your guide for care grade and social benefits.", url: "https://easygov.io" }
+      ],
+      games: [
+        { icon: "🧩", name: "Peg Solitaire", desc: "Classic logic game. Jump pegs until one remains.", link: "peg.html", isNew: false },
+        { icon: "🧮", name: "Quick Math", desc: "Solve simple arithmetic against the clock.", link: "math.html", isNew: false },
+        { icon: "🃟", name: "Memory Match", desc: "Test your memory, find matching pairs.", link: "memory.html", isNew: false },
+        { icon: "🎵", name: "Sequence Recall", desc: "Repeat the light and sound sequence.", link: "sequence.html", isNew: false },
+        { icon: "📖", name: "Word Builder", desc: "Form meaningful words from given letters.", link: "word.html", isNew: false },
+        { icon: "🔢", name: "Sudoku", desc: "9x9 Sudoku, 3 difficulty levels.", link: "sudoku.html", isNew: false },
+        { icon: "🀄", name: "Mahjong", desc: "Remove matching tiles, relax your mind.", link: "mahjong.html", isNew: false },
+        { icon: "🎨", name: "Stroop Test", desc: "Color-word conflict, measure reaction time.", link: "stroop.html", isNew: false },
+        { icon: "🌈", name: "Color Match", desc: "Find the target color among mixed cards.", link: "color.html", isNew: false },
+        { icon: "🔢", name: "Number Sequence", desc: "Remember increasingly longer sequences.", link: "numbers.html", isNew: false },
+        { icon: "👁️", name: "Visual Attention", desc: "Quickly find the odd object.", link: "visual.html", isNew: false },
+        { icon: "🎯", name: "Mastermind", desc: "Crack the secret color code. 3 difficulty levels.", link: "mastermind.html", isNew: true },
+        { icon: "🔄", name: "Rotate", desc: "Rotate the shape to match the target. Spatial reasoning.", link: "rotate.html", isNew: true },
+        { icon: "🟦", name: "Pattern Match", desc: "Memorize the pattern and select correct cells.", link: "pattern-match.html", isNew: true },
+        { icon: "🔍", name: "Number Hunt", desc: "Find numbers in ascending order — fast!", link: "number-hunt.html", isNew: true },
+        { icon: "⚡", name: "Reaction Tap", desc: "Tap the target as fast as possible.", link: "reaction-tap.html", isNew: true },
+        { icon: "💵", name: "Counterfeit", desc: "Spot the fake banknote among the real ones.", link: "counterfeit.html", isNew: true },
+        { icon: "🎨", name: "Color Lines", desc: "Move balls, make lines of 5, clear the board!", link: "color-lines.html", isNew: true },
+        { icon: "🌬️", name: "Breathing", desc: "Guided breathing to reduce stress and activate vagus nerve.", link: "breathing.html", isNew: true }
+      ]
+    }
+  };
 
-    var currentLang = "TR";
-    var featuresGrid = document.getElementById("featuresGrid");
-    var statsGrid = document.getElementById("statsGrid");
-    var crosslinksGrid = document.getElementById("crosslinksGrid");
-    var gamesGrid = document.getElementById("gamesGrid");
-    var footerLinksDiv = document.getElementById("footerLinks");
-    var heroTitleEl = document.getElementById("heroTitle");
-    var heroSubEl = document.getElementById("heroSubtitle");
-    var featuresHeadEl = document.getElementById("featuresHead");
-    var statsTitleEl = document.getElementById("statsTitle");
-    var crosslinksTitleEl = document.getElementById("crosslinksTitle");
-    var gamesHeadEl = document.getElementById("gamesHead");
-    var betaTitleEl = document.getElementById("betaTitle");
-    var betaDescEl = document.getElementById("betaDesc");
-    var betaEmailInput = document.getElementById("betaEmailInput");
-    var betaBtn = document.getElementById("betaBtn");
+  var footerLinkItems = [
+    { name: "navigopro.de", url: "https://navigopro.de" },
+    { name: "kiezflow.de", url: "https://kiezflow.de" },
+    { name: "easygov.io", url: "https://easygov.io" },
+    { name: "gluconavigator.io", url: "https://gluconavigator.io" },
+    { name: "schulroute.de", url: "https://schulroute.de" },
+    { name: "wohnroute.de", url: "https://wohnroute.de" },
+    { name: "cogniroute.de", url: "https://cogniroute.de" }
+  ];
 
-    function renderDynamicContent(lang) {
-      var data = translations[lang];
-      if (!data) return;
-      featuresGrid.innerHTML = "";
-      for (var i = 0; i < data.features.length; i++) {
-        var card = document.createElement("div");
-        card.className = "card";
-        var iconMatch = data.features[i].match(/^[^\w]*(🧓|👨‍👩‍👧|💊|🏥|📻|🌍|🤝|🧑‍🤝‍🧑|🔒|🧠|🌙|⌚|🎙️|🏅)/);
-        var icon = iconMatch ? iconMatch[1] : "✨";
-        var descText = data.features[i];
-        card.innerHTML = '<div class="card-icon">' + icon + '</div><div class="card-text">' + descText + '</div>';
-        featuresGrid.appendChild(card);
-      }
-      statsGrid.innerHTML = "";
-      for (var s = 0; s < data.stats.length; s++) {
-        var statCard = document.createElement("div");
-        statCard.className = "card";
-        statCard.innerHTML = '<div class="stat-number">' + data.stats[s].number + '</div><div class="stat-label">' + data.stats[s].label + '</div>';
-        statsGrid.appendChild(statCard);
-      }
-      crosslinksGrid.innerHTML = "";
-      for (var c = 0; c < data.crossLinks.length; c++) {
-        var crossCard = document.createElement("div");
-        crossCard.className = "card";
-        var linkObj = data.crossLinks[c];
-        var arrowText = (lang === "TR" ? "Siteyi ziyaret et →" : (lang === "DE" ? "Website besuchen →" : "Visit website →"));
-        crossCard.innerHTML = '<div class="cross-link-title">' + linkObj.name + '</div><div class="cross-link-desc">' + linkObj.desc + '</div><a href="' + linkObj.url + '" target="_blank" rel="noopener noreferrer" class="link-arrow">' + arrowText + '</a>';
-        crosslinksGrid.appendChild(crossCard);
-      }
-      gamesGrid.innerHTML = "";
-      for (var g = 0; g < data.games.length; g++) {
-        var game = data.games[g];
-        var gameCard = document.createElement("div");
-        gameCard.className = "card";
-        var playText = (lang === "TR" ? "Oyna →" : (lang === "DE" ? "Spielen →" : "Play →"));
-        gameCard.innerHTML = '<div class="card-icon">' + game.icon + '</div><div class="cross-link-title">' + game.name + '</div><div class="cross-link-desc">' + game.desc + '</div><a href="' + game.link + '" class="play-btn">' + playText + '</a>';
-        gamesGrid.appendChild(gameCard);
-      }
+  var currentLang = "TR";
+  var featuresGrid    = document.getElementById("featuresGrid");
+  var statsGrid       = document.getElementById("statsGrid");
+  var crosslinksGrid  = document.getElementById("crosslinksGrid");
+  var gamesGrid       = document.getElementById("gamesGrid");
+  var footerLinksDiv  = document.getElementById("footerLinks");
+  var heroTitleEl     = document.getElementById("heroTitle");
+  var heroSubEl       = document.getElementById("heroSubtitle");
+  var featuresHeadEl  = document.getElementById("featuresHead");
+  var statsTitleEl    = document.getElementById("statsTitle");
+  var crosslinksTitleEl = document.getElementById("crosslinksTitle");
+  var gamesHeadEl     = document.getElementById("gamesHead");
+  var betaTitleEl     = document.getElementById("betaTitle");
+  var betaDescEl      = document.getElementById("betaDesc");
+  var betaEmailInput  = document.getElementById("betaEmailInput");
+  var betaBtn         = document.getElementById("betaBtn");
+
+  function renderDynamicContent(lang) {
+    var data = translations[lang];
+    if (!data) return;
+
+    /* features */
+    featuresGrid.innerHTML = "";
+    for (var i = 0; i < data.features.length; i++) {
+      var card = document.createElement("div");
+      card.className = "card";
+      var iconMatch = data.features[i].match(/^(\S+)/);
+      var icon = iconMatch ? iconMatch[1] : "✨";
+      card.innerHTML = '<div class="card-icon">' + icon + '</div><div class="card-text">' + data.features[i] + '</div>';
+      featuresGrid.appendChild(card);
     }
 
-    function updateStaticTexts(lang) {
-      var data = translations[lang];
-      if (!data) return;
-      heroTitleEl.innerText = data.heroTitle;
-      heroSubEl.innerText = data.heroSubtitle;
-      featuresHeadEl.innerText = data.featuresHead;
-      statsTitleEl.innerText = data.statsTitle;
-      crosslinksTitleEl.innerText = data.crosslinksTitle;
-      gamesHeadEl.innerText = data.gamesHead;
-      betaTitleEl.innerText = data.betaTitle;
-      betaDescEl.innerText = data.betaDesc;
-      if (betaEmailInput) betaEmailInput.placeholder = data.betaPlaceholder;
-      if (betaBtn) betaBtn.innerText = data.betaBtnText;
+    /* stats */
+    statsGrid.innerHTML = "";
+    for (var s = 0; s < data.stats.length; s++) {
+      var statCard = document.createElement("div");
+      statCard.className = "card";
+      statCard.innerHTML = '<div class="stat-number">' + data.stats[s].number + '</div><div class="stat-label">' + data.stats[s].label + '</div>';
+      statsGrid.appendChild(statCard);
     }
 
-    function setLanguage(lang) {
-      currentLang = lang;
-      updateStaticTexts(lang);
-      renderDynamicContent(lang);
-      var btns = document.querySelectorAll(".lang-btn");
-      for (var i = 0; i < btns.length; i++) {
-        var btn = btns[i];
-        if (btn.getAttribute("data-lang") === lang) btn.classList.add("active");
-        else btn.classList.remove("active");
+    /* crosslinks */
+    crosslinksGrid.innerHTML = "";
+    for (var c = 0; c < data.crossLinks.length; c++) {
+      var crossCard = document.createElement("div");
+      crossCard.className = "card";
+      var linkObj = data.crossLinks[c];
+      var arrowText = (lang === "TR" ? "Siteyi ziyaret et →" : (lang === "DE" ? "Website besuchen →" : "Visit website →"));
+      crossCard.innerHTML = '<div class="cross-link-title">' + linkObj.name + '</div><div class="cross-link-desc">' + linkObj.desc + '</div><a href="' + linkObj.url + '" target="_blank" rel="noopener noreferrer" class="link-arrow">' + arrowText + '</a>';
+      crosslinksGrid.appendChild(crossCard);
+    }
+
+    /* games */
+    gamesGrid.innerHTML = "";
+    for (var g = 0; g < data.games.length; g++) {
+      var game = data.games[g];
+      var gameCard = document.createElement("div");
+      gameCard.className = "card";
+      var playText = (lang === "TR" ? "Oyna →" : (lang === "DE" ? "Spielen →" : "Play →"));
+      var newBadge = game.isNew ? '<span class="game-new-badge">YENİ</span>' : '';
+      gameCard.innerHTML =
+        '<div class="card-icon">' + game.icon + '</div>' +
+        '<div class="cross-link-title">' + game.name + newBadge + '</div>' +
+        '<div class="cross-link-desc">' + game.desc + '</div>' +
+        '<a href="' + game.link + '" class="play-btn">' + playText + '</a>';
+      gamesGrid.appendChild(gameCard);
+    }
+  }
+
+  function updateStaticTexts(lang) {
+    var data = translations[lang];
+    if (!data) return;
+    heroTitleEl.innerText     = data.heroTitle;
+    heroSubEl.innerText       = data.heroSubtitle;
+    featuresHeadEl.innerText  = data.featuresHead;
+    statsTitleEl.innerText    = data.statsTitle;
+    crosslinksTitleEl.innerText = data.crosslinksTitle;
+    gamesHeadEl.innerText     = data.gamesHead;
+    betaTitleEl.innerText     = data.betaTitle;
+    betaDescEl.innerText      = data.betaDesc;
+    if (betaEmailInput) betaEmailInput.placeholder = data.betaPlaceholder;
+    if (betaBtn) betaBtn.innerText = data.betaBtnText;
+  }
+
+  function setLanguage(lang) {
+    currentLang = lang;
+    updateStaticTexts(lang);
+    renderDynamicContent(lang);
+    var btns = document.querySelectorAll(".lang-btn");
+    for (var i = 0; i < btns.length; i++) {
+      if (btns[i].getAttribute("data-lang") === lang) btns[i].classList.add("active");
+      else btns[i].classList.remove("active");
+    }
+  }
+
+  function detectLanguage() {
+    var navLang = (navigator.language || navigator.userLanguage || "en").toLowerCase();
+    if (navLang.indexOf("tr") === 0) return "TR";
+    if (navLang.indexOf("de") === 0) return "DE";
+    return "EN";
+  }
+
+  function buildFooterLinks() {
+    footerLinksDiv.innerHTML = "";
+    for (var i = 0; i < footerLinkItems.length; i++) {
+      var link = document.createElement("a");
+      link.href   = footerLinkItems[i].url;
+      link.target = "_blank";
+      link.rel    = "noopener noreferrer";
+      link.innerText = footerLinkItems[i].name;
+      footerLinksDiv.appendChild(link);
+      if (i !== footerLinkItems.length - 1) {
+        footerLinksDiv.appendChild(document.createTextNode(" | "));
       }
     }
+  }
 
-    function detectLanguage() {
-      var navLang = (navigator.language || navigator.userLanguage || "en").toLowerCase();
-      if (navLang.indexOf("tr") === 0) return "TR";
-      if (navLang.indexOf("de") === 0) return "DE";
-      return "EN";
-    }
-
-    function buildFooterLinks() {
-      footerLinksDiv.innerHTML = "";
-      for (var i = 0; i < footerLinkItems.length; i++) {
-        var link = document.createElement("a");
-        link.href = footerLinkItems[i].url;
-        link.target = "_blank";
-        link.rel = "noopener noreferrer";
-        link.innerText = footerLinkItems[i].name;
-        footerLinksDiv.appendChild(link);
-        if (i !== footerLinkItems.length - 1) {
-          var sep = document.createTextNode(" | ");
-          footerLinksDiv.appendChild(sep);
-        }
+  function initBetaForm() {
+    var form = document.getElementById("betaForm");
+    if (!form) return;
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var emailVal = betaEmailInput.value.trim();
+      var msgDiv   = document.getElementById("betaMessage");
+      if (!emailVal || emailVal.indexOf("@") === -1) {
+        msgDiv.innerHTML = '<div class="beta-success" style="color:#F6B45F;">' +
+          (currentLang === "TR" ? "Geçerli bir e-posta adresi giriniz." :
+           currentLang === "DE" ? "Bitte gültige E-Mail-Adresse eingeben." :
+           "Please enter a valid email address.") + '</div>';
+        return;
       }
-    }
+      msgDiv.innerHTML = '<div class="beta-success">✓ ' + translations[currentLang].betaSuccessMsg + '</div>';
+      betaEmailInput.value = "";
+      setTimeout(function () { msgDiv.innerHTML = ""; }, 5000);
+    });
+  }
 
-    function initBetaForm() {
-      var form = document.getElementById("betaForm");
-      if (!form) return;
-      form.addEventListener("submit", function(e) {
-        e.preventDefault();
-        var emailVal = betaEmailInput.value.trim();
-        var msgDiv = document.getElementById("betaMessage");
-        if (!emailVal || emailVal.indexOf("@") === -1) {
-          msgDiv.innerHTML = '<div class="beta-success" style="color:#F6B45F;">' + (currentLang === "TR" ? "Geçerli bir e-posta adresi giriniz." : (currentLang === "DE" ? "Bitte gültige E-Mail-Adresse eingeben." : "Please enter a valid email address.")) + '</div>';
-          return;
-        }
-        var successText = translations[currentLang].betaSuccessMsg;
-        msgDiv.innerHTML = '<div class="beta-success">✓ ' + successText + '</div>';
-        betaEmailInput.value = "";
-        setTimeout(function() { msgDiv.innerHTML = ""; }, 5000);
+  function bindLangButtons() {
+    var btns = document.querySelectorAll(".lang-btn");
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].addEventListener("click", function () {
+        var langVal = this.getAttribute("data-lang");
+        if (langVal) setLanguage(langVal);
       });
     }
+  }
 
-    function bindLangButtons() {
-      var btns = document.querySelectorAll(".lang-btn");
-      for (var i = 0; i < btns.length; i++) {
-        btns[i].addEventListener("click", function(e) {
-          var langVal = this.getAttribute("data-lang");
-          if (langVal) setLanguage(langVal);
-        });
-      }
-    }
-
-    function init() {
-      buildFooterLinks();
-      initBetaForm();
-      var detected = detectLanguage();
-      setLanguage(detected);
-      bindLangButtons();
-    }
-    init();
-  })();
+  function init() {
+    buildFooterLinks();
+    initBetaForm();
+    setLanguage(detectLanguage());
+    bindLangButtons();
+  }
+  init();
+}());
 </script>
+
 </body>
 </html>

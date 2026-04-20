@@ -1,476 +1,439 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Merge Numbers · Zihin Egzersizi | SilverCompass</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      user-select: none;
-      -webkit-tap-highlight-color: transparent;
-    }
-    body {
-      background: #0d2137;
-      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
-    }
-    .game-container {
-      max-width: 700px;
-      width: 100%;
-      background: rgba(255,255,255,0.08);
-      border-radius: 56px;
-      padding: 20px 16px 24px;
-      backdrop-filter: blur(2px);
-      box-shadow: 0 20px 35px rgba(0,0,0,0.4);
-      border: 1px solid rgba(246,180,95,0.3);
-    }
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      flex-wrap: wrap;
-      margin-bottom: 16px;
-    }
-    .logo-area {
-      display: flex;
-      flex-direction: column;
-    }
-    .logo {
-      font-size: 1.8rem;
-      font-weight: bold;
-      color: #F6B45F;
-      letter-spacing: 1px;
-    }
-    .sub {
-      font-size: 0.7rem;
-      color: #c4d4ec;
-      margin-top: 2px;
-    }
-    .back-link {
-      color: #F6B45F;
-      text-decoration: none;
-      font-weight: bold;
-      font-size: 0.9rem;
-      background: rgba(0,0,0,0.3);
-      padding: 5px 12px;
-      border-radius: 40px;
-    }
-    .score-panel {
-      display: flex;
-      justify-content: space-between;
-      background: #0a1f32;
-      border-radius: 60px;
-      padding: 10px 18px;
-      margin: 16px 0;
-      flex-wrap: wrap;
-      gap: 12px;
-      border: 1px solid #F6B45F30;
-    }
-    .score-box {
-      background: #04162E;
-      padding: 4px 16px;
-      border-radius: 40px;
-      color: #F6B45F;
-      font-weight: bold;
-    }
-    .score-box span {
-      color: #eaf2fb;
-    }
-    .controls {
-      display: flex;
-      gap: 12px;
-      justify-content: center;
-      margin: 12px 0;
-    }
-    button {
-      background: #F6B45F;
-      border: none;
-      font-weight: bold;
-      padding: 8px 18px;
-      border-radius: 40px;
-      color: #1a3a5c;
-      font-size: 0.9rem;
-      cursor: pointer;
-      font-family: inherit;
-      transition: 0.05s linear;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    }
-    button:active {
-      transform: scale(0.96);
-    }
-    .board-size {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      margin: 10px 0 5px;
-    }
-    .size-btn {
-      background: #0a1f32;
-      color: #F6B45F;
-      border: 1px solid #F6B45F;
-      padding: 4px 14px;
-      font-size: 0.8rem;
-    }
-    .size-btn.active {
-      background: #F6B45F;
-      color: #0d2137;
-      border: none;
-    }
-    .grid {
-      display: grid;
-      gap: 12px;
-      background: #1e3a5f;  /* daha açık zemin */
-      border-radius: 32px;
-      padding: 16px;
-      margin: 20px 0;
-      justify-content: center;
-    }
-    .cell {
-      aspect-ratio: 1 / 1;
-      background: #eaf2fb;   /* boş hücreler için açık mavi-beyaz */
-      border-radius: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-      font-size: 1.8rem;
-      transition: all 0.08s linear;
-      color: #1a3a5c;
-      box-shadow: inset 0 1px 3px rgba(0,0,0,0.05), 0 4px 8px rgba(0,0,0,0.1);
-      cursor: pointer;
-    }
-    /* sayı renkleri — daha canlı ve kontrastlı */
-    .cell[data-value="2"] { background: #fdf6e3; color: #2c3e50; }
-    .cell[data-value="4"] { background: #f4e6c3; color: #2c3e50; }
-    .cell[data-value="8"] { background: #F6B45F; color: #2c3e50; }
-    .cell[data-value="16"] { background: #f39c12; color: white; }
-    .cell[data-value="32"] { background: #e67e22; color: white; }
-    .cell[data-value="64"] { background: #e74c3c; color: white; }
-    .cell[data-value="128"] { background: #e8c84a; color: #2c3e50; }
-    .cell[data-value="256"] { background: #d9b83a; color: #2c3e50; }
-    .cell[data-value="512"] { background: #c9a828; color: white; }
-    .cell[data-value="1024"] { background: #b88e18; color: white; }
-    .cell[data-value="2048"] { background: #a67c08; color: white; }
-    .cell.selected {
-      border: 3px solid #F6B45F;
-      transform: scale(0.98);
-      filter: brightness(1.02);
-      box-shadow: 0 0 0 2px #ffffff80;
-    }
-    .game-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(13,33,55,0.95);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-      backdrop-filter: blur(4px);
-    }
-    .modal {
-      background: #0a1f32;
-      border-radius: 56px;
-      padding: 32px;
-      text-align: center;
-      width: 280px;
-      border: 2px solid #F6B45F;
-    }
-    .modal h2 {
-      color: #F6B45F;
-      font-size: 2rem;
-      margin-bottom: 12px;
-    }
-    .modal p {
-      color: white;
-      margin: 10px 0;
-    }
-    .modal button {
-      margin-top: 20px;
-    }
-    @keyframes pop {
-      0% { transform: scale(0.85); opacity: 0.6; }
-      100% { transform: scale(1); opacity: 1; }
-    }
-    .cell-merge {
-      animation: pop 0.12s ease-out;
-    }
-    @media (max-width: 550px) {
-      .cell { font-size: 1.2rem; }
-      .grid { gap: 8px; padding: 12px; }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Merge - Zihin Egzersizi</title>
+    <style>
+        * {
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            background: #f9f3e2; /* açık, sıcak arka plan */
+            font-family: 'Segoe UI', 'Poppins', system-ui, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .game-container {
+            background: #f0e5d2; /* oyun kutusu arka planı */
+            border-radius: 40px;
+            padding: 20px;
+            box-shadow: 0 20px 35px rgba(0,0,0,0.1);
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .score-box {
+            background: #e0cfb5;
+            padding: 8px 20px;
+            border-radius: 60px;
+            color: #5a3e2b;
+            font-weight: bold;
+            font-size: 1.3rem;
+            box-shadow: inset 0 -2px 0 #b59a7a, 0 5px 10px rgba(0,0,0,0.05);
+        }
+        .score-box span {
+            font-size: 0.8rem;
+            display: block;
+            color: #8b694a;
+        }
+        .controls {
+            display: flex;
+            gap: 12px;
+        }
+        button {
+            background: #d9c2a7;
+            border: none;
+            font-size: 1rem;
+            font-weight: bold;
+            padding: 8px 18px;
+            border-radius: 40px;
+            color: #4a3420;
+            cursor: pointer;
+            transition: 0.1s linear;
+            box-shadow: 0 3px 0 #b29172;
+            font-family: inherit;
+        }
+        button:active {
+            transform: translateY(2px);
+            box-shadow: 0 1px 0 #b29172;
+        }
+        .size-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        .size-btn {
+            background: #cbb58b;
+            color: #2d2418;
+            padding: 6px 14px;
+            font-size: 0.9rem;
+        }
+        .size-btn.active {
+            background: #b38f60;
+            color: white;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
+            transform: translateY(1px);
+        }
+        canvas {
+            background: #e6d5bd;
+            border-radius: 24px;
+            display: block;
+            margin: 0 auto;
+            box-shadow: 0 12px 25px rgba(0,0,0,0.15);
+            cursor: pointer;
+        }
+        .info {
+            text-align: center;
+            margin-top: 20px;
+            color: #7a5c3e;
+            font-weight: 500;
+            font-size: 0.85rem;
+        }
+        @media (max-width: 550px) {
+            .game-container { padding: 15px; }
+            button { padding: 5px 12px; font-size: 0.8rem; }
+        }
+    </style>
 </head>
 <body>
-<div class="game-container">
-  <div class="header">
-    <div class="logo-area">
-      <div class="logo">MERGE</div>
-      <div class="sub">SilverCompass · Zihin Egzersizi</div>
+<div>
+    <div class="game-container">
+        <div class="header">
+            <div class="score-box">
+                SKOR: <span id="scoreValue">0</span>
+                <span style="font-size:0.7rem;">EN İYİ: <span id="bestValue">0</span></span>
+            </div>
+            <div class="controls">
+                <button id="undoBtn">GERİ AL</button>
+                <button id="resetBtn">SIFIRLA</button>
+            </div>
+        </div>
+        <div class="size-buttons" style="justify-content: center; margin-bottom: 20px;">
+            <button data-size="4" class="size-btn active">4x4</button>
+            <button data-size="5" class="size-btn">5x5</button>
+            <button data-size="6" class="size-btn">6x6</button>
+        </div>
+        <canvas id="gameCanvas" width="400" height="400"></canvas>
+        <div class="info">← ↑ ↓ →  veya kaydır → birleştir</div>
     </div>
-    <a href="index.html" class="back-link">← Geri</a>
-  </div>
-
-  <div class="score-panel">
-    <div class="score-box">🎯 SKOR: <span id="currentScore">0</span></div>
-    <div class="score-box">🏆 EN İYİ: <span id="bestScore">0</span></div>
-  </div>
-
-  <div class="board-size">
-    <button data-size="4" class="size-btn active">4x4</button>
-    <button data-size="5" class="size-btn">5x5</button>
-    <button data-size="6" class="size-btn">6x6</button>
-  </div>
-
-  <div class="controls">
-    <button id="undoBtn">↩️ GERİ AL</button>
-    <button id="resetBtn">🔄 SIFIRLA</button>
-  </div>
-
-  <div id="gridContainer" class="grid"></div>
 </div>
 
 <script>
-  // -------------------- MERGE NUMBERS (ES5) - GÜNCELLENMİŞ RENKLER --------------------
-  var boardSize = 4;
-  var grid = [];
-  var score = 0;
-  var bestScore = 0;
-  var selectedRow = -1, selectedCol = -1;
-  var history = null;
-  
-  var container = document.getElementById("gridContainer");
-  var currentScoreSpan = document.getElementById("currentScore");
-  var bestScoreSpan = document.getElementById("bestScore");
-  var resetBtn = document.getElementById("resetBtn");
-  var undoBtn = document.getElementById("undoBtn");
-  var sizeBtns = document.querySelectorAll(".size-btn");
-  
-  function loadBestScore() {
-    var saved = localStorage.getItem("merge_best");
-    if (saved !== null) bestScore = parseInt(saved, 10);
-    else bestScore = 0;
-    bestScoreSpan.innerText = bestScore;
-  }
-  function updateBestScore() {
-    if (score > bestScore) {
-      bestScore = score;
-      bestScoreSpan.innerText = bestScore;
-      localStorage.setItem("merge_best", bestScore);
-    }
-  }
-  
-  function getEmptyCells() {
-    var empty = [];
-    for (var i = 0; i < boardSize; i++) {
-      for (var j = 0; j < boardSize; j++) {
-        if (grid[i][j] === 0) empty.push({x: i, y: j});
-      }
-    }
-    return empty;
-  }
-  
-  function addRandomTile() {
-    var empty = getEmptyCells();
-    if (empty.length === 0) return false;
-    var rand = Math.floor(Math.random() * empty.length);
-    var pos = empty[rand];
-    var val = Math.random() < 0.9 ? 2 : 4;
-    grid[pos.x][pos.y] = val;
-    return true;
-  }
-  
-  function initGame() {
-    grid = [];
-    for (var i = 0; i < boardSize; i++) {
-      grid[i] = [];
-      for (var j = 0; j < boardSize; j++) {
-        grid[i][j] = 0;
-      }
-    }
-    addRandomTile();
-    addRandomTile();
-    score = 0;
-    selectedRow = -1;
-    selectedCol = -1;
-    currentScoreSpan.innerText = score;
-    history = null;
-    renderBoard(false);
-  }
-  
-  function saveState() {
-    var copyGrid = [];
-    for (var i = 0; i < boardSize; i++) {
-      copyGrid[i] = grid[i].slice();
-    }
-    history = {
-      grid: copyGrid,
-      score: score
-    };
-  }
-  
-  function undoMove() {
-    if (history === null) return;
-    grid = history.grid;
-    score = history.score;
-    selectedRow = -1;
-    selectedCol = -1;
-    currentScoreSpan.innerText = score;
-    renderBoard(false);
-    history = null;
-  }
-  
-  function tryMerge(rowA, colA, rowB, colB) {
-    if (rowA === rowB && colA === colB) return false;
-    var valA = grid[rowA][colA];
-    var valB = grid[rowB][colB];
-    if (valA === 0 || valB === 0) return false;
-    if (valA !== valB) return false;
-    var newValue = valA * 2;
-    var gainedScore = newValue;
-    saveState();
-    grid[rowA][colA] = 0;
-    grid[rowB][colB] = newValue;
-    score += gainedScore;
-    currentScoreSpan.innerText = score;
-    updateBestScore();
-    addRandomTile();
-    renderBoard(true);
-    selectedRow = -1;
-    selectedCol = -1;
-    if (isGameOver()) showGameOver();
-    return true;
-  }
-  
-  function isGameOver() {
-    if (getEmptyCells().length > 0) return false;
-    for (var i = 0; i < boardSize; i++) {
-      for (var j = 0; j < boardSize - 1; j++) {
-        if (grid[i][j] !== 0 && grid[i][j] === grid[i][j+1]) return false;
-      }
-    }
-    for (var i = 0; i < boardSize - 1; i++) {
-      for (var j = 0; j < boardSize; j++) {
-        if (grid[i][j] !== 0 && grid[i][j] === grid[i+1][j]) return false;
-      }
-    }
-    return true;
-  }
-  
-  function showGameOver() {
-    var overlay = document.createElement('div');
-    overlay.className = 'game-overlay';
-    overlay.innerHTML = '<div class="modal"><h2>🏁 OYUN BİTTİ</h2><p>Skorunuz: ' + score + '</p><button id="restartGameBtn">YENİ OYUN</button></div>';
-    document.body.appendChild(overlay);
-    var restartBtnModal = document.getElementById('restartGameBtn');
-    restartBtnModal.addEventListener('click', function() {
-      overlay.remove();
-      resetGame();
-    });
-    restartBtnModal.addEventListener('touchstart', function(e) {
-      e.preventDefault();
-      overlay.remove();
-      resetGame();
-    });
-  }
-  
-  function renderBoard(animate) {
-    container.style.gridTemplateColumns = 'repeat(' + boardSize + ', 1fr)';
-    container.innerHTML = '';
-    for (var i = 0; i < boardSize; i++) {
-      for (var j = 0; j < boardSize; j++) {
-        var val = grid[i][j];
-        var cell = document.createElement('div');
-        cell.className = 'cell';
-        if (val !== 0) {
-          cell.setAttribute('data-value', val);
-          cell.innerText = val;
-        } else {
-          cell.setAttribute('data-value', '0');
-          cell.innerText = '';
+    (function(){
+        // ----- Oyun durumu -----
+        let board = [];
+        let size = 4;          // 4,5,6
+        let score = 0;
+        let bestScore = localStorage.getItem('merge_best') ? parseInt(localStorage.getItem('merge_best')) : 0;
+        let history = [];      // {board, score} geçmişi
+        
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreSpan = document.getElementById('scoreValue');
+        const bestSpan = document.getElementById('bestValue');
+        
+        // Renk paleti (açık, mutlu tonlar)
+        const tileColors = {
+            0:   "#e6d5bd",     // boş
+            2:   "#f9f1e0",
+            4:   "#f5e8c9",
+            8:   "#f3dcb2",
+            16:  "#f0ce98",
+            32:  "#ebc281",
+            64:  "#e5b36a",
+            128: "#dfa453",
+            256: "#d8933c",
+            512: "#c97d2c",
+            1024:"#b5681f",
+            2048:"#9e5416",
+            4096:"#874210"
+        };
+        
+        function updateBestUI() {
+            bestSpan.innerText = bestScore;
         }
-        if (selectedRow === i && selectedCol === j && val !== 0) {
-          cell.classList.add('selected');
+        
+        function saveBest() {
+            if(score > bestScore) {
+                bestScore = score;
+                localStorage.setItem('merge_best', bestScore);
+                updateBestUI();
+            }
         }
-        if (animate === true && val !== 0) {
-          cell.classList.add('cell-merge');
-          setTimeout(function(el) {
-            el.classList.remove('cell-merge');
-          }.bind(null, cell), 150);
+        
+        function updateScoreUI() {
+            scoreSpan.innerText = score;
+            saveBest();
         }
-        cell.addEventListener('click', (function(row, col) {
-          return function() { onCellClick(row, col); };
-        })(i, j));
-        container.appendChild(cell);
-      }
-    }
-  }
-  
-  function onCellClick(row, col) {
-    if (grid[row][col] === 0) {
-      selectedRow = -1;
-      selectedCol = -1;
-      renderBoard(false);
-      return;
-    }
-    if (selectedRow === -1) {
-      selectedRow = row;
-      selectedCol = col;
-      renderBoard(false);
-      return;
-    } else {
-      var success = tryMerge(selectedRow, selectedCol, row, col);
-      if (!success) {
-        selectedRow = row;
-        selectedCol = col;
-        renderBoard(false);
-      }
-    }
-  }
-  
-  function resetGame() {
-    initGame();
-    selectedRow = -1;
-    selectedCol = -1;
-    renderBoard(false);
-  }
-  
-  function setBoardSize(newSize) {
-    boardSize = newSize;
-    initGame();
-    selectedRow = -1;
-    selectedCol = -1;
-    renderBoard(false);
-    for (var i = 0; i < sizeBtns.length; i++) {
-      var btn = sizeBtns[i];
-      var sz = parseInt(btn.getAttribute('data-size'), 10);
-      if (sz === boardSize) btn.classList.add('active');
-      else btn.classList.remove('active');
-    }
-  }
-  
-  resetBtn.addEventListener('click', function() { resetGame(); });
-  undoBtn.addEventListener('click', function() { undoMove(); });
-  
-  for (var idx = 0; idx < sizeBtns.length; idx++) {
-    sizeBtns[idx].addEventListener('click', function(e) {
-      var newSize = parseInt(this.getAttribute('data-size'), 10);
-      if (newSize === boardSize) return;
-      setBoardSize(newSize);
-    });
-  }
-  
-  loadBestScore();
-  setBoardSize(4);
+        
+        // Başlangıç / sıfırlama
+        function initBoard() {
+            board = Array(size).fill().map(() => Array(size).fill(0));
+            addRandomTile();
+            addRandomTile();
+            score = 0;
+            updateScoreUI();
+            saveHistory();
+            draw();
+        }
+        
+        // Rastgele boş hücreye 2 veya 4 ekle (2: %90, 4: %10)
+        function addRandomTile() {
+            const empty = [];
+            for(let i=0; i<size; i++) {
+                for(let j=0; j<size; j++) {
+                    if(board[i][j] === 0) empty.push([i,j]);
+                }
+            }
+            if(empty.length === 0) return false;
+            const [row, col] = empty[Math.floor(Math.random() * empty.length)];
+            board[row][col] = Math.random() < 0.9 ? 2 : 4;
+            return true;
+        }
+        
+        // Geçmiş kaydet (geri al için)
+        function saveHistory() {
+            const copyBoard = board.map(row => [...row]);
+            history.push({ board: copyBoard, score: score });
+            // max 30 geçmiş
+            if(history.length > 30) history.shift();
+        }
+        
+        function undo() {
+            if(history.length <= 1) return; // ilk hal hariç
+            history.pop(); // şu anki durumu at
+            const last = history[history.length-1];
+            board = last.board.map(row => [...row]);
+            score = last.score;
+            updateScoreUI();
+            draw();
+        }
+        
+        function resetGame() {
+            history = [];
+            initBoard();
+            draw();
+        }
+        
+        // ----- Birleştirme mantığı (2048 kuralı) -----
+        function moveLeft() {
+            let changed = false;
+            let newScoreGain = 0;
+            for(let i=0; i<size; i++) {
+                let row = board[i].filter(v => v !== 0);
+                let newRow = [];
+                for(let k=0; k<row.length; k++) {
+                    if(k+1 < row.length && row[k] === row[k+1]) {
+                        let merged = row[k] * 2;
+                        newRow.push(merged);
+                        newScoreGain += merged;
+                        k++;
+                    } else {
+                        newRow.push(row[k]);
+                    }
+                }
+                while(newRow.length < size) newRow.push(0);
+                if(JSON.stringify(board[i]) !== JSON.stringify(newRow)) changed = true;
+                board[i] = newRow;
+            }
+            if(changed) {
+                score += newScoreGain;
+                updateScoreUI();
+                addRandomTile();
+                saveHistory();
+                draw();
+                return true;
+            }
+            return false;
+        }
+        
+        function moveRight() {
+            // sağa kaydır = sola kaydır + ters çevir
+            board = board.map(row => row.reverse());
+            let ok = moveLeft();
+            board = board.map(row => row.reverse());
+            if(ok) { saveHistory(); draw(); }
+            return ok;
+        }
+        
+        function moveUp() {
+            transpose();
+            let ok = moveLeft();
+            transpose();
+            if(ok) { saveHistory(); draw(); }
+            return ok;
+        }
+        
+        function moveDown() {
+            transpose();
+            board = board.map(row => row.reverse());
+            let ok = moveLeft();
+            board = board.map(row => row.reverse());
+            transpose();
+            if(ok) { saveHistory(); draw(); }
+            return ok;
+        }
+        
+        function transpose() {
+            board = board[0].map((_, col) => board.map(row => row[col]));
+        }
+        
+        // Oyun bitti mi?
+        function isGameOver() {
+            // boş hücre var mı?
+            for(let i=0;i<size;i++) {
+                for(let j=0;j<size;j++) {
+                    if(board[i][j]===0) return false;
+                }
+            }
+            // yatay veya dikey birleşme ihtimali?
+            for(let i=0;i<size;i++) {
+                for(let j=0;j<size-1;j++) {
+                    if(board[i][j]===board[i][j+1]) return false;
+                }
+            }
+            for(let j=0;j<size;j++) {
+                for(let i=0;i<size-1;i++) {
+                    if(board[i][j]===board[i+1][j]) return false;
+                }
+            }
+            return true;
+        }
+        
+        // ----- Çizim -----
+        let animating = false;
+        function draw() {
+            const w = canvas.width / size;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for(let i=0;i<size;i++) {
+                for(let j=0;j<size;j++) {
+                    let val = board[i][j];
+                    let color = tileColors[val] || "#c28b55";
+                    ctx.fillStyle = color;
+                    ctx.shadowBlur = 0;
+                    ctx.fillRect(j*w, i*w, w-2, w-2);
+                    ctx.fillStyle = val > 4 ? "#fef7e0" : "#5a3e2b";
+                    ctx.font = `bold ${Math.floor(w * 0.32)}px 'Segoe UI'`;
+                    ctx.textAlign = "center";
+                    ctx.textBaseline = "middle";
+                    if(val !== 0) {
+                        ctx.fillText(val, j*w + w/2, i*w + w/2);
+                    }
+                }
+            }
+            if(isGameOver()) {
+                ctx.globalAlpha = 0.7;
+                ctx.fillStyle = "#3e2a1c";
+                ctx.fillRect(0,0,canvas.width,canvas.height);
+                ctx.globalAlpha = 1;
+                ctx.fillStyle = "#fff2e0";
+                ctx.font = `bold ${Math.floor(canvas.width/12)}px system-ui`;
+                ctx.fillText("OYUN BİTTİ", canvas.width/2, canvas.height/2);
+            }
+        }
+        
+        // Boyut değiştirme
+        function setSize(newSize) {
+            size = newSize;
+            history = [];
+            initBoard();
+            draw();
+            // aktif buton görünümü
+            document.querySelectorAll('.size-btn').forEach(btn => {
+                if(parseInt(btn.dataset.size) === size) btn.classList.add('active');
+                else btn.classList.remove('active');
+            });
+        }
+        
+        // Klavye ve dokunmatik kaydırma
+        function handleMove(dx, dy) {
+            if(isGameOver()) return;
+            if(Math.abs(dx) > Math.abs(dy)) {
+                if(dx > 0) moveRight();
+                else moveLeft();
+            } else {
+                if(dy > 0) moveDown();
+                else moveUp();
+            }
+            if(isGameOver()) draw();
+        }
+        
+        // touch / mouse kaydırma
+        let touchStart = null;
+        function onTouchStart(e) {
+            e.preventDefault();
+            const rect = canvas.getBoundingClientRect();
+            const touch = e.touches[0];
+            touchStart = { x: touch.clientX - rect.left, y: touch.clientY - rect.top };
+        }
+        function onTouchEnd(e) {
+            if(!touchStart) return;
+            e.preventDefault();
+            const rect = canvas.getBoundingClientRect();
+            const endX = e.changedTouches[0].clientX - rect.left;
+            const endY = e.changedTouches[0].clientY - rect.top;
+            const dx = endX - touchStart.x;
+            const dy = endY - touchStart.y;
+            if(Math.abs(dx) < 10 && Math.abs(dy) < 10) return;
+            handleMove(dx, dy);
+            touchStart = null;
+        }
+        
+        function onKey(e) {
+            const key = e.key;
+            if(isGameOver()) return;
+            if(key === 'ArrowLeft') { e.preventDefault(); moveLeft(); }
+            else if(key === 'ArrowRight') { e.preventDefault(); moveRight(); }
+            else if(key === 'ArrowUp') { e.preventDefault(); moveUp(); }
+            else if(key === 'ArrowDown') { e.preventDefault(); moveDown(); }
+            if(isGameOver()) draw();
+        }
+        
+        // ----- Eventler -----
+        window.addEventListener('keydown', onKey);
+        canvas.addEventListener('touchstart', onTouchStart, {passive: false});
+        canvas.addEventListener('touchend', onTouchEnd);
+        canvas.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            const rect = canvas.getBoundingClientRect();
+            touchStart = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+            function onMouseUp(upEvent) {
+                const rect2 = canvas.getBoundingClientRect();
+                const endX = upEvent.clientX - rect2.left;
+                const endY = upEvent.clientY - rect2.top;
+                if(touchStart) {
+                    const dx = endX - touchStart.x;
+                    const dy = endY - touchStart.y;
+                    if(Math.abs(dx) > 5 || Math.abs(dy) > 5) handleMove(dx, dy);
+                    touchStart = null;
+                }
+                window.removeEventListener('mouseup', onMouseUp);
+            }
+            window.addEventListener('mouseup', onMouseUp);
+        });
+        
+        document.getElementById('undoBtn').addEventListener('click', () => { undo(); draw(); });
+        document.getElementById('resetBtn').addEventListener('click', () => { resetGame(); draw(); });
+        document.querySelectorAll('.size-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const newSize = parseInt(e.target.dataset.size);
+                if(newSize !== size) setSize(newSize);
+            });
+        });
+        
+        updateBestUI();
+        initBoard();
+    })();
 </script>
 </body>
 </html>

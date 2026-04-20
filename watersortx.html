@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>PACDI Puzzle | Water Sort · Progressive</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background: #04162E;
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 16px;
+    }
+
+    .game-wrapper {
+      max-width: 750px;
+      width: 100%;
+      background: rgba(4, 22, 46, 0.8);
+      border-radius: 56px;
+      padding: 20px 16px 24px;
+      box-shadow: 0 20px 35px rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(2px);
+    }
+
+    .game-header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    h1 {
+      font-size: 2.2rem;
+      letter-spacing: 2px;
+      color: #F6B45F;
+      text-shadow: 0 2px 3px #00000040;
+      font-weight: 700;
+    }
+    .sub {
+      font-size: 0.75rem;
+      color: #9bb7d4;
+      margin-top: 4px;
+    }
+
+    .info-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #0A1F3A;
+      border-radius: 60px;
+      padding: 8px 16px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 8px;
+      border: 1px solid #F6B45F30;
+    }
+    .level-box {
+      background: #04162E;
+      padding: 5px 16px;
+      border-radius: 40px;
+      color: #F6B45F;
+      font-weight: bold;
+      font-size: 1.2rem;
+    }
+    .level-box span {
+      color: white;
+    }
+    button {
+      background: #F6B45F;
+      border: none;
+      font-weight: bold;
+      padding: 6px 20px;
+      border-radius: 40px;
+      color: #04162E;
+      font-size: 0.9rem;
+      cursor: pointer;
+      font-family: inherit;
+      transition: 0.05s linear;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    button:active {
+      transform: scale(0.96);
+    }
+
+    .tubes-grid {
+      display: grid;
+      justify-items: center;
+      gap: 18px;
+      margin-bottom: 30px;
+      transition: all 0.2s;
+    }
+    /* default: 3 columns */
+    .tubes-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    /* for 7 tubes we want 4+3, but grid auto-flow will handle, we can set specific */
+    .tubes-grid.grid-7 {
+      grid-template-columns: repeat(4, 1fr);
+    }
+    .tubes-grid.grid-8 {
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    .tube {
+      width: 85px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 40px;
+      padding: 8px 6px;
+      display: flex;
+      flex-direction: column-reverse;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: all 0.1s ease;
+      border: 2px solid rgba(246,180,95,0.4);
+      box-shadow: inset 0 0 8px rgba(0,0,0,0.2), 0 8px 12px rgba(0,0,0,0.3);
+      backdrop-filter: blur(4px);
+    }
+    .tube.selected {
+      border: 3px solid #F6B45F;
+      background: rgba(246,180,95,0.15);
+      transform: scale(1.02);
+    }
+    .color-unit {
+      width: 100%;
+      height: 22px;
+      border-radius: 20px;
+      transition: all 0.12s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+    }
+    .empty-slot {
+      width: 100%;
+      height: 22px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 20px;
+      border: 1px dashed rgba(246,180,95,0.3);
+    }
+
+    .win-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(4, 22, 46, 0.95);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      backdrop-filter: blur(5px);
+    }
+    .win-card {
+      background: #0A1F3A;
+      border-radius: 56px;
+      padding: 32px 24px;
+      text-align: center;
+      width: 280px;
+      border: 2px solid #F6B45F;
+      box-shadow: 0 20px 35px black;
+    }
+    .win-card h2 {
+      color: #F6B45F;
+      font-size: 2rem;
+      margin-bottom: 12px;
+    }
+    .win-card p {
+      color: white;
+      margin-bottom: 24px;
+      font-size: 1.1rem;
+    }
+    .next-btn {
+      background: #F6B45F;
+      font-size: 1.2rem;
+      padding: 10px 24px;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 12px;
+      color: #6c8fb0;
+      font-size: 0.7rem;
+    }
+
+    .tube-pour {
+      animation: pourGlow 0.2s ease-out;
+    }
+    @keyframes pourGlow {
+      0% { filter: brightness(1); border-color: #F6B45F; box-shadow: 0 0 0 0 #F6B45F;}
+      50% { filter: brightness(1.2); border-color: #FFD966; box-shadow: 0 0 8px 2px #F6B45F;}
+      100% { filter: brightness(1); border-color: rgba(246,180,95,0.4);}
+    }
+
+    @media (max-width: 550px) {
+      .tube { width: 70px; }
+      .color-unit, .empty-slot { height: 18px; }
+      .tubes-grid { gap: 12px; }
+    }
+    @media (max-width: 480px) {
+      .tube { width: 62px; }
+    }
+  </style>
+</head>
+<body>
+<div class="game-wrapper">
+  <div class="game-header">
+    <h1>PACDI Puzzle</h1>
+    <div class="sub">water sort · progressive difficulty</div>
+  </div>
+
+  <div class="info-bar">
+    <div class="level-box">🔹 SEVİYE <span id="levelValue">1</span></div>
+    <button id="restartBtn">⟳ YENİDEN BAŞLAT</button>
+  </div>
+
+  <div id="tubesContainer" class="tubes-grid"></div>
+  <div class="footer">pacdi.de · zihnini dinlendir</div>
+</div>
+
+<script>
+  // ------------------- PROGRESSIVE WATER SORT (ES5) -------------------
+  // Color palettes: base 4 colors + 5th / 6th
+  var BASE_COLORS = ["#F6B45F", "#2ECC71", "#E74C3C", "#3498DB"];
+  var COLOR_5 = "#9B59B6";   // purple
+  var COLOR_6 = "#1ABC9C";   // teal
+  
+  // get color list based on level
+  function getColorListByLevel(level) {
+    if (level >= 11) return BASE_COLORS.concat([COLOR_5, COLOR_6]);
+    if (level >= 6) return BASE_COLORS.concat([COLOR_5]);
+    return BASE_COLORS.slice();
+  }
+  
+  // get tube count: number of colors + 2 empty tubes
+  function getTubeCountByLevel(level) {
+    var colorCount = getColorListByLevel(level).length;
+    return colorCount + 2;
+  }
+  
+  // global state
+  var tubes = [];            // array of arrays (bottom to top)
+  var initialTubes = [];     // saved for restart
+  var selectedTubeIndex = null;
+  var currentLevel = 1;
+  var winActive = false;
+  
+  var container = document.getElementById("tubesContainer");
+  var levelSpan = document.getElementById("levelValue");
+  var restartBtn = document.getElementById("restartBtn");
+  
+  // helper deep copy
+  function copyTubes(tubesArr) {
+    var copy = [];
+    for (var i = 0; i < tubesArr.length; i++) {
+      copy.push(tubesArr[i].slice());
+    }
+    return copy;
+  }
+  
+  // win condition: each non-empty tube contains only one color (all units identical)
+  function isGameWon() {
+    var totalUnits = 0;
+    for (var i = 0; i < tubes.length; i++) {
+      var tube = tubes[i];
+      if (tube.length === 0) continue;
+      var firstColor = tube[0];
+      for (var j = 1; j < tube.length; j++) {
+        if (tube[j] !== firstColor) return false;
+      }
+      totalUnits += tube.length;
+    }
+    // total units = number_of_colors * 4
+    var expectedUnits = getColorListByLevel(currentLevel).length * 4;
+    return totalUnits === expectedUnits;
+  }
+  
+  // pour logic (one unit at a time)
+  function tryPour(srcIdx, dstIdx) {
+    if (srcIdx === dstIdx) return false;
+    var srcTube = tubes[srcIdx];
+    var dstTube = tubes[dstIdx];
+    if (srcTube.length === 0) return false;
+    if (dstTube.length === 4) return false;
+    var srcTop = srcTube[srcTube.length - 1];
+    if (dstTube.length > 0) {
+      var dstTop = dstTube[dstTube.length - 1];
+      if (srcTop !== dstTop) return false;
+    }
+    // perform pour
+    var pouredColor = srcTube.pop();
+    dstTube.push(pouredColor);
+    animatePour(srcIdx, dstIdx);
+    return true;
+  }
+  
+  function animatePour(src, dst) {
+    var allTubes = document.querySelectorAll('.tube');
+    if (allTubes[src]) allTubes[src].classList.add('tube-pour');
+    if (allTubes[dst]) allTubes[dst].classList.add('tube-pour');
+    setTimeout(function() {
+      if (allTubes[src]) allTubes[src].classList.remove('tube-pour');
+      if (allTubes[dst]) allTubes[dst].classList.remove('tube-pour');
+    }, 200);
+  }
+  
+  // adjust grid layout based on tube count
+  function adjustGridLayout(tubeCount) {
+    container.classList.remove('grid-7', 'grid-8');
+    if (tubeCount === 7) {
+      container.classList.add('grid-7');
+      container.style.gridTemplateColumns = 'repeat(4, 1fr)';
+    } else if (tubeCount === 8) {
+      container.classList.add('grid-8');
+      container.style.gridTemplateColumns = 'repeat(4, 1fr)';
+    } else {
+      container.style.gridTemplateColumns = 'repeat(3, 1fr)';
+    }
+  }
+  
+  // render tubes from current model
+  function renderGame() {
+    container.innerHTML = '';
+    for (var i = 0; i < tubes.length; i++) {
+      var tubeData = tubes[i];
+      var tubeDiv = document.createElement('div');
+      tubeDiv.className = 'tube';
+      if (selectedTubeIndex === i) tubeDiv.classList.add('selected');
+      tubeDiv.setAttribute('data-index', i);
+      // create 4 slots (max capacity)
+      for (var slot = 0; slot < 4; slot++) {
+        var unitDiv = document.createElement('div');
+        if (slot < tubeData.length) {
+          var colorHex = tubeData[slot];
+          unitDiv.className = 'color-unit';
+          unitDiv.style.backgroundColor = colorHex;
+          unitDiv.style.boxShadow = 'inset 0 1px 2px rgba(0,0,0,0.2), 0 0 0 1px rgba(255,255,200,0.3)';
+        } else {
+          unitDiv.className = 'empty-slot';
+          unitDiv.style.backgroundColor = 'rgba(255,255,245,0.03)';
+        }
+        tubeDiv.appendChild(unitDiv);
+      }
+      tubeDiv.addEventListener('click', (function(idx) { return function() { onTubeClick(idx); }; })(i));
+      tubeDiv.addEventListener('touchstart', (function(idx) { return function(e) { e.preventDefault(); onTubeClick(idx); }; })(i));
+      container.appendChild(tubeDiv);
+    }
+    adjustGridLayout(tubes.length);
+  }
+  
+  function onTubeClick(index) {
+    if (winActive) return;
+    if (selectedTubeIndex === null) {
+      if (tubes[index].length > 0) {
+        selectedTubeIndex = index;
+        renderGame();
+      }
+      return;
+    }
+    var success = tryPour(selectedTubeIndex, index);
+    selectedTubeIndex = null;
+    if (success) {
+      renderGame();
+      if (isGameWon()) {
+        winActive = true;
+        showWinScreen();
+      }
+    } else {
+      renderGame();
+      // error feedback
+      var tubesDiv = document.querySelectorAll('.tube');
+      if (tubesDiv[index]) {
+        tubesDiv[index].style.transform = 'translateX(3px)';
+        setTimeout(function() { if(tubesDiv[index]) tubesDiv[index].style.transform = ''; }, 120);
+      }
+    }
+  }
+  
+  // generate random but playable layout for current level (color count, tube count)
+  function generateRandomLayout() {
+    var colorList = getColorListByLevel(currentLevel);
+    var colorsCount = colorList.length;
+    var totalUnits = colorsCount * 4;
+    var tubeCount = getTubeCountByLevel(currentLevel);
+    // create color pool: each color appears 4 times
+    var colorPool = [];
+    for (var c = 0; c < colorsCount; c++) {
+      for (var q = 0; q < 4; q++) {
+        colorPool.push(colorList[c]);
+      }
+    }
+    // Fisher-Yates shuffle
+    for (var i = colorPool.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var temp = colorPool[i];
+      colorPool[i] = colorPool[j];
+      colorPool[j] = temp;
+    }
+    // create empty tubes
+    var newTubes = [];
+    for (var t = 0; t < tubeCount; t++) newTubes.push([]);
+    // distribute colors randomly into tubes with max capacity 4
+    for (var idx = 0; idx < colorPool.length; idx++) {
+      var placed = false;
+      var attempts = 0;
+      while (!placed && attempts < 60) {
+        var randTube = Math.floor(Math.random() * tubeCount);
+        if (newTubes[randTube].length < 4) {
+          newTubes[randTube].push(colorPool[idx]);
+          placed = true;
+        }
+        attempts++;
+      }
+      if (!placed) {
+        for (var k = 0; k < tubeCount; k++) {
+          if (newTubes[k].length < 4) {
+            newTubes[k].push(colorPool[idx]);
+            break;
+          }
+        }
+      }
+    }
+    return newTubes;
+  }
+  
+  // check if layout is already solved (instant win) -> avoid that
+  function isLayoutSolved(layout) {
+    for (var i = 0; i < layout.length; i++) {
+      var tube = layout[i];
+      if (tube.length === 0) continue;
+      var first = tube[0];
+      for (var j = 1; j < tube.length; j++) {
+        if (tube[j] !== first) return false;
+      }
+    }
+    var expectedUnits = getColorListByLevel(currentLevel).length * 4;
+    var total = 0;
+    for (var k = 0; k < layout.length; k++) total += layout[k].length;
+    return total === expectedUnits;
+  }
+  
+  // get unsolved layout for current level
+  function getUnsolvedLayout() {
+    var maxAttempts = 40;
+    for (var attempt = 0; attempt < maxAttempts; attempt++) {
+      var candidate = generateRandomLayout();
+      if (!isLayoutSolved(candidate)) {
+        return candidate;
+      }
+    }
+    // fallback: manually create one that is not solved (simple distribution)
+    var fallbackTubes = [];
+    var tubeCount = getTubeCountByLevel(currentLevel);
+    for (var t = 0; t < tubeCount; t++) fallbackTubes.push([]);
+    var colorList = getColorListByLevel(currentLevel);
+    var allUnits = [];
+    for (var ci = 0; ci < colorList.length; ci++) {
+      for (var u = 0; u < 4; u++) allUnits.push(colorList[ci]);
+    }
+    for (var s = allUnits.length - 1; s > 0; s--) {
+      var r = Math.floor(Math.random() * (s + 1));
+      var tmp = allUnits[s];
+      allUnits[s] = allUnits[r];
+      allUnits[r] = tmp;
+    }
+    var idxU = 0;
+    for (var ti = 0; ti < tubeCount && idxU < allUnits.length; ti++) {
+      while (fallbackTubes[ti].length < 4 && idxU < allUnits.length) {
+        fallbackTubes[ti].push(allUnits[idxU]);
+        idxU++;
+      }
+    }
+    return fallbackTubes;
+  }
+  
+  // setup new level based on currentLevel
+  function setupNewLevel() {
+    var newLayout = getUnsolvedLayout();
+    tubes = copyTubes(newLayout);
+    initialTubes = copyTubes(newLayout);
+    selectedTubeIndex = null;
+    winActive = false;
+    removeWinOverlay();
+    renderGame();
+  }
+  
+  // restart current level (restore initial saved layout)
+  function restartLevel() {
+    if (winActive) return;
+    tubes = copyTubes(initialTubes);
+    selectedTubeIndex = null;
+    renderGame();
+  }
+  
+  // next level: increase counter, reinit everything
+  function nextLevel() {
+    currentLevel++;
+    levelSpan.innerText = currentLevel;
+    setupNewLevel();
+  }
+  
+  function showWinScreen() {
+    var overlay = document.createElement('div');
+    overlay.className = 'win-overlay';
+    overlay.id = 'winOverlay';
+    overlay.innerHTML = '<div class="win-card"><h2>🎉 KAZANDIN! 🎉</h2><p>Harika hamle! İlerliyorsun.</p><button id="nextLevelBtn" class="next-btn">▶ SONRAKİ SEVİYE</button></div>';
+    document.body.appendChild(overlay);
+    var nextBtn = document.getElementById('nextLevelBtn');
+    if (nextBtn) {
+      nextBtn.addEventListener('click', function() {
+        nextLevel();
+      });
+      nextBtn.addEventListener('touchstart', function(e) {
+        e.preventDefault();
+        nextLevel();
+      });
+    }
+  }
+  
+  function removeWinOverlay() {
+    var existing = document.getElementById('winOverlay');
+    if (existing) existing.remove();
+  }
+  
+  // restart button event
+  restartBtn.addEventListener('click', function() {
+    if (winActive) return;
+    restartLevel();
+  });
+  restartBtn.addEventListener('touchstart', function(e) {
+    e.preventDefault();
+    if (winActive) return;
+    restartLevel();
+  });
+  
+  // initial game start (level 1)
+  function initGame() {
+    currentLevel = 1;
+    levelSpan.innerText = currentLevel;
+    setupNewLevel();
+  }
+  
+  initGame();
+</script>
+</body>
+</html>

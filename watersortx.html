@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>PACDI Puzzle | Water Sort · Progressive</title>
+  <title>PACDI Puzzle | Water Sort · 6 Colors</title>
   <style>
     * {
       margin: 0;
@@ -51,17 +51,17 @@
     }
 
     .info-bar {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: #0A1F3A;
-  border-radius: 60px;
-  padding: 8px 16px;
-  margin-bottom: 24px;
-  flex-wrap: wrap;
-  gap: 16px;
-  border: 1px solid #F6B45F30;
-}
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #0A1F3A;
+      border-radius: 60px;
+      padding: 8px 16px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 16px;
+      border: 1px solid #F6B45F30;
+    }
     .level-box {
       background: #04162E;
       padding: 5px 16px;
@@ -211,7 +211,7 @@
 <div class="game-wrapper">
   <div class="game-header">
     <h1>PACDI Puzzle</h1>
-    <div class="sub">water sort · progressive difficulty</div>
+    <div class="sub">water sort · 6 colors</div>
   </div>
 
   <div class="info-bar">
@@ -224,23 +224,21 @@
 </div>
 
 <script>
-  // ------------------- PROGRESSIVE WATER SORT (ES5) -------------------
-  // Color palettes: base 4 colors + 5th / 6th
+  // ------------------- WATER SORT · 6 COLORS (fixed) -------------------
+  // Fixed 6 colors
   var BASE_COLORS = ["#F6B45F", "#2ECC71", "#E74C3C", "#3498DB"];
   var COLOR_5 = "#9B59B6";   // purple
   var COLOR_6 = "#1ABC9C";   // teal
   
-  // get color list based on level
+  // get color list: always 6 colors
   function getColorListByLevel(level) {
-    if (level >= 11) return BASE_COLORS.concat([COLOR_5, COLOR_6]);
-    if (level >= 6) return BASE_COLORS.concat([COLOR_5]);
-    return BASE_COLORS.slice();
+    // ignore level, always return all 6 colors
+    return BASE_COLORS.concat([COLOR_5, COLOR_6]);
   }
   
-  // get tube count: number of colors + 2 empty tubes
+  // get tube count: always 6 colors + 2 empty = 8 tubes
   function getTubeCountByLevel(level) {
-    var colorCount = getColorListByLevel(level).length;
-    return colorCount + 2;
+    return 8;
   }
   
   // global state
@@ -275,8 +273,8 @@
       }
       totalUnits += tube.length;
     }
-    // total units = number_of_colors * 4
-    var expectedUnits = getColorListByLevel(currentLevel).length * 4;
+    // total units = 6 colors * 4 = 24
+    var expectedUnits = 24;
     return totalUnits === expectedUnits;
   }
   
@@ -309,13 +307,10 @@
     }, 200);
   }
   
-  // adjust grid layout based on tube count
+  // adjust grid layout based on tube count (always 8)
   function adjustGridLayout(tubeCount) {
     container.classList.remove('grid-7', 'grid-8');
-    if (tubeCount === 7) {
-      container.classList.add('grid-7');
-      container.style.gridTemplateColumns = 'repeat(4, 1fr)';
-    } else if (tubeCount === 8) {
+    if (tubeCount === 8) {
       container.classList.add('grid-8');
       container.style.gridTemplateColumns = 'repeat(4, 1fr)';
     } else {
@@ -381,12 +376,12 @@
     }
   }
   
-  // generate random but playable layout for current level (color count, tube count)
+  // generate random but playable layout for current level (always 6 colors, 8 tubes)
   function generateRandomLayout() {
-    var colorList = getColorListByLevel(currentLevel);
-    var colorsCount = colorList.length;
-    var totalUnits = colorsCount * 4;
-    var tubeCount = getTubeCountByLevel(currentLevel);
+    var colorList = getColorListByLevel(currentLevel); // always 6 colors
+    var colorsCount = colorList.length; // =6
+    var totalUnits = colorsCount * 4; // 24
+    var tubeCount = getTubeCountByLevel(currentLevel); // =8
     // create color pool: each color appears 4 times
     var colorPool = [];
     for (var c = 0; c < colorsCount; c++) {
@@ -438,7 +433,7 @@
         if (tube[j] !== first) return false;
       }
     }
-    var expectedUnits = getColorListByLevel(currentLevel).length * 4;
+    var expectedUnits = 24;
     var total = 0;
     for (var k = 0; k < layout.length; k++) total += layout[k].length;
     return total === expectedUnits;
@@ -478,7 +473,7 @@
     return fallbackTubes;
   }
   
-  // setup new level based on currentLevel
+  // setup new level based on currentLevel (but colors/tubes always same)
   function setupNewLevel() {
     var newLayout = getUnsolvedLayout();
     tubes = copyTubes(newLayout);
@@ -497,7 +492,7 @@
     renderGame();
   }
   
-  // next level: increase counter, reinit everything
+  // next level: increase counter, reinit everything (still 6 colors)
   function nextLevel() {
     currentLevel++;
     levelSpan.innerText = currentLevel;

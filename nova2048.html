@@ -692,9 +692,6 @@ function newGame() {
   if (timerEnabled) {
     timeLeft = 60;
     startTimer();
-  }
-
-  if (timerEnabled) {
     startBonusTimer();
   }
 
@@ -1037,8 +1034,13 @@ function startTimer() {
     }
     if (timeLeft <= 0) {
       clearInterval(timerInterval);
-      gameActive = false;
       clearInterval(bonusInterval);
+      gameActive = false;
+      timerEnabled = false;
+      var btn = document.querySelectorAll('.btn-small')[1];
+      btn.textContent = 'Timer: OFF';
+      btn.style.color = '';
+      el('timer-val').textContent = '0s';
       setTimeout(showGameOver, 200);
     }
   }, 1000);
@@ -1059,9 +1061,25 @@ function applyBonusTile() {
     }
   }
   if (tiles.length === 0) return;
-  var pick = tiles[Math.floor(Math.random() * tiles.length)];
-  board[pick[0]][pick[1]] *= 2;
-  score += board[pick[0]][pick[1]];
+
+  /* En düşük değerli tile'ı seç — büyük sıçramayı önler */
+  var minVal = Infinity;
+  for (var i = 0; i < tiles.length; i++) {
+    var v = board[tiles[i][0]][tiles[i][1]];
+    if (v < minVal) minVal = v;
+  }
+  var candidates = [];
+  for (var i = 0; i < tiles.length; i++) {
+    if (board[tiles[i][0]][tiles[i][1]] === minVal) candidates.push(tiles[i]);
+  }
+  var pick = candidates[Math.floor(Math.random() * candidates.length)];
+
+  /* Sadece bir adım yukarı çık (×2), maksimum 32 ile sınırla */
+  var oldVal = board[pick[0]][pick[1]];
+  var newVal = Math.min(oldVal * 2, 32);
+  var gained = newVal - oldVal;
+  board[pick[0]][pick[1]] = newVal;
+  score += gained;
   updateScoreDisplay();
   renderTiles();
   showBonusMsg();

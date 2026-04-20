@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Counterfeit · Zihin Egzersizi | SilverCompass</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; user-select:none; -webkit-tap-highlight-color:transparent; }
+    body {
+      background: #0F1318;
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 16px;
+    }
+    .game-container {
+      max-width: 480px;
+      width: 100%;
+      background: #1e2a3a;
+      border-radius: 48px;
+      padding: 22px 20px 28px;
+      box-shadow: 0 20px 35px rgba(0,0,0,0.4);
+      border: 1px solid rgba(246,180,95,0.25);
+    }
+    .header {
+      display: flex; justify-content: space-between; align-items: baseline;
+      margin-bottom: 14px;
+    }
+    .logo { font-size: 1.5rem; font-weight: bold; color: #F6B45F; }
+    .sub  { font-size: 0.62rem; color: #b8d0e8; margin-top: 1px; }
+    .back-link {
+      color: #F6B45F; text-decoration: none; font-weight: bold;
+      font-size: 0.78rem; background: #0a1018;
+      padding: 5px 12px; border-radius: 40px;
+    }
+
+```
+.diff-row { display: flex; justify-content: center; gap: 8px; margin-bottom: 12px; }
+.diff-btn {
+  background: #0a1018; color: #F6B45F;
+  border: 1px solid #F6B45F;
+  padding: 4px 14px; border-radius: 40px;
+  font-size: 0.75rem; cursor: pointer;
+}
+.diff-btn.active { background: #F6B45F; color: #0F1318; border-color: #F6B45F; }
+
+.info-bar {
+  display: flex; justify-content: space-between; align-items: center;
+  background: #0a1018; border-radius: 40px;
+  padding: 7px 16px; margin-bottom: 14px;
+}
+.info-box { color: #F6B45F; font-weight: bold; font-size: 0.78rem; }
+.info-box span { color: #eaf2fb; }
+.new-btn {
+  background: #F6B45F; border: none; font-weight: bold;
+  padding: 5px 14px; border-radius: 40px;
+  color: #0F1318; cursor: pointer; font-size: 0.78rem;
+}
+
+/* timer */
+.timer-wrap {
+  display: flex; align-items: center; gap: 10px;
+  background: #0a1018; border-radius: 40px;
+  padding: 7px 16px; margin-bottom: 14px;
+}
+.timer-label { font-size: 0.7rem; color: #F6B45F; font-weight: bold; flex-shrink: 0; }
+.timer-track { flex: 1; height: 7px; background: #1e2a3a; border-radius: 4px; overflow: hidden; }
+.timer-fill  { height: 100%; background: #2ECC71; border-radius: 4px; transition: width 0.1s linear, background 0.3s; }
+.timer-val   { font-size: 0.8rem; font-weight: bold; color: #eaf2fb; flex-shrink: 0; width: 34px; text-align: right; }
+
+/* clue panel */
+.clue-panel {
+  background: #0a1018; border-radius: 20px;
+  padding: 10px 16px; margin-bottom: 14px;
+  display: flex; align-items: center; gap: 10px;
+}
+.clue-icon { font-size: 1.3rem; flex-shrink: 0; }
+.clue-text { font-size: 0.78rem; color: #eaf2fb; line-height: 1.5; flex: 1; }
+.clue-text strong { color: #F6B45F; }
+
+/* banknote grid */
+.notes-grid {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.note-card {
+  background: #0a1018;
+  border-radius: 18px;
+  border: 2px solid #2a3a4a;
+  cursor: pointer;
+  overflow: hidden;
+  transition: border-color 0.15s, transform 0.1s;
+  position: relative;
+}
+.note-card:active { transform: scale(0.97); }
+.note-card.selected { border-color: #F6B45F; }
+.note-card.correct  { border-color: #2ECC71; background: rgba(46,204,113,0.08); }
+.note-card.wrong    { border-color: #E74C3C; background: rgba(231,76,60,0.08); }
+.note-card.reveal   { border-color: #2ECC71; background: rgba(46,204,113,0.06); }
+
+/* the note canvas */
+.note-canvas {
+  display: block;
+  width: 100%;
+  border-radius: 14px 14px 0 0;
+}
+
+/* note label */
+.note-label {
+  padding: 6px 10px;
+  font-size: 0.7rem;
+  color: #6c8fb0;
+  text-align: center;
+  letter-spacing: 1px;
+}
+.note-card.correct .note-label { color: #2ECC71; font-weight: bold; }
+.note-card.wrong   .note-label { color: #E74C3C; font-weight: bold; }
+
+/* badge */
+.note-badge {
+  position: absolute; top: 7px; right: 7px;
+  font-size: 1.1rem; display: none;
+}
+.note-card.correct .note-badge,
+.note-card.wrong   .note-badge { display: block; }
+
+/* progress */
+.progress-wrap { display: flex; gap: 6px; justify-content: center; margin-bottom: 14px; flex-wrap: wrap; }
+.prog-dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: #1e2a3a; border: 1px solid #2a3a4a;
+}
+.prog-dot.ok   { background: #2ECC71; border-color: #27AE60; }
+.prog-dot.fail { background: #E74C3C; border-color: #c0392b; }
+.prog-dot.curr { background: #F6B45F; border-color: #d4a050; }
+
+/* overlay */
+.overlay {
+  position: fixed; top:0; left:0; width:100%; height:100%;
+  background: rgba(15,19,24,0.93);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 100; backdrop-filter: blur(6px);
+  opacity: 0; pointer-events: none; transition: opacity 0.3s;
+}
+.overlay.show { opacity: 1; pointer-events: all; }
+.overlay-box {
+  background: #1e2a3a; border-radius: 40px;
+  padding: 36px 40px; text-align: center;
+  border: 2px solid #F6B45F; max-width: 300px; width: 90%;
+}
+.overlay-icon  { font-size: 3rem; margin-bottom: 10px; }
+.overlay-title { font-size: 1.5rem; font-weight: bold; color: #F6B45F; letter-spacing: 2px; margin-bottom: 8px; }
+.overlay-msg   { color: #eaf2fb; font-size: 0.85rem; margin-bottom: 18px; line-height: 1.8; }
+.overlay-btn {
+  background: #F6B45F; border: none; font-weight: bold;
+  padding: 10px 28px; border-radius: 40px;
+  color: #0F1318; cursor: pointer; font-size: 0.9rem;
+}
+
+.footer { text-align: center; font-size: 0.6rem; color: #6c8fb0; margin-top: 10px; }
+```
+
+  </style>
+</head>
+<body>
+<div class="game-container">
+  <div class="header">
+    <div>
+      <div class="logo">COUNTERFEİT</div>
+      <div class="sub">SilverCompass · Görsel Dikkat</div>
+    </div>
+    <a href="index.html" class="back-link">← Geri</a>
+  </div>
+
+  <div class="diff-row">
+    <div class="diff-btn active" data-diff="easy">Kolay</div>
+    <div class="diff-btn" data-diff="medium">Orta</div>
+    <div class="diff-btn" data-diff="hard">Zor</div>
+  </div>
+
+  <div class="info-bar">
+    <div class="info-box">Tur: <span id="roundNum">1</span>/<span id="totalRounds">8</span></div>
+    <div class="info-box">Skor: <span id="scoreNum">0</span></div>
+    <button class="new-btn" id="newBtn">↺ Yeni</button>
+  </div>
+
+  <div class="timer-wrap">
+    <div class="timer-label">⏱</div>
+    <div class="timer-track"><div class="timer-fill" id="timerFill" style="width:100%"></div></div>
+    <div class="timer-val"  id="timerVal">15s</div>
+  </div>
+
+  <div class="clue-panel">
+    <div class="clue-icon">🔍</div>
+    <div class="clue-text" id="clueText">Sahte banknotları bul...</div>
+  </div>
+
+  <div class="notes-grid" id="notesGrid"></div>
+
+  <div class="progress-wrap" id="progressWrap"></div>
+
+  <div class="footer">Sahte banknotun <strong>farklı</strong> olan özelliğini bul · Hızlı karar ver</div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="overlay-box">
+    <div class="overlay-icon" id="overlayIcon">🏆</div>
+    <div class="overlay-title" id="overlayTitle">OYUN BİTTİ</div>
+    <div class="overlay-msg"   id="overlayMsg"></div>
+    <button class="overlay-btn" id="overlayBtn">Tekrar Oyna</button>
+  </div>
+</div>
+
+<script>
+(function () {
+
+  /* ---- CONFIG ---- */
+  var DIFF = 'easy';
+  var CONFIGS = {
+    easy:   { rounds: 8,  notes: 3, timeLimit: 15, cols: 3 },
+    medium: { rounds: 10, notes: 4, timeLimit: 12, cols: 4 },
+    hard:   { rounds: 12, notes: 6, timeLimit: 10, cols: 3 }
+  };
+
+  /* ---- NOTE TEMPLATES ---- */
+  /* Each template defines a "real" note appearance.
+     The fake version has one property randomly altered. */
+  var TEMPLATES = [
+    {
+      name: 'Euro 50',
+      baseColor: '#c8a840',
+      accentColor: '#8a6e1a',
+      serial: 'EA7241385B',
+      value: '50',
+      symbol: '€',
+      sigil: '★',
+      stripColor: '#d4b830'
+    },
+    {
+      name: 'Euro 100',
+      baseColor: '#3a8a4a',
+      accentColor: '#1e5a28',
+      serial: 'XB4429801A',
+      value: '100',
+      symbol: '€',
+      sigil: '◆',
+      stripColor: '#4aaa5a'
+    },
+    {
+      name: 'Euro 20',
+      baseColor: '#3a5a9a',
+      accentColor: '#1e3468',
+      serial: 'SN0938471C',
+      value: '20',
+      symbol: '€',
+      sigil: '●',
+      stripColor: '#4a6aaa'
+    },
+    {
+      name: 'TL 200',
+      baseColor: '#7a3a8a',
+      accentColor: '#4a1a5a',
+      serial: 'A82 391047',
+      value: '200',
+      symbol: '₺',
+      sigil: '▲',
+      stripColor: '#9a5aaa'
+    },
+    {
+      name: 'TL 100',
+      baseColor: '#8a4030',
+      accentColor: '#5a1a10',
+      serial: 'D41 882930',
+      value: '100',
+      symbol: '₺',
+      sigil: '■',
+      stripColor: '#aa6050'
+    },
+    {
+      name: 'USD 100',
+      baseColor: '#2a6a5a',
+      accentColor: '#0a4a3a',
+      serial: 'MH93847261A',
+      value: '100',
+      symbol: '$',
+      sigil: '◎',
+      stripColor: '#4a8a7a'
+    }
+  ];
+
+  /* Fake alterations — what can be changed */
+  var ALTERATIONS = [
+    {
+      id: 'serial',
+      label: function (t, fakeT) { return 'Seri numarası farklı: <strong>' + fakeT.serial + '</strong> yerine <strong>' + t.serial + '</strong> olmalı'; },
+      apply: function (t) {
+        var fake = copyTemplate(t);
+        var chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ0123456789';
+        var s = '';
+        for (var i = 0; i < t.serial.length; i++) {
+          if (t.serial[i] === ' ') { s += ' '; continue; }
+          s += chars[Math.floor(Math.random() * chars.length)];
+        }
+        fake.serial = s;
+        fake.fakeField = 'serial';
+        return fake;
+      }
+    },
+    {
+      id: 'value',
+      label: function (t, fakeT) { return 'Değer rakamı farklı: <strong>' + fakeT.value + '</strong> yerine <strong>' + t.value + '</strong> olmalı'; },
+      apply: function (t) {
+        var fake = copyTemplate(t);
+        var vals = ['5','10','20','50','100','200','500'];
+        var v = t.value;
+        while (v === t.value) v = vals[Math.floor(Math.random() * vals.length)];
+        fake.value = v;
+        fake.fakeField = 'value';
+        return fake;
+      }
+    },
+    {
+      id: 'sigil',
+      label: function (t, fakeT) { return 'Güvenlik sembolü farklı: <strong>' + fakeT.sigil + '</strong> yerine <strong>' + t.sigil + '</strong> olmalı'; },
+      apply: function (t) {
+        var fake = copyTemplate(t);
+        var sigils = ['★','◆','●','▲','■','◎','◇','○','▼','✦'];
+        var s = t.sigil;
+        while (s === t.sigil) s = sigils[Math.floor(Math.random() * sigils.length)];
+        fake.sigil = s;
+        fake.fakeField = 'sigil';
+        return fake;
+      }
+    },
+    {
+      id: 'stripColor',
+      label: function () { return 'Güvenlik şeridinin <strong>rengi</strong> farklı'; },
+      apply: function (t) {
+        var fake = copyTemplate(t);
+        var colors = ['#e74c3c','#3498db','#2ecc71','#9b59b6','#e67e22','#1abc9c','#e91e8c'];
+        fake.stripColor = colors[Math.floor(Math.random() * colors.length)];
+        fake.fakeField = 'strip';
+        return fake;
+      }
+    },
+    {
+      id: 'symbol',
+      label: function (t, fakeT) { return 'Para birimi sembolü farklı: <strong>' + fakeT.symbol + '</strong> yerine <strong>' + t.symbol + '</strong> olmalı'; },
+      apply: function (t) {
+        var fake = copyTemplate(t);
+        var syms = ['€','$','£','₺','¥','₣'];
+        var s = t.symbol;
+        while (s === t.symbol) s = syms[Math.floor(Math.random() * syms.length)];
+        fake.symbol = s;
+        fake.fakeField = 'symbol';
+        return fake;
+      }
+    }
+  ];
+
+  function copyTemplate(t) {
+    return {
+      name: t.name, baseColor: t.baseColor, accentColor: t.accentColor,
+      serial: t.serial, value: t.value, symbol: t.symbol,
+      sigil: t.sigil, stripColor: t.stripColor
+    };
+  }
+
+  /* ---- DRAW NOTE ---- */
+  function drawNote(canvas, tmpl, isFake) {
+    var W = canvas.width;
+    var H = canvas.height;
+    var ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, W, H);
+
+    /* background */
+    var grad = ctx.createLinearGradient(0, 0, W, H);
+    grad.addColorStop(0, tmpl.baseColor);
+    grad.addColorStop(1, tmpl.accentColor);
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.roundRect ? ctx.roundRect(0, 0, W, H, 10) : ctx.rect(0, 0, W, H);
+    ctx.fill();
+
+    /* subtle pattern overlay */
+    ctx.globalAlpha = 0.07;
+    for (var i = 0; i < W; i += 12) {
+      ctx.beginPath();
+      ctx.moveTo(i, 0); ctx.lineTo(i, H);
+      ctx.strokeStyle = 'white'; ctx.lineWidth = 0.5; ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+
+    /* security strip */
+    var stripX = W * 0.68;
+    ctx.fillStyle = tmpl.stripColor;
+    ctx.fillRect(stripX, H * 0.1, 7, H * 0.8);
+    /* strip shine */
+    ctx.fillStyle = 'rgba(255,255,255,0.3)';
+    ctx.fillRect(stripX + 1, H * 0.1, 2, H * 0.8);
+
+    /* value — large */
+    ctx.font = 'bold ' + Math.round(H * 0.38) + 'px monospace';
+    ctx.fillStyle = 'rgba(255,255,255,0.9)';
+    ctx.textAlign = 'left';
+    ctx.fillText(tmpl.value, W * 0.07, H * 0.62);
+
+    /* symbol */
+    ctx.font = 'bold ' + Math.round(H * 0.2) + 'px sans-serif';
+    ctx.fillStyle = 'rgba(255,255,255,0.7)';
+    ctx.textAlign = 'left';
+    ctx.fillText(tmpl.symbol, W * 0.07, H * 0.85);
+
+    /* sigil — top right */
+    ctx.font = Math.round(H * 0.18) + 'px sans-serif';
+    ctx.fillStyle = 'rgba(255,255,255,0.6)';
+    ctx.textAlign = 'right';
+    ctx.fillText(tmpl.sigil, W * 0.62, H * 0.3);
+
+    /* serial number */
+    ctx.font = Math.round(H * 0.085) + 'px monospace';
+    ctx.fillStyle = 'rgba(255,255,255,0.55)';
+    ctx.textAlign = 'left';
+    ctx.fillText(tmpl.serial, W * 0.07, H * 0.94);
+
+    /* note name top */
+    ctx.font = Math.round(H * 0.08) + 'px sans-serif';
+    ctx.fillStyle = 'rgba(255,255,255,0.4)';
+    ctx.textAlign = 'left';
+    ctx.fillText(tmpl.name, W * 0.07, H * 0.16);
+
+    /* fake watermark */
+    if (isFake) {
+      ctx.save();
+      ctx.globalAlpha = 0.06;
+      ctx.font = 'bold ' + Math.round(H * 0.22) + 'px sans-serif';
+      ctx.fillStyle = '#ff0000';
+      ctx.textAlign = 'center';
+      ctx.translate(W / 2, H / 2);
+      ctx.rotate(-0.4);
+      ctx.fillText('SAHTE', 0, 0);
+      ctx.restore();
+    }
+
+    /* border */
+    ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.roundRect ? ctx.roundRect(1, 1, W - 2, H - 2, 10) : ctx.rect(1, 1, W - 2, H - 2);
+    ctx.stroke();
+  }
+
+  /* ---- STATE ---- */
+  var round        = 0;
+  var totalRounds  = 8;
+  var score        = 0;
+  var roundResults = [];
+  var fakeIndex    = -1;
+  var answered     = false;
+  var timeLeft     = 15;
+  var totalTime    = 15;
+  var timerInterval = null;
+  var clueShown    = false;
+  var alteration   = null;
+  var template     = null;
+
+  /* ---- ELEMENTS ---- */
+  var gridEl     = document.getElementById('notesGrid');
+  var clueEl     = document.getElementById('clueText');
+  var overlay    = document.getElementById('overlay');
+  var progressEl = document.getElementById('progressWrap');
+  var timerFill  = document.getElementById('timerFill');
+  var timerVal   = document.getElementById('timerVal');
+  var diffBtns   = document.querySelectorAll('.diff-btn');
+
+  /* ---- PROGRESS ---- */
+  function buildProgress() {
+    progressEl.innerHTML = '';
+    for (var i = 0; i < totalRounds; i++) {
+      var d = document.createElement('div');
+      d.className = 'prog-dot' + (i === 0 ? ' curr' : '');
+      progressEl.appendChild(d);
+    }
+  }
+  function updateProgress() {
+    var dots = progressEl.querySelectorAll('.prog-dot');
+    for (var i = 0; i < dots.length; i++) {
+      dots[i].className = 'prog-dot';
+      if (i < roundResults.length) dots[i].classList.add(roundResults[i] ? 'ok' : 'fail');
+      else if (i === roundResults.length) dots[i].classList.add('curr');
+    }
+    document.getElementById('roundNum').textContent = Math.min(round + 1, totalRounds);
+  }
+
+  /* ---- BUILD ROUND ---- */
+  function buildRound() {
+    answered  = false;
+    clueShown = false;
+    var cfg   = CONFIGS[DIFF];
+
+    /* pick template */
+    template = TEMPLATES[Math.floor(Math.random() * TEMPLATES.length)];
+
+    /* pick alteration */
+    alteration = ALTERATIONS[Math.floor(Math.random() * ALTERATIONS.length)];
+
+    /* build notes array */
+    var notes = [];
+    fakeIndex = Math.floor(Math.random() * cfg.notes);
+    for (var i = 0; i < cfg.notes; i++) {
+      if (i === fakeIndex) {
+        notes.push({ tmpl: alteration.apply(template), isFake: true });
+      } else {
+        notes.push({ tmpl: copyTemplate(template), isFake: false });
+      }
+    }
+
+    /* clue */
+    var fakeClues = {
+      serial:     'Seri numarasını karşılaştır',
+      value:      'Değer rakamını kontrol et',
+      sigil:      'Güvenlik sembolünü incele',
+      strip:      'Güvenlik şeridinin rengine dikkat et',
+      symbol:     'Para birimi sembolünü kontrol et'
+    };
+    clueEl.innerHTML = '🔍 <strong>İpucu:</strong> ' + (fakeClues[alteration.id] || 'Dikkatlice karşılaştır');
+
+    /* grid */
+    gridEl.innerHTML = '';
+    gridEl.style.gridTemplateColumns = 'repeat(' + cfg.cols + ', 1fr)';
+
+    var noteW = Math.floor((document.querySelector('.game-container').offsetWidth - 40 - 10 * (cfg.cols - 1)) / cfg.cols);
+    var noteH = Math.round(noteW * 0.52);
+
+    for (var i = 0; i < notes.length; i++) {
+      (function (idx, note) {
+        var card = document.createElement('div');
+        card.className = 'note-card';
+
+        var canvas = document.createElement('canvas');
+        canvas.className = 'note-canvas';
+        canvas.width  = noteW;
+        canvas.height = noteH;
+        drawNote(canvas, note.tmpl, false); /* never reveal fake visually */
+        card.appendChild(canvas);
+
+        var label = document.createElement('div');
+        label.className   = 'note-label';
+        label.textContent = String.fromCharCode(65 + idx); /* A, B, C... */
+        card.appendChild(label);
+
+        var badge = document.createElement('div');
+        badge.className = 'note-badge';
+        card.appendChild(badge);
+
+        card.addEventListener('click', function () { onCardClick(idx, card); });
+        gridEl.appendChild(card);
+      })(i, notes[i]);
+    }
+
+    /* start timer */
+    startTimer();
+  }
+
+  /* ---- CARD CLICK ---- */
+  function onCardClick(idx, card) {
+    if (answered) return;
+    answered = true;
+    clearInterval(timerInterval);
+
+    var cards = gridEl.querySelectorAll('.note-card');
+    var correct = (idx === fakeIndex);
+
+    /* reveal all */
+    for (var i = 0; i < cards.length; i++) {
+      var badge = cards[i].querySelector('.note-badge');
+      if (i === fakeIndex) {
+        cards[i].classList.add(i === idx ? 'correct' : 'reveal');
+        badge.textContent = '🚨';
+        cards[i].querySelector('.note-label').textContent = 'SAHTE';
+      }
+    }
+    if (!correct) {
+      card.classList.add('wrong');
+      card.querySelector('.note-badge').textContent = '✕';
+    }
+
+    var pts = correct ? Math.max(10, Math.round(timeLeft / totalTime * 100)) : 0;
+    score += pts;
+    document.getElementById('scoreNum').textContent = score;
+
+    /* show answer clue */
+    if (correct) {
+      clueEl.innerHTML = '✅ <strong>Doğru!</strong> +' + pts + ' puan';
+    } else {
+      clueEl.innerHTML = '❌ <strong>Yanlış.</strong> ' + alteration.label(template, gridEl.querySelectorAll('.note-card')[fakeIndex].querySelector('canvas').__tmpl || template);
+    }
+
+    roundResults.push(correct);
+    updateProgress();
+
+    setTimeout(function () {
+      round++;
+      if (round >= totalRounds) {
+        endGame();
+      } else {
+        buildRound();
+      }
+    }, 1400);
+  }
+
+  /* ---- TIMER ---- */
+  function startTimer() {
+    clearInterval(timerInterval);
+    timeLeft  = CONFIGS[DIFF].timeLimit;
+    totalTime = timeLeft;
+    timerFill.style.width      = '100%';
+    timerFill.style.background = '#2ECC71';
+    timerVal.textContent       = timeLeft + 's';
+
+    timerInterval = setInterval(function () {
+      timeLeft -= 0.1;
+      if (timeLeft < 0) timeLeft = 0;
+      var pct = timeLeft / totalTime * 100;
+      timerFill.style.width      = pct + '%';
+      timerFill.style.background = timeLeft > totalTime * 0.5 ? '#2ECC71'
+                                 : timeLeft > totalTime * 0.25 ? '#F6B45F' : '#E74C3C';
+      timerVal.textContent = Math.ceil(timeLeft) + 's';
+      if (timeLeft <= 0) {
+        clearInterval(timerInterval);
+        if (!answered) { onTimeout(); }
+      }
+    }, 100);
+  }
+
+  function onTimeout() {
+    answered = true;
+    roundResults.push(false);
+    updateProgress();
+    var cards = gridEl.querySelectorAll('.note-card');
+    if (cards[fakeIndex]) {
+      cards[fakeIndex].classList.add('reveal');
+      cards[fakeIndex].querySelector('.note-badge').textContent = '🚨';
+      cards[fakeIndex].querySelector('.note-label').textContent = 'SAHTE';
+    }
+    clueEl.innerHTML = '⏰ <strong>Süre doldu!</strong> Sahte: ' + String.fromCharCode(65 + fakeIndex);
+    setTimeout(function () {
+      round++;
+      if (round >= totalRounds) endGame(); else buildRound();
+    }, 1400);
+  }
+
+  /* ---- END GAME ---- */
+  function endGame() {
+    clearInterval(timerInterval);
+    var correct = roundResults.filter(function (r) { return r; }).length;
+    var best    = parseInt(localStorage.getItem('cf_best_' + DIFF) || '0', 10);
+    if (score > best) { best = score; localStorage.setItem('cf_best_' + DIFF, score); }
+
+    document.getElementById('overlayIcon').textContent  = correct >= totalRounds * 0.7 ? '🕵️' : '🔍';
+    document.getElementById('overlayTitle').textContent = correct >= totalRounds * 0.7 ? 'DEDEKTIF!' : 'OYUN BİTTİ';
+    document.getElementById('overlayMsg').textContent   =
+      correct + '/' + totalRounds + ' sahte bulundu\n' +
+      'Skor: ' + score + '\nEn iyi: ' + best;
+    overlay.classList.add('show');
+  }
+
+  /* ---- NEW GAME ---- */
+  function newGame() {
+    clearInterval(timerInterval);
+    overlay.classList.remove('show');
+    var cfg    = CONFIGS[DIFF];
+    round      = 0;
+    score      = 0;
+    totalRounds = cfg.rounds;
+    roundResults = [];
+    document.getElementById('scoreNum').textContent    = '0';
+    document.getElementById('totalRounds').textContent = cfg.rounds;
+    buildProgress();
+    updateProgress();
+    buildRound();
+  }
+
+  /* ---- EVENTS ---- */
+  document.getElementById('newBtn').addEventListener('click', newGame);
+  document.getElementById('overlayBtn').addEventListener('click', newGame);
+  for (var i = 0; i < diffBtns.length; i++) {
+    diffBtns[i].addEventListener('click', function () {
+      for (var j = 0; j < diffBtns.length; j++) diffBtns[j].classList.remove('active');
+      this.classList.add('active');
+      DIFF = this.getAttribute('data-diff');
+      newGame();
+    });
+  }
+
+  /* ---- INIT ---- */
+  newGame();
+}());
+</script>
+
+</body>
+</html>

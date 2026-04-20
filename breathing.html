@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Nefes & Dinlenme · SilverCompass</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; user-select:none; -webkit-tap-highlight-color:transparent; }
+    body {
+      background: #0a0f18;
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 16px;
+    }
+    .game-container {
+      max-width: 480px;
+      width: 100%;
+      background: #1e2a3a;
+      border-radius: 48px;
+      padding: 22px 20px 28px;
+      box-shadow: 0 20px 35px rgba(0,0,0,0.4);
+      border: 1px solid rgba(246,180,95,0.25);
+    }
+    .header {
+      display: flex; justify-content: space-between; align-items: baseline;
+      margin-bottom: 14px;
+    }
+    .logo { font-size: 1.4rem; font-weight: bold; color: #F6B45F; }
+    .sub  { font-size: 0.62rem; color: #b8d0e8; margin-top: 1px; }
+    .back-link {
+      color: #F6B45F; text-decoration: none; font-weight: bold;
+      font-size: 0.78rem; background: #0a1018;
+      padding: 5px 12px; border-radius: 40px;
+    }
+
+```
+/* technique selector */
+.tech-row {
+  display: flex; gap: 7px; margin-bottom: 14px; justify-content: center; flex-wrap: wrap;
+}
+.tech-btn {
+  background: #0a1018; color: #b8d0e8;
+  border: 1px solid #2a3a4a;
+  padding: 5px 12px; border-radius: 40px;
+  font-size: 0.72rem; cursor: pointer;
+  transition: all 0.15s;
+}
+.tech-btn.active { background: #F6B45F; color: #0F1318; border-color: #F6B45F; font-weight: bold; }
+
+/* session info */
+.session-bar {
+  display: flex; justify-content: space-between; align-items: center;
+  background: #0a1018; border-radius: 40px;
+  padding: 7px 16px; margin-bottom: 18px;
+}
+.session-box { color: #F6B45F; font-weight: bold; font-size: 0.78rem; }
+.session-box span { color: #eaf2fb; }
+.stop-btn {
+  background: #2a3a4a; border: none; font-weight: bold;
+  padding: 5px 14px; border-radius: 40px;
+  color: #b8d0e8; cursor: pointer; font-size: 0.75rem;
+  transition: background 0.15s;
+}
+.stop-btn:active { background: #E74C3C; color: white; }
+
+/* main visual */
+.visual-wrap {
+  display: flex; flex-direction: column; align-items: center;
+  margin-bottom: 18px; position: relative;
+}
+
+/* breathing circle */
+.breath-ring-wrap {
+  position: relative;
+  width: 220px; height: 220px;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 14px;
+}
+.breath-svg {
+  position: absolute; top: 0; left: 0;
+  width: 220px; height: 220px;
+}
+.ring-track {
+  fill: none; stroke: #1e2a3a; stroke-width: 6;
+}
+.ring-progress {
+  fill: none; stroke: #F6B45F; stroke-width: 6;
+  stroke-linecap: round;
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+  transition: stroke-dashoffset 0.1s linear, stroke 0.5s;
+}
+
+/* pulsing inner circle */
+.breath-circle {
+  width: 130px; height: 130px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, rgba(246,180,95,0.4), rgba(100,60,180,0.3));
+  border: 2px solid rgba(246,180,95,0.3);
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column;
+  transition: transform 0.1s ease, background 0.5s;
+  box-shadow: 0 0 30px rgba(246,180,95,0.15), 0 0 60px rgba(100,60,180,0.1);
+  position: relative; z-index: 2;
+}
+.breath-phase {
+  font-size: 0.8rem; letter-spacing: 2px;
+  color: rgba(255,255,255,0.6);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.breath-count {
+  font-size: 2.4rem; font-weight: 900;
+  color: #F6B45F;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.breath-emoji {
+  font-size: 1.1rem; margin-top: 4px;
+}
+
+/* phase colors */
+.phase-inhale  .breath-circle { box-shadow: 0 0 40px rgba(46,204,113,0.25), 0 0 80px rgba(46,204,113,0.1); border-color: rgba(46,204,113,0.4); }
+.phase-hold    .breath-circle { box-shadow: 0 0 40px rgba(246,180,95,0.3), 0 0 80px rgba(246,180,95,0.12); border-color: rgba(246,180,95,0.5); }
+.phase-exhale  .breath-circle { box-shadow: 0 0 40px rgba(52,152,219,0.25), 0 0 80px rgba(52,152,219,0.1); border-color: rgba(52,152,219,0.4); }
+.phase-hold2   .breath-circle { box-shadow: 0 0 40px rgba(155,89,182,0.25), 0 0 80px rgba(155,89,182,0.1); border-color: rgba(155,89,182,0.4); }
+
+.phase-inhale  .ring-progress { stroke: #2ECC71; }
+.phase-hold    .ring-progress { stroke: #F6B45F; }
+.phase-exhale  .ring-progress { stroke: #3498DB; }
+.phase-hold2   .ring-progress { stroke: #9B59B6; }
+
+/* instruction text */
+.instruction {
+  font-size: 1.1rem; font-weight: bold;
+  color: #eaf2fb; letter-spacing: 2px;
+  text-align: center; min-height: 28px;
+  transition: color 0.4s;
+}
+.instruction.green  { color: #2ECC71; }
+.instruction.gold   { color: #F6B45F; }
+.instruction.blue   { color: #3498DB; }
+.instruction.purple { color: #9B59B6; }
+
+/* cycle progress dots */
+.cycle-dots {
+  display: flex; gap: 7px; justify-content: center; margin-bottom: 14px;
+}
+.cycle-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: #1e2a3a; border: 1px solid #2a3a4a;
+  transition: background 0.3s;
+}
+.cycle-dot.done { background: #F6B45F; border-color: #d4a050; }
+.cycle-dot.curr { background: rgba(246,180,95,0.4); border-color: #F6B45F; }
+
+/* technique info card */
+.tech-card {
+  background: #0a1018; border-radius: 20px;
+  padding: 12px 16px; margin-bottom: 14px;
+}
+.tech-name { font-size: 0.82rem; font-weight: bold; color: #F6B45F; margin-bottom: 6px; }
+.tech-desc { font-size: 0.72rem; color: #6c8fb0; line-height: 1.6; }
+.tech-pattern {
+  display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap;
+}
+.phase-badge {
+  padding: 3px 10px; border-radius: 40px;
+  font-size: 0.68rem; font-weight: bold;
+}
+.pb-inhale  { background: rgba(46,204,113,0.15);  color: #2ECC71; }
+.pb-hold    { background: rgba(246,180,95,0.15);  color: #F6B45F; }
+.pb-exhale  { background: rgba(52,152,219,0.15);  color: #3498DB; }
+.pb-hold2   { background: rgba(155,89,182,0.15);  color: #9B59B6; }
+
+/* start button */
+.start-btn {
+  display: block; margin: 0 auto;
+  background: linear-gradient(135deg, #F6B45F, #e09020);
+  border: none; font-weight: bold;
+  padding: 14px 40px; border-radius: 50px;
+  color: #0F1318; cursor: pointer; font-size: 1rem;
+  letter-spacing: 1px;
+  box-shadow: 0 4px 20px rgba(246,180,95,0.3);
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+.start-btn:active { transform: scale(0.96); box-shadow: 0 2px 10px rgba(246,180,95,0.2); }
+.start-btn.hidden { display: none; }
+
+/* completion */
+.complete-wrap {
+  text-align: center; padding: 10px 0; display: none;
+}
+.complete-wrap.show { display: block; }
+.complete-icon  { font-size: 3rem; margin-bottom: 8px; }
+.complete-title { font-size: 1.3rem; font-weight: bold; color: #F6B45F; margin-bottom: 6px; }
+.complete-msg   { font-size: 0.82rem; color: #b8d0e8; line-height: 1.7; margin-bottom: 16px; }
+.again-btn {
+  background: #F6B45F; border: none; font-weight: bold;
+  padding: 10px 28px; border-radius: 40px;
+  color: #0F1318; cursor: pointer; font-size: 0.88rem;
+}
+
+/* hrv tip */
+.hrv-tip {
+  background: rgba(46,204,113,0.08);
+  border: 1px solid rgba(46,204,113,0.2);
+  border-radius: 16px; padding: 10px 14px;
+  margin-top: 12px; font-size: 0.68rem;
+  color: #6cb88a; line-height: 1.6; display: none;
+}
+.hrv-tip.show { display: block; }
+
+.footer { text-align: center; font-size: 0.6rem; color: #6c8fb0; margin-top: 12px; }
+```
+
+  </style>
+</head>
+<body>
+<div class="game-container">
+  <div class="header">
+    <div>
+      <div class="logo">NEFES & DİNLENME</div>
+      <div class="sub">SilverCompass · Stres Yönetimi</div>
+    </div>
+    <a href="index.html" class="back-link">← Geri</a>
+  </div>
+
+  <div class="tech-row" id="techRow">
+    <div class="tech-btn active" data-tech="box">Kutu Nefesi</div>
+    <div class="tech-btn" data-tech="478">4-7-8</div>
+    <div class="tech-btn" data-tech="coherent">Koherent</div>
+    <div class="tech-btn" data-tech="calm">Sakinleş</div>
+  </div>
+
+  <div class="session-bar">
+    <div class="session-box">Döngü: <span id="cycleNum">0</span>/<span id="cycleTot">4</span></div>
+    <div class="session-box">Süre: <span id="sessionTime">0:00</span></div>
+    <button class="stop-btn" id="stopBtn">■ Durdur</button>
+  </div>
+
+  <div class="visual-wrap" id="visualWrap">
+    <div class="breath-ring-wrap">
+      <svg class="breath-svg" viewBox="0 0 220 220">
+        <circle class="ring-track"    cx="110" cy="110" r="100"/>
+        <circle class="ring-progress" cx="110" cy="110" r="100"
+                id="ringProgress"
+                stroke-dasharray="628.3"
+                stroke-dashoffset="628.3"/>
+      </svg>
+      <div class="breath-circle" id="breathCircle">
+        <div class="breath-phase" id="breathPhase">HAZIR</div>
+        <div class="breath-count" id="breathCount">—</div>
+        <div class="breath-emoji" id="breathEmoji">🌿</div>
+      </div>
+    </div>
+    <div class="instruction" id="instruction">Başlamak için aşağıya dokun</div>
+  </div>
+
+  <div class="cycle-dots" id="cycleDots"></div>
+
+  <div class="tech-card" id="techCard"></div>
+
+<button class="start-btn" id="startBtn">▶ Başla</button>
+
+  <div class="complete-wrap" id="completeWrap">
+    <div class="complete-icon">🌙</div>
+    <div class="complete-title">Seans Tamamlandı</div>
+    <div class="complete-msg" id="completeMsg"></div>
+    <button class="again-btn" id="againBtn">Tekrar</button>
+  </div>
+
+  <div class="hrv-tip" id="hrvTip">
+    💚 <strong>HRV bilgisi:</strong> Uzun nefes verme vagus sinirini aktive eder,
+    kalp atış değişkenliğini (HRV) artırır ve parasempatik sistemi devreye sokar.
+    Düzenli pratik stres toleransını uzun vadede güçlendirir.
+  </div>
+
+  <div class="footer">Gözleri kapat · Omuzları bırak · Sadece nefese odaklan</div>
+</div>
+
+<script>
+(function () {
+
+  /* ---- TECHNIQUES ---- */
+  var TECHNIQUES = {
+    box: {
+      name: 'Kutu Nefesi (Box Breathing)',
+      desc: 'Navy SEALs ve sporcuların kullandığı teknik. Stres anında zihni hızla sakinleştirir, konsantrasyonu artırır.',
+      cycles: 4,
+      phases: [
+        { key: 'inhale', label: 'NEFESİ AL',   duration: 4, emoji: '🌱', color: 'green',  colorClass: 'phase-inhale' },
+        { key: 'hold',   label: 'TUT',          duration: 4, emoji: '⭐', color: 'gold',   colorClass: 'phase-hold'   },
+        { key: 'exhale', label: 'VER',          duration: 4, emoji: '🌊', color: 'blue',   colorClass: 'phase-exhale' },
+        { key: 'hold2',  label: 'TUT',          duration: 4, emoji: '🌙', color: 'purple', colorClass: 'phase-hold2'  }
+      ]
+    },
+    '478': {
+      name: '4-7-8 Tekniği',
+      desc: 'Dr. Andrew Weil\'in geliştirdiği uyku ve anksiyete tekniği. Uzun nefes verme sinir sistemini derinden sakinleştirir.',
+      cycles: 4,
+      phases: [
+        { key: 'inhale', label: 'NEFESİ AL',   duration: 4, emoji: '🌱', color: 'green',  colorClass: 'phase-inhale' },
+        { key: 'hold',   label: 'TUT',          duration: 7, emoji: '⭐', color: 'gold',   colorClass: 'phase-hold'   },
+        { key: 'exhale', label: 'VER',          duration: 8, emoji: '🌊', color: 'blue',   colorClass: 'phase-exhale' }
+      ]
+    },
+    coherent: {
+      name: 'Koherent Nefes (5-5)',
+      desc: 'Dakikada 6 nefes ritmi. Kalp atış değişkenliğini (HRV) maksimize eder, vagus sinirini aktive eder.',
+      cycles: 6,
+      phases: [
+        { key: 'inhale', label: 'NEFESİ AL',   duration: 5, emoji: '🌱', color: 'green',  colorClass: 'phase-inhale' },
+        { key: 'exhale', label: 'VER',          duration: 5, emoji: '🌊', color: 'blue',   colorClass: 'phase-exhale' }
+      ]
+    },
+    calm: {
+      name: 'Sakinleşme Nefesi (3-6)',
+      desc: 'Nefes verme süresinin uzunluğu parasempatik sistemi hızla devreye sokar. Panik ve kaygıda etkili.',
+      cycles: 5,
+      phases: [
+        { key: 'inhale', label: 'NEFESİ AL',   duration: 3, emoji: '🌱', color: 'green',  colorClass: 'phase-inhale' },
+        { key: 'exhale', label: 'YAVAŞÇA VER', duration: 6, emoji: '🌊', color: 'blue',   colorClass: 'phase-exhale' }
+      ]
+    }
+  };
+
+  /* ---- STATE ---- */
+  var activeTech  = 'box';
+  var running     = false;
+  var cycleNum    = 0;
+  var phaseIdx    = 0;
+  var phaseTick   = 0;
+  var mainInterval = null;
+  var sessionSecs  = 0;
+  var sessionTimer = null;
+  var CIRC = 628.3; /* 2 * π * 100 */
+
+  /* ---- ELEMENTS ---- */
+  var startBtn    = document.getElementById('startBtn');
+  var stopBtn     = document.getElementById('stopBtn');
+  var techBtns    = document.querySelectorAll('.tech-btn');
+  var visualWrap  = document.getElementById('visualWrap');
+  var breathCircle = document.getElementById('breathCircle');
+  var breathPhase = document.getElementById('breathPhase');
+  var breathCount = document.getElementById('breathCount');
+  var breathEmoji = document.getElementById('breathEmoji');
+  var instruction = document.getElementById('instruction');
+  var ringProgress = document.getElementById('ringProgress');
+  var cycleDots   = document.getElementById('cycleDots');
+  var cycleNumEl  = document.getElementById('cycleNum');
+  var cycleTotEl  = document.getElementById('cycleTot');
+  var sessionTimeEl = document.getElementById('sessionTime');
+  var techCard    = document.getElementById('techCard');
+  var completeWrap = document.getElementById('completeWrap');
+  var completeMsg = document.getElementById('completeMsg');
+  var againBtn    = document.getElementById('againBtn');
+  var hrvTip      = document.getElementById('hrvTip');
+
+  /* ---- RENDER TECHNIQUE CARD ---- */
+  function renderTechCard() {
+    var t = TECHNIQUES[activeTech];
+    var phaseLabels = { inhale: 'Al', hold: 'Tut', exhale: 'Ver', hold2: 'Tut' };
+    var phaseClass  = { inhale: 'pb-inhale', hold: 'pb-hold', exhale: 'pb-exhale', hold2: 'pb-hold2' };
+    var html = '<div class="tech-name">' + t.name + '</div>' +
+               '<div class="tech-desc">' + t.desc + '</div>' +
+               '<div class="tech-pattern">';
+    for (var i = 0; i < t.phases.length; i++) {
+      var p = t.phases[i];
+      html += '<span class="phase-badge ' + phaseClass[p.key] + '">' +
+              phaseLabels[p.key] + ' ' + p.duration + 's</span>';
+    }
+    html += '</div>';
+    techCard.innerHTML = html;
+    cycleTotEl.textContent = t.cycles;
+  }
+
+  /* ---- BUILD CYCLE DOTS ---- */
+  function buildCycleDots() {
+    cycleDots.innerHTML = '';
+    var t = TECHNIQUES[activeTech];
+    for (var i = 0; i < t.cycles; i++) {
+      var d = document.createElement('div');
+      d.className = 'cycle-dot' + (i === 0 ? ' curr' : '');
+      cycleDots.appendChild(d);
+    }
+  }
+
+  function updateCycleDots() {
+    var dots = cycleDots.querySelectorAll('.cycle-dot');
+    for (var i = 0; i < dots.length; i++) {
+      dots[i].className = 'cycle-dot';
+      if (i < cycleNum) dots[i].classList.add('done');
+      else if (i === cycleNum) dots[i].classList.add('curr');
+    }
+    cycleNumEl.textContent = cycleNum;
+  }
+
+  /* ---- SESSION TIMER ---- */
+  function startSessionTimer() {
+    sessionSecs = 0;
+    clearInterval(sessionTimer);
+    sessionTimer = setInterval(function () {
+      sessionSecs++;
+      var m = Math.floor(sessionSecs / 60);
+      var s = sessionSecs % 60;
+      sessionTimeEl.textContent = m + ':' + (s < 10 ? '0' : '') + s;
+    }, 1000);
+  }
+
+  /* ---- ANIMATE CIRCLE ---- */
+  function setCircleSize(scale) {
+    breathCircle.style.transform = 'scale(' + scale + ')';
+  }
+
+  function setRingProgress(fraction) {
+    var offset = CIRC * (1 - fraction);
+    ringProgress.setAttribute('stroke-dashoffset', offset);
+  }
+
+  /* ---- PHASE TICK ---- */
+  function tick() {
+    var t      = TECHNIQUES[activeTech];
+    var phase  = t.phases[phaseIdx];
+    var dur    = phase.duration;
+
+    /* update ring & circle size */
+    var fraction = phaseTick / dur;
+    setRingProgress(fraction);
+
+    /* circle breathing scale: inhale expands, exhale shrinks */
+    var scale = 1;
+    if (phase.key === 'inhale') {
+      scale = 0.85 + fraction * 0.3;
+    } else if (phase.key === 'exhale') {
+      scale = 1.15 - fraction * 0.3;
+    } else {
+      scale = phase.key === 'hold' ? 1.15 : 0.85;
+    }
+    setCircleSize(scale);
+
+    /* countdown */
+    var remaining = dur - phaseTick;
+    breathCount.textContent = remaining;
+
+    phaseTick++;
+    if (phaseTick > dur) {
+      /* next phase */
+      phaseTick = 0;
+      phaseIdx++;
+      if (phaseIdx >= t.phases.length) {
+        /* next cycle */
+        phaseIdx = 0;
+        cycleNum++;
+        updateCycleDots();
+        if (cycleNum >= t.cycles) {
+          completeSession();
+          return;
+        }
+      }
+      setPhaseVisuals();
+    }
+  }
+
+  /* ---- SET PHASE VISUALS ---- */
+  function setPhaseVisuals() {
+    var t     = TECHNIQUES[activeTech];
+    var phase = t.phases[phaseIdx];
+
+    /* remove old phase classes */
+    visualWrap.className = 'visual-wrap ' + phase.colorClass;
+
+    breathPhase.textContent = phase.label;
+    breathEmoji.textContent = phase.emoji;
+
+    /* instruction text */
+    var msgs = {
+      inhale: 'Burnundan yavaşça içine çek',
+      hold:   'Nefesini tut',
+      exhale: 'Ağzından yavaşça bırak',
+      hold2:  'Bekle'
+    };
+    instruction.textContent = msgs[phase.key] || '';
+    instruction.className   = 'instruction ' + phase.color;
+
+    setRingProgress(0);
+  }
+
+  /* ---- START SESSION ---- */
+  function startSession() {
+    var t   = TECHNIQUES[activeTech];
+    cycleNum  = 0;
+    phaseIdx  = 0;
+    phaseTick = 0;
+    running   = true;
+
+    startBtn.classList.add('hidden');
+    completeWrap.classList.remove('show');
+    hrvTip.classList.remove('show');
+    techBtns[0].parentElement.style.opacity = '0.4';
+    techBtns[0].parentElement.style.pointerEvents = 'none';
+
+    updateCycleDots();
+    setPhaseVisuals();
+    startSessionTimer();
+
+    mainInterval = setInterval(tick, 1000);
+  }
+
+  /* ---- STOP SESSION ---- */
+  function stopSession() {
+    clearInterval(mainInterval);
+    clearInterval(sessionTimer);
+    running = false;
+
+    visualWrap.className = 'visual-wrap';
+    breathPhase.textContent = 'HAZIR';
+    breathCount.textContent = '—';
+    breathEmoji.textContent = '🌿';
+    instruction.textContent = 'Başlamak için aşağıya dokun';
+    instruction.className   = 'instruction';
+    setCircleSize(1);
+    setRingProgress(0);
+    cycleNum = 0;
+    updateCycleDots();
+
+    startBtn.classList.remove('hidden');
+    techBtns[0].parentElement.style.opacity = '';
+    techBtns[0].parentElement.style.pointerEvents = '';
+    completeWrap.classList.remove('show');
+    hrvTip.classList.remove('show');
+  }
+
+  /* ---- COMPLETE ---- */
+  function completeSession() {
+    clearInterval(mainInterval);
+    clearInterval(sessionTimer);
+    running = false;
+
+    visualWrap.className = 'visual-wrap';
+    breathPhase.textContent = 'TAMAM';
+    breathCount.textContent = '✓';
+    breathEmoji.textContent = '🌙';
+    instruction.textContent = 'Seans tamamlandı';
+    instruction.className   = 'instruction gold';
+    setCircleSize(1);
+    setRingProgress(1);
+
+    techBtns[0].parentElement.style.opacity = '';
+    techBtns[0].parentElement.style.pointerEvents = '';
+
+    var t   = TECHNIQUES[activeTech];
+    var m   = Math.floor(sessionSecs / 60);
+    var s   = sessionSecs % 60;
+    completeMsg.textContent =
+      t.cycles + ' döngü tamamlandı\n' +
+      'Toplam süre: ' + m + ' dk ' + s + ' sn\n' +
+      'Harika iş — beynin ve kalbın sana teşekkür ediyor.';
+
+    completeWrap.classList.add('show');
+    hrvTip.classList.add('show');
+    startBtn.classList.remove('hidden');
+  }
+
+  /* ---- TECHNIQUE SELECT ---- */
+  for (var i = 0; i < techBtns.length; i++) {
+    techBtns[i].addEventListener('click', function () {
+      if (running) return;
+      for (var j = 0; j < techBtns.length; j++) techBtns[j].classList.remove('active');
+      this.classList.add('active');
+      activeTech = this.getAttribute('data-tech');
+      renderTechCard();
+      buildCycleDots();
+      cycleNumEl.textContent = '0';
+    });
+  }
+
+  /* ---- EVENTS ---- */
+  startBtn.addEventListener('click', function () {
+    if (!running) startSession();
+  });
+  stopBtn.addEventListener('click', function () {
+    if (running) stopSession();
+  });
+  againBtn.addEventListener('click', function () {
+    completeWrap.classList.remove('show');
+    hrvTip.classList.remove('show');
+    startSession();
+  });
+
+  /* ---- INIT ---- */
+  renderTechCard();
+  buildCycleDots();
+  cycleNumEl.textContent = '0';
+  setRingProgress(0);
+
+}());
+</script>
+
+</body>
+</html>

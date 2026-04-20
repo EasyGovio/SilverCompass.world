@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Helix Jump · Zihin Egzersizi | SilverCompass</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    body {
+      background: #0d2137;
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    .game-container {
+      max-width: 500px;
+      width: 100%;
+      background: rgba(255,255,255,0.05);
+      border-radius: 48px;
+      padding: 16px 16px 20px;
+      backdrop-filter: blur(2px);
+      box-shadow: 0 20px 35px rgba(0,0,0,0.4);
+      border: 1px solid rgba(246,180,95,0.3);
+      text-align: center;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+    .logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #F6B45F;
+    }
+    .sub {
+      font-size: 0.65rem;
+      color: #9bb7d4;
+    }
+    .back-link {
+      color: #F6B45F;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 0.8rem;
+      background: rgba(0,0,0,0.3);
+      padding: 4px 12px;
+      border-radius: 40px;
+    }
+    .score-panel {
+      display: flex;
+      justify-content: space-between;
+      background: #0a1f32;
+      border-radius: 60px;
+      padding: 8px 16px;
+      margin: 12px 0;
+      border: 1px solid #F6B45F30;
+    }
+    .score-box {
+      background: #04162E;
+      padding: 3px 14px;
+      border-radius: 40px;
+      color: #F6B45F;
+      font-weight: bold;
+      font-size: 0.9rem;
+    }
+    .score-box span {
+      color: white;
+    }
+    .controls {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin: 12px 0;
+    }
+    button {
+      background: #F6B45F;
+      border: none;
+      font-weight: bold;
+      padding: 6px 16px;
+      border-radius: 40px;
+      color: #1a3a5c;
+      font-size: 0.8rem;
+      cursor: pointer;
+      font-family: inherit;
+      transition: 0.05s linear;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    button:active {
+      transform: scale(0.96);
+    }
+    canvas {
+      display: block;
+      margin: 10px auto;
+      background: #0a1f32;
+      border-radius: 32px;
+      box-shadow: 0 8px 18px rgba(0,0,0,0.3);
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      cursor: pointer;
+      touch-action: none;
+    }
+    .mobile-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      margin-top: 12px;
+    }
+    .dir-btn {
+      background: #F6B45F;
+      width: 65px;
+      padding: 8px 0;
+      border-radius: 60px;
+      font-weight: bold;
+      font-size: 1.2rem;
+      text-align: center;
+      cursor: pointer;
+    }
+    .footer {
+      margin-top: 12px;
+      font-size: 0.6rem;
+      color: #6c8fb0;
+    }
+    @media (max-width: 550px) {
+      .dir-btn { width: 55px; }
+    }
+  </style>
+</head>
+<body>
+<div class="game-container">
+  <div class="header">
+    <div>
+      <div class="logo">HELIX JUMP</div>
+      <div class="sub">SilverCompass · Zihin Egzersizi</div>
+    </div>
+    <a href="index.html" class="back-link">← Geri</a>
+  </div>
+
+  <div class="score-panel">
+    <div class="score-box">🎯 SKOR: <span id="currentScore">0</span></div>
+    <div class="score-box">🏆 EN İYİ: <span id="bestScore">0</span></div>
+    <button id="resetBtn">🔄 YENİ</button>
+  </div>
+
+  <canvas id="gameCanvas" width="500" height="500"></canvas>
+
+  <div class="mobile-buttons">
+    <div class="dir-btn" id="leftBtn">◀ SOL</div>
+    <div class="dir-btn" id="rightBtn">SAĞ ▶</div>
+  </div>
+  <div class="footer">topu boşluktan kaçırmak için sola/sağa yönlendir</div>
+</div>
+
+<script>
+  // -------------------- HELIX JUMP (ES5) --------------------
+  // Canvas
+  var canvas = document.getElementById("gameCanvas");
+  var ctx = canvas.getContext("2d");
+  
+  // Oyun değişkenleri
+  var gameActive = true;
+  var score = 0;
+  var bestScore = 0;
+  var animationId = null;
+  
+  // Top fizik
+  var ball = {
+    x: 0,           // canvas koordinatı (merkezden sapma)
+    y: 0,
+    radius: 12,
+    vx: 0,
+    vy: 0,
+    targetX: 0      // hedef platformun merkezi
+  };
+  
+  // Platformlar
+  var platforms = [];
+  var platformCount = 12;       // ekranda görünen platform sayısı
+  var platformSpacing = 45;     // dikey aralık
+  var platformWidth = 90;
+  var platformGap = 45;          // boşluk genişliği (derece olarak değil, piksel cinsinden yatay açıklık)
+  var centerX = 0;               // canvas merkezi
+  var scrollOffset = 0;          // kayma (en üstteki platform y pozisyonu)
+  
+  // Yerçekimi
+  var GRAVITY = 0.35;
+  var GROUND_Y = 0;
+  
+  // Boyutlandırma
+  var canvasWidth = 500, canvasHeight = 500;
+  
+  function resizeCanvas() {
+    var rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width;
+    canvas.height = rect.height;
+    canvasWidth = canvas.width;
+    canvasHeight = canvas.height;
+    centerX = canvasWidth / 2;
+    GROUND_Y = canvasHeight - 30;
+    initPlatforms();
+    ball.y = canvasHeight - 80;
+    ball.x = centerX;
+    ball.targetX = centerX;
+  }
+  
+  // platform oluştur: her platformda rastgele bir boşluk (açı)
+  function initPlatforms() {
+    platforms = [];
+    for (var i = 0; i < platformCount; i++) {
+      var gapDirection = Math.random() < 0.5 ? -1 : 1;  // -1: sol boşluk, 1: sağ boşluk
+      var gapPos = centerX + (gapDirection * (platformWidth / 2 - platformGap / 2));
+      // boşluğun başlangıç ve bitiş x değerleri
+      var gapStart = gapPos - platformGap/2;
+      var gapEnd = gapPos + platformGap/2;
+      platforms.push({
+        y: canvasHeight - 50 - (i * platformSpacing),
+        gapStart: gapStart,
+        gapEnd: gapEnd,
+        width: platformWidth,
+        gapX: gapPos
+      });
+    }
+    scrollOffset = platforms[0] ? platforms[0].y : 0;
+  }
+  
+  // platformları kaydır (top aşağı düştükçe)
+  function scrollPlatforms(deltaY) {
+    for (var i = 0; i < platforms.length; i++) {
+      platforms[i].y += deltaY;
+    }
+    // en alttaki platform ekran altına geçince en üste taşı ve yeni rastgele boşluk ver
+    for (var i = 0; i < platforms.length; i++) {
+      if (platforms[i].y > canvasHeight + 50) {
+        var highestY = platforms[0].y;
+        for (var j = 1; j < platforms.length; j++) {
+          if (platforms[j].y < highestY) highestY = platforms[j].y;
+        }
+        platforms[i].y = highestY - platformSpacing;
+        // yeni rastgele boşluk yönü
+        var gapDirection = Math.random() < 0.5 ? -1 : 1;
+        var gapPos = centerX + (gapDirection * (platformWidth / 2 - platformGap / 2));
+        platforms[i].gapStart = gapPos - platformGap/2;
+        platforms[i].gapEnd = gapPos + platformGap/2;
+        platforms[i].gapX = gapPos;
+      }
+    }
+  }
+  
+  // top hareketi (yatay yönlendirme)
+  function moveBall(direction) {
+    if (!gameActive) return;
+    // direction: -1 sol, +1 sağ
+    var step = 22;
+    ball.targetX += direction * step;
+    // sınırlar (platform genişliği içinde)
+    var minX = centerX - platformWidth/2 + ball.radius;
+    var maxX = centerX + platformWidth/2 - ball.radius;
+    if (ball.targetX < minX) ball.targetX = minX;
+    if (ball.targetX > maxX) ball.targetX = maxX;
+  }
+  
+  // çarpışma kontrolü ve güncelleme
+  function updatePhysics() {
+    if (!gameActive) return;
+    
+    // yerçekimi
+    ball.vy += GRAVITY;
+    ball.y += ball.vy;
+    // yatay yumuşak hareket
+    var dx = ball.targetX - ball.x;
+    ball.x += dx * 0.25;
+    
+    // platform çarpışma kontrolü (sadece top aşağı inerken)
+    var collided = false;
+    for (var i = 0; i < platforms.length; i++) {
+      var p = platforms[i];
+      var ballBottom = ball.y + ball.radius;
+      var platformTop = p.y - 5;
+      var platformBottom = p.y + 8;
+      // top platform hizasına geldiğinde ve aşağı düşüyorsa
+      if (ball.vy > 0 && ballBottom >= platformTop && ball.y - ball.radius <= platformBottom) {
+        // topun x'i boşlukta mı?
+        if (ball.x + ball.radius > p.gapStart && ball.x - ball.radius < p.gapEnd) {
+          // boşluktan düşüyor: çarpma yok, devam
+          // skor artırma yok
+        } else {
+          // platforma çarptı: topu platformun üstüne yerleştir, sıçrama yap
+          ball.y = platformTop - ball.radius;
+          ball.vy = -4.2;
+          collided = true;
+          // skor artır (her platforma çarpışta +1)
+          score++;
+          document.getElementById("currentScore").innerText = score;
+          if (score > bestScore) {
+            bestScore = score;
+            document.getElementById("bestScore").innerText = bestScore;
+            localStorage.setItem("helix_best", bestScore);
+          }
+          // platformları kaydır (top yukarı zıpladığında)
+          var scrollAmount = -2.8;
+          scrollPlatforms(scrollAmount);
+          ball.y += scrollAmount;  // topu da aynı oranda kaydır
+          break;
+        }
+      }
+    }
+    
+    // oyun bitiş kontrolü (top ekran altına düşerse)
+    if (ball.y + ball.radius > GROUND_Y + 30) {
+      gameActive = false;
+      if (animationId) cancelAnimationFrame(animationId);
+      showGameOver();
+    }
+    
+    // topun ekran dışına yatay çıkmasını engelle
+    if (ball.x - ball.radius < 0) ball.x = ball.radius;
+    if (ball.x + ball.radius > canvasWidth) ball.x = canvasWidth - ball.radius;
+  }
+  
+  function showGameOver() {
+    var overlay = document.createElement('div');
+    overlay.className = 'game-overlay';
+    overlay.style.position = 'fixed';
+    overlay.style.top = '0';
+    overlay.style.left = '0';
+    overlay.style.width = '100%';
+    overlay.style.height = '100%';
+    overlay.style.background = 'rgba(13,33,55,0.95)';
+    overlay.style.display = 'flex';
+    overlay.style.alignItems = 'center';
+    overlay.style.justifyContent = 'center';
+    overlay.style.zIndex = '1000';
+    overlay.style.backdropFilter = 'blur(4px)';
+    overlay.innerHTML = '<div class="modal" style="background:#0a1f32; border-radius:56px; padding:32px; text-align:center; width:260px; border:2px solid #F6B45F;"><h2 style="color:#F6B45F;">💥 OYUN BİTTİ</h2><p style="color:white;">Skor: ' + score + '</p><button id="restartGameBtn" style="background:#F6B45F; border:none; padding:8px 20px; border-radius:40px; font-weight:bold; margin-top:16px;">YENİDEN BAŞLA</button></div>';
+    document.body.appendChild(overlay);
+    var restartBtnModal = document.getElementById('restartGameBtn');
+    restartBtnModal.addEventListener('click', function() {
+      overlay.remove();
+      resetGame();
+    });
+    restartBtnModal.addEventListener('touchstart', function(e) {
+      e.preventDefault();
+      overlay.remove();
+      resetGame();
+    });
+  }
+  
+  // çizim
+  function draw() {
+    if (!ctx) return;
+    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+    // arkaplan gradient
+    var grad = ctx.createLinearGradient(0, 0, 0, canvasHeight);
+    grad.addColorStop(0, "#0a1f32");
+    grad.addColorStop(1, "#04162E");
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+    
+    // platformları çiz
+    for (var i = 0; i < platforms.length; i++) {
+      var p = platforms[i];
+      var yPos = p.y;
+      if (yPos + 20 < 0 || yPos - 30 > canvasHeight) continue;
+      // platform gövdesi (boşluk hariç)
+      ctx.fillStyle = "#F6B45F";
+      ctx.shadowBlur = 0;
+      // sol parça
+      ctx.fillRect(centerX - platformWidth/2, yPos - 6, p.gapStart - (centerX - platformWidth/2), 14);
+      // sağ parça
+      var rightStart = p.gapEnd;
+      var rightWidth = (centerX + platformWidth/2) - rightStart;
+      if (rightWidth > 0) {
+        ctx.fillRect(rightStart, yPos - 6, rightWidth, 14);
+      }
+      // platform kenar çizgileri
+      ctx.strokeStyle = "#d4af37";
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(centerX - platformWidth/2, yPos - 6, platformWidth, 14);
+      // boşluk işareti (küçük bir uyarı)
+      ctx.fillStyle = "#E74C3C";
+      ctx.font = "bold 14px system-ui";
+      ctx.shadowBlur = 2;
+      ctx.fillText("⬇️", p.gapX - 8, yPos + 2);
+    }
+    ctx.shadowBlur = 0;
+    // topu çiz
+    ctx.beginPath();
+    ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI*2);
+    ctx.fillStyle = "#F6B45F";
+    ctx.shadowBlur = 8;
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(ball.x, ball.y, ball.radius-3, 0, Math.PI*2);
+    ctx.fillStyle = "#ffdf99";
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    // skor gösterge
+    ctx.font = "bold 18px system-ui";
+    ctx.fillStyle = "#F6B45F";
+    ctx.fillText("⚡ " + score, 15, 45);
+  }
+  
+  // ana döngü
+  function gameLoop() {
+    if (!gameActive) return;
+    updatePhysics();
+    draw();
+    animationId = requestAnimationFrame(gameLoop);
+  }
+  
+  function resetGame() {
+    if (animationId) cancelAnimationFrame(animationId);
+    gameActive = true;
+    score = 0;
+    document.getElementById("currentScore").innerText = "0";
+    // best score localStorage'dan al
+    var savedBest = localStorage.getItem("helix_best");
+    if (savedBest !== null) bestScore = parseInt(savedBest, 10);
+    else bestScore = 0;
+    document.getElementById("bestScore").innerText = bestScore;
+    // top ve platformları sıfırla
+    ball.x = centerX;
+    ball.y = canvasHeight - 80;
+    ball.targetX = centerX;
+    ball.vy = 0;
+    ball.vx = 0;
+    initPlatforms();
+    draw();
+    animationId = requestAnimationFrame(gameLoop);
+  }
+  
+  // event listeners
+  function attachEvents() {
+    var leftBtn = document.getElementById("leftBtn");
+    var rightBtn = document.getElementById("rightBtn");
+    leftBtn.addEventListener("click", function() { moveBall(-1); });
+    leftBtn.addEventListener("touchstart", function(e) { e.preventDefault(); moveBall(-1); });
+    rightBtn.addEventListener("click", function() { moveBall(1); });
+    rightBtn.addEventListener("touchstart", function(e) { e.preventDefault(); moveBall(1); });
+    
+    // klavye yön tuşları
+    window.addEventListener("keydown", function(e) {
+      if (e.key === "ArrowLeft") { e.preventDefault(); moveBall(-1); }
+      if (e.key === "ArrowRight") { e.preventDefault(); moveBall(1); }
+    });
+    
+    document.getElementById("resetBtn").addEventListener("click", function() {
+      if (animationId) cancelAnimationFrame(animationId);
+      resetGame();
+    });
+  }
+  
+  window.addEventListener("resize", function() {
+    resizeCanvas();
+    resetGame();
+  });
+  
+  resizeCanvas();
+  attachEvents();
+  resetGame();
+</script>
+</body>
+</html>

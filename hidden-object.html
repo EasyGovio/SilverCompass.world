@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Gizli Nesne · Zihin Egzersizi | SilverCompass</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    body {
+      background: #0d2137;
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    .game-container {
+      max-width: 650px;
+      width: 100%;
+      background: rgba(255,255,255,0.05);
+      border-radius: 48px;
+      padding: 20px 16px 24px;
+      backdrop-filter: blur(2px);
+      box-shadow: 0 20px 35px rgba(0,0,0,0.4);
+      border: 1px solid rgba(246,180,95,0.3);
+      text-align: center;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+    .logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #F6B45F;
+    }
+    .sub {
+      font-size: 0.65rem;
+      color: #9bb7d4;
+    }
+    .back-link {
+      color: #F6B45F;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 0.8rem;
+      background: rgba(0,0,0,0.3);
+      padding: 4px 12px;
+      border-radius: 40px;
+    }
+    .stats {
+      display: flex;
+      justify-content: space-between;
+      background: #0a1f32;
+      border-radius: 60px;
+      padding: 8px 16px;
+      margin: 12px 0;
+      border: 1px solid #F6B45F30;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .stat-box {
+      background: #04162E;
+      padding: 4px 14px;
+      border-radius: 40px;
+      color: #F6B45F;
+      font-weight: bold;
+      font-size: 0.9rem;
+    }
+    .stat-box span {
+      color: white;
+    }
+    .target-area {
+      background: #0a1f32;
+      border-radius: 50px;
+      padding: 10px;
+      margin: 15px 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+    .target-label {
+      color: #F6B45F;
+      font-weight: bold;
+      font-size: 1rem;
+    }
+    .target-emoji {
+      font-size: 2.5rem;
+      background: #04162E;
+      padding: 8px 20px;
+      border-radius: 60px;
+      border: 1px solid #F6B45F;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+      margin: 20px 0;
+      background: rgba(4,22,46,0.4);
+      padding: 16px;
+      border-radius: 40px;
+    }
+    .cell {
+      aspect-ratio: 1 / 1;
+      background: #0a1f32;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      cursor: pointer;
+      transition: 0.05s linear;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.2), 0 4px 8px rgba(0,0,0,0.2);
+      border: 1px solid #F6B45F30;
+    }
+    .cell:active {
+      transform: scale(0.95);
+    }
+    button {
+      background: #F6B45F;
+      border: none;
+      font-weight: bold;
+      padding: 8px 20px;
+      border-radius: 40px;
+      color: #1a3a5c;
+      font-size: 0.9rem;
+      cursor: pointer;
+      font-family: inherit;
+      transition: 0.05s linear;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    button:active {
+      transform: scale(0.96);
+    }
+    .message {
+      margin-top: 15px;
+      padding: 6px;
+      background: #0a1f32;
+      border-radius: 40px;
+      color: #F6B45F;
+      font-size: 0.8rem;
+    }
+    @media (max-width: 550px) {
+      .cell { font-size: 1.5rem; }
+      .grid { gap: 8px; padding: 12px; }
+      .target-emoji { font-size: 2rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="game-container">
+  <div class="header">
+    <div>
+      <div class="logo">GİZLİ NESNE</div>
+      <div class="sub">SilverCompass · Zihin Egzersizi</div>
+    </div>
+    <a href="index.html" class="back-link">← Geri</a>
+  </div>
+
+  <div class="stats">
+    <div class="stat-box">🎯 SKOR: <span id="score">0</span></div>
+    <div class="stat-box">⏱️ SÜRE: <span id="timer">01:00</span></div>
+    <div class="stat-box">🏆 EN İYİ: <span id="bestScore">0</span></div>
+    <button id="resetBtn">🔄 YENİ OYUN</button>
+  </div>
+
+  <div class="target-area">
+    <div class="target-label">🔍 BULMAN GEREKEN NESNE:</div>
+    <div class="target-emoji" id="targetEmoji">🐶</div>
+  </div>
+
+  <div id="gridContainer" class="grid"></div>
+  <div class="message" id="message">Nesneye tıkla, doğru buldukça süre kazan!</div>
+</div>
+
+<script>
+  // -------------------- HIDDEN OBJECT (ES5) --------------------
+  var emojis = ["🐶", "🐱", "🐭", "🐹", "🐰", "🦊", "🐻", "🐼"];
+  var gridSize = 5;
+  var grid = [];           // 2D array of emoji strings
+  var currentTarget = "🐶";
+  var score = 0;
+  var bestScore = 0;
+  var timeLeft = 60;       // saniye
+  var timerInterval = null;
+  var gameActive = true;
+  
+  var scoreSpan = document.getElementById("score");
+  var timerSpan = document.getElementById("timer");
+  var bestSpan = document.getElementById("bestScore");
+  var targetEmojiSpan = document.getElementById("targetEmoji");
+  var gridContainer = document.getElementById("gridContainer");
+  var resetBtn = document.getElementById("resetBtn");
+  var messageDiv = document.getElementById("message");
+  
+  // localStorage
+  function loadBestScore() {
+    var saved = localStorage.getItem("hidden_best");
+    if (saved !== null) bestScore = parseInt(saved, 10);
+    else bestScore = 0;
+    bestSpan.innerText = bestScore;
+  }
+  function updateBestScore() {
+    if (score > bestScore) {
+      bestScore = score;
+      bestSpan.innerText = bestScore;
+      localStorage.setItem("hidden_best", bestScore);
+    }
+  }
+  
+  // rastgele grid oluştur
+  function generateRandomGrid() {
+    var newGrid = [];
+    for (var i = 0; i < gridSize; i++) {
+      newGrid[i] = [];
+      for (var j = 0; j < gridSize; j++) {
+        var randIndex = Math.floor(Math.random() * emojis.length);
+        newGrid[i][j] = emojis[randIndex];
+      }
+    }
+    return newGrid;
+  }
+  
+  // rastgele yeni hedef seç (grid içinde en az bir tane olacak şekilde)
+  function selectRandomTarget() {
+    var flat = [];
+    for (var i = 0; i < gridSize; i++) {
+      for (var j = 0; j < gridSize; j++) {
+        flat.push(grid[i][j]);
+      }
+    }
+    var uniqueTargets = [];
+    for (var k = 0; k < flat.length; k++) {
+      if (uniqueTargets.indexOf(flat[k]) === -1) uniqueTargets.push(flat[k]);
+    }
+    if (uniqueTargets.length === 0) return emojis[0];
+    var rand = Math.floor(Math.random() * uniqueTargets.length);
+    return uniqueTargets[rand];
+  }
+  
+  // yeni tur: grid yenilenir, yeni hedef seçilir
+  function newRound() {
+    if (!gameActive) return;
+    grid = generateRandomGrid();
+    currentTarget = selectRandomTarget();
+    targetEmojiSpan.innerText = currentTarget;
+    renderGrid();
+  }
+  
+  function renderGrid() {
+    gridContainer.innerHTML = "";
+    for (var i = 0; i < gridSize; i++) {
+      for (var j = 0; j < gridSize; j++) {
+        var cell = document.createElement("div");
+        cell.className = "cell";
+        cell.innerText = grid[i][j];
+        cell.addEventListener("click", (function(row, col) {
+          return function() { onCellClick(row, col); };
+        })(i, j));
+        gridContainer.appendChild(cell);
+      }
+    }
+  }
+  
+  function onCellClick(row, col) {
+    if (!gameActive) return;
+    var clickedEmoji = grid[row][col];
+    if (clickedEmoji === currentTarget) {
+      // doğru
+      score++;
+      scoreSpan.innerText = score;
+      updateBestScore();
+      // süre artışı
+      timeLeft += 3;
+      if (timeLeft > 99) timeLeft = 99;
+      updateTimerDisplay();
+      messageDiv.innerText = "✅ Doğru! +3 saniye";
+      // yeni tur
+      newRound();
+    } else {
+      // yanlış
+      timeLeft -= 2;
+      if (timeLeft <= 0) {
+        timeLeft = 0;
+        updateTimerDisplay();
+        gameOver();
+        return;
+      }
+      updateTimerDisplay();
+      messageDiv.innerText = "❌ Yanlış nesne! -2 saniye";
+      // sadece uyarı, grid değişmez
+    }
+    // ek olarak eğer süre bittiyse kontrol
+    if (timeLeft <= 0) {
+      gameOver();
+    }
+  }
+  
+  function updateTimerDisplay() {
+    var minutes = Math.floor(timeLeft / 60);
+    var seconds = timeLeft % 60;
+    timerSpan.innerText = (minutes < 10 ? "0" + minutes : minutes) + ":" + (seconds < 10 ? "0" + seconds : seconds);
+  }
+  
+  function startTimer() {
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = setInterval(function() {
+      if (!gameActive) return;
+      if (timeLeft <= 0) {
+        gameOver();
+      } else {
+        timeLeft--;
+        updateTimerDisplay();
+        if (timeLeft <= 0) gameOver();
+      }
+    }, 1000);
+  }
+  
+  function gameOver() {
+    gameActive = false;
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = null;
+    messageDiv.innerHTML = "💥 OYUN BİTTİ! Skorun: " + score + " 💥";
+    // oyun sonu overlay
+    var overlay = document.createElement('div');
+    overlay.className = 'game-overlay';
+    overlay.style.position = 'fixed';
+    overlay.style.top = '0';
+    overlay.style.left = '0';
+    overlay.style.width = '100%';
+    overlay.style.height = '100%';
+    overlay.style.background = 'rgba(13,33,55,0.95)';
+    overlay.style.display = 'flex';
+    overlay.style.alignItems = 'center';
+    overlay.style.justifyContent = 'center';
+    overlay.style.zIndex = '1000';
+    overlay.style.backdropFilter = 'blur(4px)';
+    overlay.innerHTML = '<div style="background:#0a1f32; border-radius:56px; padding:32px; text-align:center; width:260px; border:2px solid #F6B45F;"><h2 style="color:#F6B45F;">⏰ SÜRE DOLDU</h2><p style="color:white;">Skor: ' + score + '</p><button id="restartBtnOverlay" style="background:#F6B45F; border:none; padding:8px 20px; border-radius:40px; font-weight:bold; margin-top:16px;">TEKRAR DENE</button></div>';
+    document.body.appendChild(overlay);
+    var restartOverlay = document.getElementById('restartBtnOverlay');
+    restartOverlay.addEventListener('click', function() {
+      overlay.remove();
+      resetGame();
+    });
+    restartOverlay.addEventListener('touchstart', function(e) {
+      e.preventDefault();
+      overlay.remove();
+      resetGame();
+    });
+  }
+  
+  function resetGame() {
+    if (timerInterval) clearInterval(timerInterval);
+    gameActive = true;
+    score = 0;
+    timeLeft = 60;
+    scoreSpan.innerText = "0";
+    updateTimerDisplay();
+    loadBestScore(); // en iyi skoru yeniden yükle
+    // yeni grid ve hedef
+    grid = generateRandomGrid();
+    currentTarget = selectRandomTarget();
+    targetEmojiSpan.innerText = currentTarget;
+    renderGrid();
+    messageDiv.innerHTML = "Yeni oyun! Hedef nesneyi bul, süre kazan.";
+    startTimer();
+  }
+  
+  resetBtn.addEventListener("click", function() {
+    resetGame();
+  });
+  
+  // başlat
+  loadBestScore();
+  resetGame();
+</script>
+</body>
+</html>

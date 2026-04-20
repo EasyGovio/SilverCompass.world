@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Pattern Match · Zihin Egzersizi | SilverCompass</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; user-select:none; -webkit-tap-highlight-color:transparent; }
+    body {
+      background: #0F1318;
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 16px;
+    }
+    .game-container {
+      max-width: 480px;
+      width: 100%;
+      background: #1e2a3a;
+      border-radius: 48px;
+      padding: 22px 20px 28px;
+      box-shadow: 0 20px 35px rgba(0,0,0,0.4);
+      border: 1px solid rgba(246,180,95,0.25);
+    }
+    .header {
+      display: flex; justify-content: space-between; align-items: baseline;
+      margin-bottom: 14px;
+    }
+    .logo { font-size: 1.5rem; font-weight: bold; color: #F6B45F; }
+    .sub  { font-size: 0.62rem; color: #b8d0e8; margin-top: 1px; }
+    .back-link {
+      color: #F6B45F; text-decoration: none; font-weight: bold;
+      font-size: 0.78rem; background: #0a1018;
+      padding: 5px 12px; border-radius: 40px;
+    }
+
+```
+/* diff */
+.diff-row { display: flex; justify-content: center; gap: 8px; margin-bottom: 12px; }
+.diff-btn {
+  background: #0a1018; color: #F6B45F;
+  border: 1px solid #F6B45F;
+  padding: 4px 14px; border-radius: 40px;
+  font-size: 0.75rem; cursor: pointer;
+}
+.diff-btn.active { background: #F6B45F; color: #0F1318; border-color: #F6B45F; }
+
+/* info */
+.info-bar {
+  display: flex; justify-content: space-between; align-items: center;
+  background: #0a1018; border-radius: 40px;
+  padding: 7px 16px; margin-bottom: 14px;
+}
+.info-box { color: #F6B45F; font-weight: bold; font-size: 0.78rem; }
+.info-box span { color: #eaf2fb; }
+.new-btn {
+  background: #F6B45F; border: none; font-weight: bold;
+  padding: 5px 14px; border-radius: 40px;
+  color: #0F1318; cursor: pointer; font-size: 0.78rem;
+}
+
+/* status message */
+.status-msg {
+  text-align: center;
+  font-size: 0.85rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+  color: #F6B45F;
+  min-height: 24px;
+  margin-bottom: 10px;
+  transition: color 0.3s;
+}
+.status-msg.go   { color: #2ECC71; }
+.status-msg.bad  { color: #E74C3C; }
+.status-msg.wait { color: #b8d0e8; }
+
+/* countdown ring */
+.countdown-wrap {
+  display: flex; justify-content: center; margin-bottom: 12px;
+}
+.countdown-svg { display: block; }
+.countdown-track { fill: none; stroke: #1e2a3a; stroke-width: 5; }
+.countdown-arc   { fill: none; stroke: #F6B45F; stroke-width: 5;
+                   stroke-linecap: round;
+                   transform: rotate(-90deg); transform-origin: 50% 50%;
+                   transition: stroke-dashoffset 0.95s linear; }
+.countdown-num {
+  font-size: 1.1rem; font-weight: bold; color: #F6B45F;
+  text-anchor: middle; dominant-baseline: central;
+}
+
+/* grid */
+.grid-wrap {
+  background: #0a1018;
+  border-radius: 28px;
+  padding: 14px;
+  margin-bottom: 14px;
+  display: flex;
+  justify-content: center;
+}
+.grid {
+  display: grid;
+  gap: 8px;
+}
+.cell {
+  border-radius: 10px;
+  background: #1e2a3a;
+  border: 2px solid #2a3a4a;
+  cursor: pointer;
+  transition: background 0.08s, border-color 0.08s, transform 0.08s;
+}
+.cell.lit {
+  background: #F6B45F;
+  border-color: #F6B45F;
+  box-shadow: 0 0 12px rgba(246,180,95,0.5);
+}
+.cell.selected {
+  background: #2ECC71;
+  border-color: #2ECC71;
+  box-shadow: 0 0 12px rgba(46,204,113,0.4);
+}
+.cell.wrong {
+  background: #E74C3C;
+  border-color: #E74C3C;
+  box-shadow: 0 0 12px rgba(231,76,60,0.4);
+}
+.cell.correct {
+  background: #2ECC71;
+  border-color: #27AE60;
+}
+.cell:active { transform: scale(0.93); }
+.cell.locked { cursor: default; }
+.cell.locked:active { transform: none; }
+
+/* progress dots */
+.progress-wrap {
+  display: flex; justify-content: center; gap: 7px; margin-bottom: 14px;
+}
+.progress-dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: #1e2a3a; border: 1px solid #2a3a4a;
+  transition: background 0.2s;
+}
+.progress-dot.done  { background: #2ECC71; border-color: #27AE60; }
+.progress-dot.fail  { background: #E74C3C; border-color: #c0392b; }
+.progress-dot.curr  { background: #F6B45F; border-color: #d4a050; }
+
+/* submit */
+.submit-btn {
+  display: block; margin: 0 auto;
+  background: #F6B45F; border: none; font-weight: bold;
+  padding: 10px 32px; border-radius: 40px;
+  color: #0F1318; cursor: pointer; font-size: 0.9rem;
+}
+.submit-btn:disabled { opacity: 0.35; cursor: default; }
+
+/* overlay */
+.overlay {
+  position: fixed; top:0; left:0; width:100%; height:100%;
+  background: rgba(15,19,24,0.93);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 100; backdrop-filter: blur(6px);
+  opacity: 0; pointer-events: none; transition: opacity 0.3s;
+}
+.overlay.show { opacity: 1; pointer-events: all; }
+.overlay-box {
+  background: #1e2a3a; border-radius: 40px;
+  padding: 36px 40px; text-align: center;
+  border: 2px solid #F6B45F; max-width: 300px; width: 90%;
+}
+.overlay-icon  { font-size: 3rem; margin-bottom: 10px; }
+.overlay-title { font-size: 1.5rem; font-weight: bold; color: #F6B45F; letter-spacing: 2px; margin-bottom: 8px; }
+.overlay-msg   { color: #eaf2fb; font-size: 0.85rem; margin-bottom: 18px; line-height: 1.6; }
+.overlay-btn {
+  background: #F6B45F; border: none; font-weight: bold;
+  padding: 10px 28px; border-radius: 40px;
+  color: #0F1318; cursor: pointer; font-size: 0.9rem;
+}
+
+.footer { text-align: center; font-size: 0.6rem; color: #6c8fb0; margin-top: 12px; }
+```
+
+  </style>
+</head>
+<body>
+<div class="game-container">
+  <div class="header">
+    <div>
+      <div class="logo">PATTERN MATCH</div>
+      <div class="sub">SilverCompass · Çalışma Belleği</div>
+    </div>
+    <a href="index.html" class="back-link">← Geri</a>
+  </div>
+
+  <div class="diff-row">
+    <div class="diff-btn active" data-diff="easy">Kolay</div>
+    <div class="diff-btn" data-diff="medium">Orta</div>
+    <div class="diff-btn" data-diff="hard">Zor</div>
+  </div>
+
+  <div class="info-bar">
+    <div class="info-box">Seviye: <span id="levelNum">1</span></div>
+    <div class="info-box">Skor: <span id="scoreNum">0</span></div>
+    <button class="new-btn" id="newBtn">↺ Yeni</button>
+  </div>
+
+  <div class="status-msg wait" id="statusMsg">Hazırlan...</div>
+
+  <div class="countdown-wrap">
+    <svg class="countdown-svg" id="countdownSvg" width="56" height="56" style="display:none;">
+      <circle class="countdown-track" cx="28" cy="28" r="22"/>
+      <circle class="countdown-arc"   cx="28" cy="28" r="22" id="countdownArc"
+              stroke-dasharray="138.2" stroke-dashoffset="0"/>
+      <text class="countdown-num" x="28" y="28" id="countdownNum">3</text>
+    </svg>
+  </div>
+
+  <div class="grid-wrap">
+    <div class="grid" id="grid"></div>
+  </div>
+
+  <div class="progress-wrap" id="progressWrap"></div>
+
+<button class="submit-btn" id="submitBtn" disabled>✓ Onayla</button>
+
+  <div class="footer">Deseni ezberle · Işıklı hücreleri seç · Onayla</div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="overlay-box">
+    <div class="overlay-icon" id="overlayIcon">🎉</div>
+    <div class="overlay-title" id="overlayTitle">KAZANDIN!</div>
+    <div class="overlay-msg" id="overlayMsg"></div>
+    <button class="overlay-btn" id="overlayBtn">Devam</button>
+  </div>
+</div>
+
+<script>
+(function () {
+
+  /* ---- CONFIG ---- */
+  var DIFF = 'easy';
+  var CONFIGS = {
+    easy:   { gridSize: 3, litCount: 3, showTime: 2000, rounds: 5 },
+    medium: { gridSize: 4, litCount: 5, showTime: 1800, rounds: 7 },
+    hard:   { gridSize: 5, litCount: 7, showTime: 1500, rounds: 10 }
+  };
+
+  /* ---- STATE ---- */
+  var pattern      = [];   /* indices of lit cells */
+  var selected     = [];   /* player's selected indices */
+  var phase        = 'idle'; /* idle | showing | recalling | result */
+  var level        = 1;
+  var score        = 0;
+  var round        = 0;
+  var roundResults = [];
+  var gridSize     = 3;
+  var litCount     = 3;
+  var showTime     = 2000;
+  var rounds       = 5;
+  var countdownTimer = null;
+  var countdownVal   = 0;
+
+  /* ---- ELEMENTS ---- */
+  var gridEl      = document.getElementById('grid');
+  var statusEl    = document.getElementById('statusMsg');
+  var submitBtn   = document.getElementById('submitBtn');
+  var newBtn      = document.getElementById('newBtn');
+  var overlay     = document.getElementById('overlay');
+  var progressEl  = document.getElementById('progressWrap');
+  var cSvg        = document.getElementById('countdownSvg');
+  var cArc        = document.getElementById('countdownArc');
+  var cNum        = document.getElementById('countdownNum');
+  var diffBtns    = document.querySelectorAll('.diff-btn');
+
+  /* ---- BEST SCORE ---- */
+  function bestKey() { return 'pm_best_' + DIFF; }
+  function loadBest() {
+    var v = localStorage.getItem(bestKey());
+    /* shown in overlay if needed */
+  }
+  function saveBest(s) {
+    var key = bestKey();
+    var cur = parseInt(localStorage.getItem(key) || '0', 10);
+    if (s > cur) localStorage.setItem(key, s);
+  }
+
+  /* ---- BUILD GRID ---- */
+  function buildGrid() {
+    gridEl.innerHTML = '';
+    var cfg = CONFIGS[DIFF];
+    gridSize = cfg.gridSize;
+    litCount = cfg.litCount;
+    showTime = cfg.showTime;
+    rounds   = cfg.rounds;
+
+    /* cell size */
+    var available = Math.min(document.querySelector('.grid-wrap').offsetWidth - 28, 340);
+    var cellSize  = Math.floor((available - 8 * (gridSize - 1)) / gridSize);
+    cellSize = Math.max(cellSize, 44);
+
+    gridEl.style.gridTemplateColumns = 'repeat(' + gridSize + ', ' + cellSize + 'px)';
+    gridEl.style.gap = '8px';
+
+    for (var i = 0; i < gridSize * gridSize; i++) {
+      (function (idx) {
+        var cell = document.createElement('div');
+        cell.className = 'cell locked';
+        cell.style.width  = cellSize + 'px';
+        cell.style.height = cellSize + 'px';
+        cell.setAttribute('data-idx', idx);
+        cell.addEventListener('click', function () { onCellClick(idx); });
+        gridEl.appendChild(cell);
+      })(i);
+    }
+  }
+
+  /* ---- PROGRESS DOTS ---- */
+  function buildProgress() {
+    progressEl.innerHTML = '';
+    for (var i = 0; i < rounds; i++) {
+      var dot = document.createElement('div');
+      dot.className = 'progress-dot' + (i === 0 ? ' curr' : '');
+      progressEl.appendChild(dot);
+    }
+  }
+  function updateProgress() {
+    var dots = progressEl.querySelectorAll('.progress-dot');
+    for (var i = 0; i < dots.length; i++) {
+      dots[i].className = 'progress-dot';
+      if (i < roundResults.length) {
+        dots[i].classList.add(roundResults[i] ? 'done' : 'fail');
+      } else if (i === roundResults.length) {
+        dots[i].classList.add('curr');
+      }
+    }
+  }
+
+  /* ---- GENERATE PATTERN ---- */
+  function generatePattern() {
+    var total = gridSize * gridSize;
+    var indices = [];
+    for (var i = 0; i < total; i++) indices.push(i);
+    /* shuffle */
+    for (var i = indices.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = indices[i]; indices[i] = indices[j]; indices[j] = tmp;
+    }
+    return indices.slice(0, litCount);
+  }
+
+  /* ---- SHOW PATTERN ---- */
+  function showPattern() {
+    phase = 'showing';
+    setStatus('Deseni ezberle!', 'wait');
+    submitBtn.disabled = true;
+
+    /* light up cells */
+    var cells = gridEl.querySelectorAll('.cell');
+    for (var i = 0; i < cells.length; i++) {
+      cells[i].className = 'cell locked';
+    }
+    for (var i = 0; i < pattern.length; i++) {
+      cells[pattern[i]].classList.add('lit');
+    }
+
+    /* countdown */
+    startCountdown(showTime / 1000, function () {
+      hidePattern();
+    });
+  }
+
+  function hidePattern() {
+    var cells = gridEl.querySelectorAll('.cell');
+    for (var i = 0; i < cells.length; i++) {
+      cells[i].className = 'cell'; /* remove locked & lit */
+    }
+    phase    = 'recalling';
+    selected = [];
+    setStatus('Hangi hücreler yanıyordu?', 'go');
+    submitBtn.disabled = false;
+    cSvg.style.display = 'none';
+  }
+
+  /* ---- COUNTDOWN ---- */
+  var CIRC = 138.2; /* 2 * π * 22 */
+  function startCountdown(seconds, cb) {
+    cSvg.style.display = 'block';
+    countdownVal = seconds;
+    cNum.textContent = Math.ceil(countdownVal);
+    cArc.style.transition = 'none';
+    cArc.setAttribute('stroke-dashoffset', '0');
+
+    /* force reflow */
+    void cArc.getBoundingClientRect();
+
+    cArc.style.transition = 'stroke-dashoffset ' + seconds + 's linear';
+    cArc.setAttribute('stroke-dashoffset', CIRC);
+
+    clearTimeout(countdownTimer);
+    var start = Date.now();
+    var total = seconds * 1000;
+
+    function tick() {
+      var elapsed = Date.now() - start;
+      var remaining = Math.max(0, total - elapsed);
+      cNum.textContent = Math.ceil(remaining / 1000);
+      if (remaining <= 0) {
+        cSvg.style.display = 'none';
+        cb();
+        return;
+      }
+      countdownTimer = setTimeout(tick, 100);
+    }
+    countdownTimer = setTimeout(tick, 100);
+  }
+
+  /* ---- CELL CLICK ---- */
+  function onCellClick(idx) {
+    if (phase !== 'recalling') return;
+    var cells = gridEl.querySelectorAll('.cell');
+    var cell  = cells[idx];
+
+    var pos = selected.indexOf(idx);
+    if (pos === -1) {
+      selected.push(idx);
+      cell.classList.add('selected');
+    } else {
+      selected.splice(pos, 1);
+      cell.classList.remove('selected');
+    }
+  }
+
+  /* ---- SUBMIT ---- */
+  function submitAnswer() {
+    if (phase !== 'recalling') return;
+    phase = 'result';
+    submitBtn.disabled = true;
+
+    /* evaluate */
+    var correct = 0;
+    var cells   = gridEl.querySelectorAll('.cell');
+
+    /* lock all cells */
+    for (var i = 0; i < cells.length; i++) cells[i].classList.add('locked');
+
+    /* mark correct/wrong */
+    for (var i = 0; i < cells.length; i++) {
+      var inPattern  = pattern.indexOf(i) !== -1;
+      var inSelected = selected.indexOf(i) !== -1;
+      cells[i].classList.remove('selected', 'lit', 'wrong', 'correct');
+      if (inPattern && inSelected) { cells[i].classList.add('correct'); correct++; }
+      else if (!inPattern && inSelected) { cells[i].classList.add('wrong'); }
+      else if (inPattern && !inSelected) { cells[i].classList.add('lit'); } /* missed */
+    }
+
+    var perfect = (correct === litCount && selected.length === litCount);
+    var pts     = perfect ? 100 : Math.round(correct / litCount * 60);
+    score      += pts;
+    document.getElementById('scoreNum').textContent = score;
+
+    roundResults.push(perfect);
+    updateProgress();
+
+    if (perfect) {
+      setStatus('Mükemmel! +' + pts, 'go');
+    } else {
+      setStatus(correct + '/' + litCount + ' doğru · +' + pts, 'bad');
+    }
+
+    setTimeout(function () {
+      round++;
+      if (round >= rounds) {
+        endGame();
+      } else {
+        nextRound();
+      }
+    }, 1200);
+  }
+
+  /* ---- NEXT ROUND ---- */
+  function nextRound() {
+    pattern  = generatePattern();
+    selected = [];
+    setStatus('Hazırlan...', 'wait');
+    submitBtn.disabled = true;
+
+    setTimeout(showPattern, 600);
+  }
+
+  /* ---- END GAME ---- */
+  function endGame() {
+    saveBest(score);
+    var won  = roundResults.filter(function (r) { return r; }).length;
+    var best = parseInt(localStorage.getItem(bestKey()) || '0', 10);
+    document.getElementById('overlayIcon').textContent  = won >= rounds * 0.7 ? '🏆' : '💪';
+    document.getElementById('overlayTitle').textContent = won >= rounds * 0.7 ? 'HARİKA!' : 'İYİ DENEME!';
+    document.getElementById('overlayMsg').textContent   =
+      won + '/' + rounds + ' tur doğru\nSkor: ' + score + '\nEn iyi: ' + Math.max(score, best);
+    overlay.classList.add('show');
+    level++;
+    document.getElementById('levelNum').textContent = level;
+  }
+
+  /* ---- NEW GAME ---- */
+  function newGame() {
+    clearTimeout(countdownTimer);
+    cSvg.style.display = 'none';
+    overlay.classList.remove('show');
+
+    var cfg  = CONFIGS[DIFF];
+    gridSize = cfg.gridSize;
+    litCount = cfg.litCount;
+    showTime = cfg.showTime;
+    rounds   = cfg.rounds;
+    round    = 0;
+    score    = 0;
+    roundResults = [];
+
+    document.getElementById('scoreNum').textContent = score;
+
+    buildGrid();
+    buildProgress();
+    setStatus('Hazırlan...', 'wait');
+    submitBtn.disabled = true;
+
+    setTimeout(function () {
+      pattern = generatePattern();
+      showPattern();
+    }, 500);
+  }
+
+  /* ---- STATUS ---- */
+  function setStatus(msg, cls) {
+    statusEl.textContent = msg;
+    statusEl.className   = 'status-msg ' + (cls || '');
+  }
+
+  /* ---- EVENTS ---- */
+  submitBtn.addEventListener('click', submitAnswer);
+  newBtn.addEventListener('click', newGame);
+  document.getElementById('overlayBtn').addEventListener('click', newGame);
+
+  for (var i = 0; i < diffBtns.length; i++) {
+    diffBtns[i].addEventListener('click', function () {
+      for (var j = 0; j < diffBtns.length; j++) diffBtns[j].classList.remove('active');
+      this.classList.add('active');
+      DIFF = this.getAttribute('data-diff');
+      newGame();
+    });
+  }
+
+  window.addEventListener('resize', function () { buildGrid(); });
+
+  /* ---- INIT ---- */
+  newGame();
+}());
+</script>
+
+</body>
+</html>

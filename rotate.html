@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Rotate · Zihin Egzersizi | SilverCompass</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; user-select:none; -webkit-tap-highlight-color:transparent; }
+    body {
+      background: #0F1318;
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 16px;
+    }
+    .game-container {
+      max-width: 480px;
+      width: 100%;
+      background: #1e2a3a;
+      border-radius: 48px;
+      padding: 22px 20px 28px;
+      box-shadow: 0 20px 35px rgba(0,0,0,0.4);
+      border: 1px solid rgba(246,180,95,0.25);
+    }
+    .header {
+      display: flex; justify-content: space-between; align-items: baseline;
+      margin-bottom: 14px;
+    }
+    .logo { font-size: 1.5rem; font-weight: bold; color: #F6B45F; }
+    .sub  { font-size: 0.62rem; color: #b8d0e8; margin-top: 1px; }
+    .back-link {
+      color: #F6B45F; text-decoration: none; font-weight: bold;
+      font-size: 0.78rem; background: #0a1018;
+      padding: 5px 12px; border-radius: 40px;
+    }
+
+```
+/* diff */
+.diff-row { display: flex; justify-content: center; gap: 8px; margin-bottom: 12px; }
+.diff-btn {
+  background: #0a1018; color: #F6B45F;
+  border: 1px solid #F6B45F;
+  padding: 4px 14px; border-radius: 40px;
+  font-size: 0.75rem; cursor: pointer;
+}
+.diff-btn.active { background: #F6B45F; color: #0F1318; border-color: #F6B45F; }
+
+/* info */
+.info-bar {
+  display: flex; justify-content: space-between; align-items: center;
+  background: #0a1018; border-radius: 40px;
+  padding: 7px 16px; margin-bottom: 16px;
+}
+.info-box { color: #F6B45F; font-weight: bold; font-size: 0.78rem; }
+.info-box span { color: #eaf2fb; }
+.new-btn {
+  background: #F6B45F; border: none; font-weight: bold;
+  padding: 5px 14px; border-radius: 40px;
+  color: #0F1318; cursor: pointer; font-size: 0.78rem;
+}
+
+/* stage */
+.stage {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.stage-box {
+  flex: 1;
+  background: #0a1018;
+  border-radius: 24px;
+  padding: 12px;
+  text-align: center;
+}
+.stage-label {
+  font-size: 0.6rem; letter-spacing: 2px;
+  color: #4a6a8a; text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.stage-canvas {
+  display: block;
+  margin: 0 auto;
+  border-radius: 16px;
+}
+.vs-label {
+  color: #F6B45F;
+  font-weight: bold;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+/* match meter */
+.match-wrap {
+  background: #0a1018;
+  border-radius: 40px;
+  padding: 10px 18px;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.match-label { font-size: 0.72rem; color: #F6B45F; font-weight: bold; flex-shrink: 0; }
+.match-track {
+  flex: 1; height: 8px;
+  background: #1e2a3a;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.match-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #E74C3C, #F6B45F, #2ECC71);
+  border-radius: 4px;
+  transition: width 0.2s;
+  width: 0%;
+}
+.match-pct { font-size: 0.78rem; color: #eaf2fb; font-weight: bold; flex-shrink: 0; width: 36px; text-align: right; }
+
+/* controls */
+.controls {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.rot-btn {
+  background: #1e2a3a;
+  border: 2px solid #F6B45F;
+  color: #F6B45F;
+  font-weight: bold;
+  font-size: 1rem;
+  width: 60px; height: 60px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background 0.1s, transform 0.1s;
+  display: flex; align-items: center; justify-content: center;
+}
+.rot-btn:active { background: #F6B45F; color: #0F1318; transform: scale(0.93); }
+.rot-btn.big {
+  width: 72px; height: 72px;
+  font-size: 1.3rem;
+  border-color: #F6B45F;
+}
+.submit-btn {
+  background: #F6B45F; border: none; font-weight: bold;
+  padding: 10px 28px; border-radius: 40px;
+  color: #0F1318; cursor: pointer; font-size: 0.9rem;
+  display: block; margin: 0 auto;
+}
+.submit-btn:disabled { opacity: 0.35; cursor: default; }
+
+/* level complete */
+.overlay {
+  position: fixed; top:0; left:0; width:100%; height:100%;
+  background: rgba(15,19,24,0.93);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 100; backdrop-filter: blur(6px);
+  opacity: 0; pointer-events: none; transition: opacity 0.3s;
+}
+.overlay.show { opacity: 1; pointer-events: all; }
+.overlay-box {
+  background: #1e2a3a; border-radius: 40px;
+  padding: 36px 40px; text-align: center;
+  border: 2px solid #F6B45F; max-width: 300px; width: 90%;
+}
+.overlay-icon { font-size: 3rem; margin-bottom: 10px; }
+.overlay-title { font-size: 1.5rem; font-weight: bold; color: #F6B45F; letter-spacing: 2px; margin-bottom: 8px; }
+.overlay-msg { color: #eaf2fb; font-size: 0.85rem; margin-bottom: 18px; line-height: 1.6; }
+.overlay-btn {
+  background: #F6B45F; border: none; font-weight: bold;
+  padding: 10px 28px; border-radius: 40px;
+  color: #0F1318; cursor: pointer; font-size: 0.9rem;
+}
+
+.footer { text-align: center; font-size: 0.6rem; color: #6c8fb0; margin-top: 10px; }
+```
+
+  </style>
+</head>
+<body>
+<div class="game-container">
+  <div class="header">
+    <div>
+      <div class="logo">ROTATE</div>
+      <div class="sub">SilverCompass · Uzamsal Algı</div>
+    </div>
+    <a href="index.html" class="back-link">← Geri</a>
+  </div>
+
+  <div class="diff-row">
+    <div class="diff-btn active" data-diff="easy">Kolay</div>
+    <div class="diff-btn" data-diff="medium">Orta</div>
+    <div class="diff-btn" data-diff="hard">Zor</div>
+  </div>
+
+  <div class="info-bar">
+    <div class="info-box">Seviye: <span id="levelNum">1</span></div>
+    <div class="info-box">Skor: <span id="scoreNum">0</span></div>
+    <button class="new-btn" id="newBtn">↺ Yeni</button>
+  </div>
+
+  <div class="stage">
+    <div class="stage-box">
+      <div class="stage-label">Hedef</div>
+      <canvas class="stage-canvas" id="targetCanvas" width="140" height="140"></canvas>
+    </div>
+    <div class="vs-label">vs</div>
+    <div class="stage-box">
+      <div class="stage-label">Senin Şeklin</div>
+      <canvas class="stage-canvas" id="playerCanvas" width="140" height="140"></canvas>
+    </div>
+  </div>
+
+  <div class="match-wrap">
+    <div class="match-label">Eşleşme</div>
+    <div class="match-track"><div class="match-fill" id="matchFill"></div></div>
+    <div class="match-pct" id="matchPct">0%</div>
+  </div>
+
+  <div class="controls">
+    <button class="rot-btn" id="rotCCW45">↺ 45°</button>
+    <button class="rot-btn big" id="rotCCW90">↺ 90°</button>
+    <button class="rot-btn big" id="rotCW90">↻ 90°</button>
+    <button class="rot-btn" id="rotCW45">↻ 45°</button>
+  </div>
+
+<button class="submit-btn" id="submitBtn" disabled>✓ Onayla</button>
+
+  <div class="footer">Şekli döndür · Hedefle eşleştir · %80+ eşleşme = başarı</div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="overlay-box">
+    <div class="overlay-icon" id="overlayIcon">⭐</div>
+    <div class="overlay-title" id="overlayTitle">MÜKEMMEL!</div>
+    <div class="overlay-msg" id="overlayMsg"></div>
+    <button class="overlay-btn" id="overlayBtn">Devam</button>
+  </div>
+</div>
+
+<script>
+(function () {
+
+  /* ---- CONFIG ---- */
+  var DIFF = 'easy';
+  var DIFF_CONFIG = {
+    easy:   { steps: [90, 180, 270], tolerance: 10, shapes: ['arrow', 'L', 'T', 'house'] },
+    medium: { steps: [45, 90, 135, 180, 225, 270, 315], tolerance: 8, shapes: ['arrow', 'L', 'T', 'house', 'star4', 'cross'] },
+    hard:   { steps: [30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330], tolerance: 6, shapes: ['arrow', 'L', 'T', 'house', 'star4', 'cross', 'zigzag', 'hexL'] }
+  };
+
+  /* ---- STATE ---- */
+  var targetAngle  = 0;
+  var playerAngle  = 0;
+  var currentShape = 'arrow';
+  var level        = 1;
+  var score        = 0;
+  var gameActive   = true;
+
+  /* ---- CANVAS ---- */
+  var targetCanvas = document.getElementById('targetCanvas');
+  var playerCanvas = document.getElementById('playerCanvas');
+  var tctx = targetCanvas.getContext('2d');
+  var pctx = playerCanvas.getContext('2d');
+
+  /* ---- SHAPE PATHS (relative, centered, ~80px radius) ---- */
+  var SHAPES = {
+    arrow: function (ctx, size) {
+      var s = size * 0.38;
+      ctx.moveTo(0, -s * 1.1);
+      ctx.lineTo(s * 0.9, 0);
+      ctx.lineTo(s * 0.38, 0);
+      ctx.lineTo(s * 0.38, s * 1.0);
+      ctx.lineTo(-s * 0.38, s * 1.0);
+      ctx.lineTo(-s * 0.38, 0);
+      ctx.lineTo(-s * 0.9, 0);
+      ctx.closePath();
+    },
+    L: function (ctx, size) {
+      var s = size * 0.38;
+      ctx.moveTo(-s * 0.9, -s * 1.0);
+      ctx.lineTo(-s * 0.9, s * 1.0);
+      ctx.lineTo(s * 0.9, s * 1.0);
+      ctx.lineTo(s * 0.9, s * 0.35);
+      ctx.lineTo(-s * 0.2, s * 0.35);
+      ctx.lineTo(-s * 0.2, -s * 1.0);
+      ctx.closePath();
+    },
+    T: function (ctx, size) {
+      var s = size * 0.38;
+      ctx.moveTo(-s * 1.0, -s * 1.0);
+      ctx.lineTo(s * 1.0, -s * 1.0);
+      ctx.lineTo(s * 1.0, -s * 0.3);
+      ctx.lineTo(s * 0.32, -s * 0.3);
+      ctx.lineTo(s * 0.32, s * 1.0);
+      ctx.lineTo(-s * 0.32, s * 1.0);
+      ctx.lineTo(-s * 0.32, -s * 0.3);
+      ctx.lineTo(-s * 1.0, -s * 0.3);
+      ctx.closePath();
+    },
+    house: function (ctx, size) {
+      var s = size * 0.38;
+      ctx.moveTo(0, -s * 1.1);
+      ctx.lineTo(s * 1.0, -s * 0.15);
+      ctx.lineTo(s * 1.0, s * 1.0);
+      ctx.lineTo(-s * 1.0, s * 1.0);
+      ctx.lineTo(-s * 1.0, -s * 0.15);
+      ctx.closePath();
+    },
+    star4: function (ctx, size) {
+      var s = size * 0.42;
+      var inner = s * 0.4;
+      for (var i = 0; i < 8; i++) {
+        var r = (i % 2 === 0) ? s : inner;
+        var a = (i * Math.PI / 4) - Math.PI / 2;
+        if (i === 0) ctx.moveTo(Math.cos(a) * r, Math.sin(a) * r);
+        else ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r);
+      }
+      ctx.closePath();
+    },
+    cross: function (ctx, size) {
+      var s = size * 0.42;
+      var t = s * 0.35;
+      ctx.moveTo(-t, -s); ctx.lineTo(t, -s);
+      ctx.lineTo(t, -t); ctx.lineTo(s, -t);
+      ctx.lineTo(s, t);  ctx.lineTo(t, t);
+      ctx.lineTo(t, s);  ctx.lineTo(-t, s);
+      ctx.lineTo(-t, t); ctx.lineTo(-s, t);
+      ctx.lineTo(-s, -t); ctx.lineTo(-t, -t);
+      ctx.closePath();
+    },
+    zigzag: function (ctx, size) {
+      var s = size * 0.38;
+      ctx.moveTo(-s, -s * 0.6);
+      ctx.lineTo(-s * 0.2, -s * 0.6);
+      ctx.lineTo(-s * 0.2, -s * 1.0);
+      ctx.lineTo(s * 0.5, -s * 1.0);
+      ctx.lineTo(s * 0.5, -s * 0.6);
+      ctx.lineTo(s, -s * 0.6);
+      ctx.lineTo(s, s * 0.6);
+      ctx.lineTo(s * 0.2, s * 0.6);
+      ctx.lineTo(s * 0.2, s * 1.0);
+      ctx.lineTo(-s * 0.5, s * 1.0);
+      ctx.lineTo(-s * 0.5, s * 0.6);
+      ctx.lineTo(-s, s * 0.6);
+      ctx.closePath();
+    },
+    hexL: function (ctx, size) {
+      var s = size * 0.42;
+      var pts = [];
+      for (var i = 0; i < 6; i++) {
+        var a = (i * Math.PI / 3) - Math.PI / 2;
+        pts.push([Math.cos(a) * s, Math.sin(a) * s]);
+      }
+      /* use only 5 vertices — cut one corner for L-like hex */
+      ctx.moveTo(pts[0][0], pts[0][1]);
+      ctx.lineTo(pts[1][0], pts[1][1]);
+      ctx.lineTo(pts[2][0], pts[2][1]);
+      ctx.lineTo(pts[2][0], 0);
+      ctx.lineTo(pts[3][0], pts[3][1]);
+      ctx.lineTo(pts[4][0], pts[4][1]);
+      ctx.lineTo(pts[5][0], pts[5][1]);
+      ctx.closePath();
+    }
+  };
+
+  /* ---- DRAW ---- */
+  function drawShape(ctx, size, angleDeg, isTarget) {
+    ctx.clearRect(0, 0, size, size);
+
+    /* bg */
+    ctx.fillStyle = '#0a1018';
+    ctx.beginPath();
+    ctx.roundRect ? ctx.roundRect(0, 0, size, size, 16) : ctx.rect(0, 0, size, size);
+    ctx.fill();
+
+    /* guide circle */
+    ctx.beginPath();
+    ctx.arc(size / 2, size / 2, size * 0.44, 0, Math.PI * 2);
+    ctx.strokeStyle = isTarget ? 'rgba(246,180,95,0.15)' : 'rgba(46,204,113,0.15)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    ctx.save();
+    ctx.translate(size / 2, size / 2);
+    ctx.rotate(angleDeg * Math.PI / 180);
+
+    ctx.beginPath();
+    SHAPES[currentShape](ctx, size);
+
+    ctx.fillStyle   = isTarget ? 'rgba(246,180,95,0.25)' : 'rgba(46,204,113,0.3)';
+    ctx.strokeStyle = isTarget ? '#F6B45F' : '#2ECC71';
+    ctx.lineWidth   = 2.5;
+    ctx.fill();
+    ctx.stroke();
+
+    /* rotation tick mark at top */
+    ctx.beginPath();
+    ctx.moveTo(0, -size * 0.4);
+    ctx.lineTo(0, -size * 0.44);
+    ctx.strokeStyle = isTarget ? 'rgba(246,180,95,0.5)' : 'rgba(46,204,113,0.5)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    ctx.restore();
+
+    /* angle label */
+    ctx.fillStyle = isTarget ? 'rgba(246,180,95,0.5)' : 'rgba(46,204,113,0.6)';
+    ctx.font = 'bold ' + Math.round(size * 0.09) + 'px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(Math.round(angleDeg) + '°', size / 2, size - 8);
+  }
+
+  function redraw() {
+    var sz = targetCanvas.width;
+    drawShape(tctx, sz, targetAngle, true);
+    drawShape(pctx, sz, playerAngle, false);
+    updateMatch();
+  }
+
+  /* ---- MATCH ---- */
+  function angularDiff(a, b) {
+    var diff = Math.abs(a - b) % 360;
+    if (diff > 180) diff = 360 - diff;
+    return diff;
+  }
+
+  function updateMatch() {
+    var diff = angularDiff(targetAngle, playerAngle);
+    var tol  = DIFF_CONFIG[DIFF].tolerance;
+    var pct  = Math.max(0, Math.round((1 - diff / 180) * 100));
+    document.getElementById('matchFill').style.width = pct + '%';
+    document.getElementById('matchPct').textContent  = pct + '%';
+    document.getElementById('submitBtn').disabled = (diff > tol * 4);
+  }
+
+  /* ---- ROTATE ---- */
+  function rotate(deg) {
+    playerAngle = (playerAngle + deg + 360) % 360;
+    redraw();
+  }
+
+  /* ---- SUBMIT ---- */
+  function submitAnswer() {
+    var diff = angularDiff(targetAngle, playerAngle);
+    var tol  = DIFF_CONFIG[DIFF].tolerance * 4;
+    if (diff <= DIFF_CONFIG[DIFF].tolerance) {
+      /* perfect */
+      score += 100;
+      showResult(true, 'Mükemmel! +100 puan', diff);
+    } else if (diff <= tol) {
+      var pts = Math.round(100 * (1 - diff / tol));
+      score += pts;
+      showResult(true, 'Güzel! +' + pts + ' puan (' + Math.round(diff) + '° fark)', diff);
+    } else {
+      showResult(false, 'Fark: ' + Math.round(diff) + '° — tekrar dene', diff);
+    }
+    document.getElementById('scoreNum').textContent = score;
+  }
+
+  function showResult(success, msg, diff) {
+    document.getElementById('overlayIcon').textContent  = success ? (diff <= DIFF_CONFIG[DIFF].tolerance ? '🌟' : '⭐') : '🔄';
+    document.getElementById('overlayTitle').textContent = success ? 'BAŞARILI!' : 'YAKLAŞ!';
+    document.getElementById('overlayMsg').textContent   = msg;
+    document.getElementById('overlayBtn').textContent   = success ? 'Sonraki Seviye' : 'Tekrar Dene';
+    document.getElementById('overlay').classList.add('show');
+    if (success) level++;
+    document.getElementById('levelNum').textContent = level;
+  }
+
+  /* ---- NEW LEVEL ---- */
+  function newLevel() {
+    var cfg    = DIFF_CONFIG[DIFF];
+    var shapes = cfg.shapes;
+    currentShape = shapes[Math.floor(Math.random() * shapes.length)];
+
+    /* pick target from allowed steps */
+    var steps = cfg.steps;
+    targetAngle = steps[Math.floor(Math.random() * steps.length)];
+
+    /* player starts at 0 or random offset */
+    playerAngle = 0;
+    gameActive  = true;
+    document.getElementById('overlay').classList.remove('show');
+    redraw();
+  }
+
+  /* ---- NEW GAME ---- */
+  function newGame() {
+    level  = 1;
+    score  = 0;
+    document.getElementById('levelNum').textContent = level;
+    document.getElementById('scoreNum').textContent = score;
+    newLevel();
+  }
+
+  /* ---- RESPONSIVE CANVAS ---- */
+  function resizeCanvases() {
+    var wrap = document.querySelector('.stage-box');
+    var available = wrap.offsetWidth - 24;
+    var sz = Math.min(available, 160);
+    sz = Math.max(sz, 110);
+    targetCanvas.width  = targetCanvas.height  = sz;
+    playerCanvas.width  = playerCanvas.height  = sz;
+    redraw();
+  }
+
+  /* ---- EVENTS ---- */
+  document.getElementById('rotCCW45').addEventListener('click', function () { rotate(-45); });
+  document.getElementById('rotCCW90').addEventListener('click', function () { rotate(-90); });
+  document.getElementById('rotCW90').addEventListener('click',  function () { rotate(90); });
+  document.getElementById('rotCW45').addEventListener('click',  function () { rotate(45); });
+  document.getElementById('submitBtn').addEventListener('click', submitAnswer);
+  document.getElementById('newBtn').addEventListener('click', newGame);
+  document.getElementById('overlayBtn').addEventListener('click', function () {
+    var success = document.getElementById('overlayBtn').textContent === 'Sonraki Seviye';
+    if (success) newLevel(); else { document.getElementById('overlay').classList.remove('show'); redraw(); }
+  });
+
+  var diffBtns = document.querySelectorAll('.diff-btn');
+  for (var i = 0; i < diffBtns.length; i++) {
+    diffBtns[i].addEventListener('click', function () {
+      for (var j = 0; j < diffBtns.length; j++) diffBtns[j].classList.remove('active');
+      this.classList.add('active');
+      DIFF = this.getAttribute('data-diff');
+      newGame();
+    });
+  }
+
+  /* touch/mouse drag to rotate player shape */
+  var dragStartX = null;
+  playerCanvas.addEventListener('mousedown', function (e) { dragStartX = e.clientX; });
+  playerCanvas.addEventListener('touchstart', function (e) { dragStartX = e.touches[0].clientX; }, { passive: true });
+  playerCanvas.addEventListener('mousemove', function (e) {
+    if (dragStartX === null || !(e.buttons & 1)) { dragStartX = null; return; }
+    var dx = e.clientX - dragStartX;
+    if (Math.abs(dx) > 4) { playerAngle = (playerAngle + dx * 0.6 + 360) % 360; dragStartX = e.clientX; redraw(); }
+  });
+  playerCanvas.addEventListener('touchmove', function (e) {
+    if (dragStartX === null) return;
+    var dx = e.touches[0].clientX - dragStartX;
+    if (Math.abs(dx) > 4) { playerAngle = (playerAngle + dx * 0.6 + 360) % 360; dragStartX = e.touches[0].clientX; redraw(); }
+    e.preventDefault();
+  }, { passive: false });
+  playerCanvas.addEventListener('mouseup', function () { dragStartX = null; });
+  playerCanvas.addEventListener('touchend', function () { dragStartX = null; });
+
+  window.addEventListener('resize', resizeCanvases);
+  resizeCanvases();
+  newGame();
+}());
+</script>
+
+</body>
+</html>

@@ -1,388 +1,401 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Helix Jump - Düzelme Geldi</title>
-    <style>
-        body {
-            background: #161c27;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            font-family: 'Segoe UI', system-ui;
-            margin: 0;
-            padding: 20px;
-        }
-        .game-wrapper {
-            background: #0f121b;
-            border-radius: 48px;
-            padding: 20px;
-            box-shadow: 0 20px 35px rgba(0,0,0,0.5);
-        }
-        canvas {
-            display: block;
-            margin: 0 auto;
-            border-radius: 28px;
-            box-shadow: 0 0 0 3px #2e3a4e, 0 15px 25px rgba(0,0,0,0.3);
-            cursor: pointer;
-        }
-        .info-panel {
-            display: flex;
-            justify-content: space-between;
-            align-items: baseline;
-            margin-top: 18px;
-            background: #1a1f2c;
-            padding: 10px 25px;
-            border-radius: 60px;
-            color: #eef4ff;
-        }
-        .score {
-            font-size: 1.7rem;
-            font-weight: bold;
-            background: #2a3448;
-            padding: 4px 18px;
-            border-radius: 40px;
-        }
-        button {
-            background: #3e4a62;
-            border: none;
-            color: white;
-            font-weight: bold;
-            padding: 8px 22px;
-            border-radius: 40px;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: 0.1s;
-        }
-        button:active {
-            transform: scale(0.96);
-        }
-        .status {
-            font-size: 0.8rem;
-            opacity: 0.8;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Helix Jump · Zihin Egzersizi | SilverCompass</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    body {
+      background: #0F1318;
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 16px;
+    }
+    .game-container {
+      max-width: 500px;
+      width: 100%;
+      background: #1e2a3a;
+      border-radius: 48px;
+      padding: 20px 16px 24px;
+      box-shadow: 0 20px 35px rgba(0,0,0,0.4);
+      border: 1px solid #F6B45F40;
+      text-align: center;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    .logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #F6B45F;
+    }
+    .sub {
+      font-size: 0.65rem;
+      color: #b8d0e8;
+    }
+    .back-link {
+      color: #F6B45F;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 0.8rem;
+      background: #0a1018;
+      padding: 4px 12px;
+      border-radius: 40px;
+    }
+    .score-panel {
+      display: flex;
+      justify-content: space-between;
+      background: #0a1018;
+      border-radius: 60px;
+      padding: 8px 16px;
+      margin: 12px 0;
+    }
+    .score-box {
+      background: #1e2a3a;
+      padding: 4px 14px;
+      border-radius: 40px;
+      color: #F6B45F;
+      font-weight: bold;
+    }
+    .score-box span { color: #eaf2fb; }
+    button {
+      background: #F6B45F;
+      border: none;
+      font-weight: bold;
+      padding: 6px 16px;
+      border-radius: 40px;
+      color: #0F1318;
+      cursor: pointer;
+    }
+    canvas {
+      display: block;
+      margin: 12px auto;
+      background: #0a1018;
+      border-radius: 32px;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      cursor: pointer;
+      touch-action: none;
+    }
+    .mobile-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      margin-top: 12px;
+    }
+    .dir-btn {
+      background: #F6B45F;
+      width: 70px;
+      padding: 8px 0;
+      border-radius: 60px;
+      font-weight: bold;
+      font-size: 1rem;
+      text-align: center;
+      cursor: pointer;
+      color: #0F1318;
+    }
+    .footer {
+      margin-top: 12px;
+      font-size: 0.6rem;
+      color: #6c8fb0;
+    }
+  </style>
 </head>
 <body>
-<div>
-    <div class="game-wrapper">
-        <canvas id="helixCanvas" width="400" height="550"></canvas>
-        <div class="info-panel">
-            <span>🏆 PUAN</span>
-            <span class="score" id="scoreDisplay">0</span>
-            <button id="resetHelix">YENİDEN</button>
-        </div>
-        <div class="status" style="text-align:center; margin-top:12px;">Fare ile sola/sağa sürükle → top döner ve düşer</div>
-    </div>
+<div class="game-container">
+  <div class="header">
+    <div><div class="logo">HELIX JUMP</div><div class="sub">SilverCompass · Zihin Egzersizi</div></div>
+    <a href="index.html" class="back-link">← Geri</a>
+  </div>
+
+  <div class="score-panel">
+    <div class="score-box">🎯 SKOR: <span id="currentScore">0</span></div>
+    <div class="score-box">🏆 EN İYİ: <span id="bestScore">0</span></div>
+    <button id="resetBtn">🔄 YENİ</button>
+  </div>
+
+  <canvas id="gameCanvas" width="500" height="500"></canvas>
+
+  <div class="mobile-buttons">
+    <div class="dir-btn" id="leftBtn">◀ SOL</div>
+    <div class="dir-btn" id="rightBtn">SAĞ ▶</div>
+  </div>
+  <div class="footer">Fare veya parmak ile sola/sağa sürükle → top döner ve düşer</div>
 </div>
 
 <script>
-    (function(){
-        const canvas = document.getElementById('helixCanvas');
-        const ctx = canvas.getContext('2d');
-        const scoreSpan = document.getElementById('scoreDisplay');
-        
-        // Oyun parametreleri
-        let score = 0;
-        let gameOver = false;
-        
-        // Top fizik
-        let ball = {
-            x: canvas.width/2,
-            y: 80,
-            radius: 12,
-            vx: 0,
-            vy: 0,
-            gravity: 0.2,
-            bounce: -0.65,
-            angularPos: 0   // 0-2pi, platformlara göre konum
-        };
-        
-        // Helix platformları
-        let platforms = [];
-        const platformCount = 24;      // katman sayısı
-        const platformWidth = 70;
-        const gapAngle = Math.PI / 3;   // 60 derece boşluk
-        let currentFloor = 0;           // topun bulunduğu kat indeksi (en üst 0)
-        
-        let rotateAngle = 0;    // tüm helix dönüş açısı (radyan)
-        let dragStartX = 0;
-        let isDragging = false;
-        
-        // renkler
-        const colors = ["#4f6f8f", "#5f7f9f", "#3e5a74", "#6c8eae", "#2c4a64"];
-        
-        function initPlatforms() {
-            platforms = [];
-            for(let i = 0; i < platformCount; i++) {
-                // Her platformun boşluk açısı (gapAngle) kadar bir kesiti yok
-                // Rastgele boşluk yönü değişebilir, ama sabit tutalım
-                let gapDir = (i % 3) * (Math.PI * 2 / 3);  // farklı katlarda boşluk yönü değişsin
-                platforms.push({
-                    y: 60 + i * 20,        // her kat arası 20px
-                    gapCenter: gapDir,
-                    gapSize: gapAngle,
-                    width: platformWidth,
-                    color: colors[i % colors.length]
-                });
+  (function() {
+    var canvas = document.getElementById("gameCanvas");
+    var ctx = canvas.getContext("2d");
+    var gameActive = true;
+    var score = 0;
+    var bestScore = 0;
+    var animationId = null;
+    
+    // top
+    var ball = { x: 0, y: 0, r: 12, vx: 0, vy: 0 };
+    var targetAngle = 0;      // hedef dönüş açısı (radyan)
+    var currentAngle = 0;
+    
+    // platformlar
+    var platforms = [];
+    var platformCount = 14;
+    var baseY = 0;
+    var platformRadius = 180;   // yarıçap (piksel)
+    var gapAngle = Math.PI / 3;  // boşluk açısı (60 derece)
+    
+    var canvasWidth = 500, canvasHeight = 500;
+    var centerX = 250, centerY = 250;
+    
+    function resizeCanvas() {
+      var rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+      canvasWidth = canvas.width;
+      canvasHeight = canvas.height;
+      centerX = canvasWidth / 2;
+      centerY = canvasHeight / 2;
+      platformRadius = Math.min(canvasWidth, canvasHeight) * 0.35;
+      initPlatforms();
+      resetBallPosition();
+    }
+    
+    function initPlatforms() {
+      platforms = [];
+      var startY = centerY - platformRadius - 20;
+      for (var i = 0; i < platformCount; i++) {
+        var gapDir = (Math.random() < 0.5) ? -1 : 1;
+        var gapCenter = gapDir * (Math.PI / 2 + Math.random() * 0.8);
+        platforms.push({
+          y: startY + i * 38,
+          gapCenter: gapCenter,
+          gapHalf: gapAngle / 2,
+          passed: false
+        });
+      }
+    }
+    
+    function resetBallPosition() {
+      ball.x = centerX;
+      ball.y = platforms[0].y - 28;
+      ball.vx = 0;
+      ball.vy = 0;
+      currentAngle = 0;
+      targetAngle = 0;
+    }
+    
+    function rotatePlatform(angleDelta) {
+      targetAngle += angleDelta;
+      // sınırla
+      if (targetAngle > Math.PI * 2) targetAngle -= Math.PI * 2;
+      if (targetAngle < 0) targetAngle += Math.PI * 2;
+    }
+    
+    function updatePhysics() {
+      if (!gameActive) return;
+      
+      // yerçekimi
+      ball.vy += 0.35;
+      ball.y += ball.vy;
+      
+      // yatay hareket (dönüşe bağlı)
+      currentAngle += (targetAngle - currentAngle) * 0.2;
+      var rot = currentAngle;
+      // topu dairesel yörüngede tut (x, platform yarıçapına göre)
+      var radius = platformRadius + 8;
+      var desiredX = centerX + Math.sin(rot) * radius;
+      ball.x += (desiredX - ball.x) * 0.3;
+      
+      // platform çarpışma kontrolü
+      var collided = false;
+      for (var i = 0; i < platforms.length; i++) {
+        var p = platforms[i];
+        if (ball.y + ball.r >= p.y && ball.y - ball.r <= p.y + 8 && ball.vy > 0) {
+          // topun açısını hesapla
+          var dx = ball.x - centerX;
+          var dy = 0;
+          var angle = Math.atan2(dy, dx);
+          var angleNorm = (angle + Math.PI * 2) % (Math.PI * 2);
+          var gapStart = (p.gapCenter - p.gapHalf + Math.PI * 2) % (Math.PI * 2);
+          var gapEnd = (p.gapCenter + p.gapHalf + Math.PI * 2) % (Math.PI * 2);
+          var insideGap = false;
+          if (gapStart < gapEnd) {
+            if (angleNorm > gapStart && angleNorm < gapEnd) insideGap = true;
+          } else {
+            if (angleNorm > gapStart || angleNorm < gapEnd) insideGap = true;
+          }
+          if (insideGap) {
+            // boşluk: çarpma yok, düşmeye devam
+          } else {
+            // platforma çarptı: zıpla
+            ball.y = p.y - ball.r;
+            ball.vy = -4.2;
+            collided = true;
+            if (!p.passed) {
+              p.passed = true;
+              score++;
+              document.getElementById("currentScore").innerText = score;
+              if (score > bestScore) {
+                bestScore = score;
+                document.getElementById("bestScore").innerText = bestScore;
+                localStorage.setItem("helix_best", bestScore);
+              }
             }
+            break;
+          }
         }
-        
-        // Topu belirli bir kata yerleştir (çarpışma kontrolü için)
-        function updateBallFloor() {
-            // Topun y'sine göre hangi platform katında olduğunu bul
-            let floorIndex = Math.floor((ball.y - 50) / 20);
-            if(floorIndex < 0) floorIndex = 0;
-            if(floorIndex >= platformCount) floorIndex = platformCount-1;
-            currentFloor = floorIndex;
-        }
-        
-        // Topun açısal pozisyonunu hesapla (canvas üzerinde x'e göre)
-        function getBallAngle() {
-            // merkez canvas.width/2, topun x farkı -> açı
-            let dx = ball.x - canvas.width/2;
-            let angle = Math.atan2(dx, 1);  // yatay eksene göre, ama helix dönüşü de var
-            // rotateAngle kadar dönmüş platformlara göre topun göreli açısı:
-            let relativeAngle = angle - rotateAngle;
-            return relativeAngle;
-        }
-        
-        // Platformda çarpışma kontrolü (top, platform katına düştüğünde)
-        function checkCollisionWithFloor(floorIdx) {
-            if(floorIdx < 0 || floorIdx >= platformCount) return false;
-            const plat = platforms[floorIdx];
-            // Topun relative açısı
-            let ballRelAngle = getBallAngle();
-            // Boşluk aralığı: [gapCenter - gapSize/2 , gapCenter + gapSize/2]
-            let halfGap = plat.gapSize/2;
-            let startGap = plat.gapCenter - halfGap;
-            let endGap = plat.gapCenter + halfGap;
-            
-            // normalize açılar [-pi, pi]
-            let normBall = ((ballRelAngle % (2*Math.PI)) + 2*Math.PI) % (2*Math.PI);
-            let normStart = ((startGap % (2*Math.PI)) + 2*Math.PI) % (2*Math.PI);
-            let normEnd = ((endGap % (2*Math.PI)) + 2*Math.PI) % (2*Math.PI);
-            
-            let insideGap = false;
-            if(normStart < normEnd) {
-                if(normBall > normStart && normBall < normEnd) insideGap = true;
-            } else {
-                // gap 0'dan geçiyor
-                if(normBall > normStart || normBall < normEnd) insideGap = true;
-            }
-            
-            if(insideGap) {
-                // boşluktan geçiyor, düşmeye devam (çarpma yok)
-                return false;
-            } else {
-                // platforma çarptı, topu platformun hemen üstüne yerleştir ve zıplat
-                let targetY = plat.y - ball.radius;
-                if(ball.y + ball.radius > plat.y && ball.vy > 0) {
-                    ball.y = targetY;
-                    ball.vy *= ball.bounce;
-                    // Puan artışı (her platforma çarpışta)
-                    if(!gameOver) {
-                        score++;
-                        scoreSpan.innerText = score;
-                    }
-                    return true;
-                }
-            }
-            return false;
-        }
-        
-        function updatePhysics() {
-            if(gameOver) return;
-            
-            // yerçekimi
-            ball.vy += ball.gravity;
-            ball.x += ball.vx;
-            ball.y += ball.vy;
-            
-            // sınırlar (x ekseni dönüşten bağımsız)
-            if(ball.x - ball.radius < 0) { ball.x = ball.radius; ball.vx *= -0.5; }
-            if(ball.x + ball.radius > canvas.width) { ball.x = canvas.width - ball.radius; ball.vx *= -0.5; }
-            
-            // Hangi kat civarında olduğunu bul
-            let floorIndex = Math.floor((ball.y - 45) / 20);
-            if(floorIndex < 0) floorIndex = 0;
-            
-            // Çarpışma: içinde bulunduğu kat ve bir üst kat (çok hızlı düşüşte)
-            let collided = false;
-            for(let f = floorIndex; f <= floorIndex+1; f++) {
-                if(f >= 0 && f < platformCount) {
-                    if(checkCollisionWithFloor(f)) collided = true;
-                }
-            }
-            
-            // Top en alt platformdan aşağı düşerse oyun biter
-            if(ball.y + ball.radius > platforms[platformCount-1].y + 35) {
-                gameOver = true;
-            }
-            
-            // top çok yukarı çıkmasın (opsiyonel)
-            if(ball.y - ball.radius < 20) ball.y = 20 + ball.radius;
-            
-            // güncel katı skor amaçlı gösterme
-            updateBallFloor();
-        }
-        
-        // Döndürme (fare sürükleme)
-        let lastDragX = 0;
-        function onDragStart(e) {
-            if(gameOver) return;
-            isDragging = true;
-            const clientX = e.clientX ?? (e.touches ? e.touches[0].clientX : 0);
-            dragStartX = clientX;
-            lastDragX = clientX;
-            e.preventDefault();
-        }
-        
-        function onDragMove(e) {
-            if(!isDragging || gameOver) return;
-            const clientX = e.clientX ?? (e.touches ? e.touches[0].clientX : 0);
-            let delta = clientX - lastDragX;
-            if(Math.abs(delta) > 0) {
-                // döndürme miktarı: 0.015 radyan per pixel
-                rotateAngle += delta * 0.012;
-                // topa yatay hız ver (heyecan)
-                ball.vx += delta * 0.08;
-                // limit hız
-                if(ball.vx > 6) ball.vx = 6;
-                if(ball.vx < -6) ball.vx = -6;
-                lastDragX = clientX;
-            }
-            e.preventDefault();
-        }
-        
-        function onDragEnd(e) {
-            isDragging = false;
-        }
-        
-        function resetGame() {
-            gameOver = false;
-            score = 0;
-            scoreSpan.innerText = "0";
-            ball = {
-                x: canvas.width/2,
-                y: 70,
-                radius: 12,
-                vx: 0,
-                vy: 0,
-                gravity: 0.2,
-                bounce: -0.65,
-            };
-            rotateAngle = 0;
-            initPlatforms();
-            currentFloor = 0;
-        }
-        
-        // Çizim
-        function drawHelix() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            // Arkaplan gradient
-            const grad = ctx.createLinearGradient(0,0,0,canvas.height);
-            grad.addColorStop(0,"#141c2c");
-            grad.addColorStop(1,"#1e2a3a");
-            ctx.fillStyle = grad;
-            ctx.fillRect(0,0,canvas.width,canvas.height);
-            
-            // Platformları çiz (döndürme etkisiyle)
-            for(let i=0; i<platforms.length; i++) {
-                const plat = platforms[i];
-                const yPos = plat.y;
-                // Boşluk açısı ve aralık
-                let gapStart = plat.gapCenter - plat.gapSize/2;
-                let gapEnd = plat.gapCenter + plat.gapSize/2;
-                
-                // Daire dilimleri çizmek için (her platform bir halka dilimi)
-                ctx.save();
-                ctx.translate(canvas.width/2, yPos);
-                ctx.rotate(rotateAngle);
-                ctx.beginPath();
-                // dış yarıçap = platform genişliği/2 + 15
-                let outerR = platformWidth/2 + 8;
-                let innerR = platformWidth/2 - 12;
-                // boşluk olmayan kısımları çiz
-                for(let ang = 0; ang < Math.PI*2; ang += 0.1) {
-                    // basit yöntem: dolu bir daire çizip üstüne boşluğu siyahla silmek yerine, segment çizimi
-                }
-                // Daha temiz: platformu 2 parça olarak çiz (boşluk dışı)
-                ctx.beginPath();
-                // İlk segment: 0'dan gapStart'e
-                ctx.arc(0, 0, outerR, 0, gapStart);
-                ctx.arc(0, 0, innerR, gapStart, 0, true);
-                ctx.fillStyle = plat.color;
-                ctx.fill();
-                
-                ctx.beginPath();
-                ctx.arc(0, 0, outerR, gapEnd, Math.PI*2);
-                ctx.arc(0, 0, innerR, Math.PI*2, gapEnd, true);
-                ctx.fill();
-                
-                // kenarlık
-                ctx.beginPath();
-                ctx.arc(0, 0, outerR, 0, Math.PI*2);
-                ctx.strokeStyle = "#cbd5e6";
-                ctx.lineWidth = 1.5;
-                ctx.stroke();
-                ctx.restore();
-            }
-            
-            // Top çizimi
-            ctx.shadowBlur = 8;
-            ctx.shadowColor = "black";
-            ctx.beginPath();
-            ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI*2);
-            ctx.fillStyle = "#ffdd99";
-            ctx.fill();
-            ctx.beginPath();
-            ctx.arc(ball.x-3, ball.y-3, 3, 0, Math.PI*2);
-            ctx.fillStyle = "white";
-            ctx.fill();
-            ctx.fillStyle = "#111";
-            ctx.beginPath();
-            ctx.arc(ball.x-4, ball.y-4, 1.5, 0, Math.PI*2);
-            ctx.fill();
-            ctx.shadowBlur = 0;
-            
-            if(gameOver) {
-                ctx.font = "bold 28px 'Segoe UI'";
-                ctx.fillStyle = "#ffc49b";
-                ctx.shadowBlur = 0;
-                ctx.fillText("GAME OVER", canvas.width/2-95, canvas.height/2-40);
-                ctx.font = "16px monospace";
-                ctx.fillStyle = "#aac7ff";
-                ctx.fillText("YENİDEN BAŞLATMAK İÇİN BUTONA BAS", canvas.width/2-150, canvas.height/2+30);
-            }
-        }
-        
-        // Oyun döngüsü
-        function gameLoop() {
-            if(!gameOver) {
-                updatePhysics();
-            }
-            drawHelix();
-            requestAnimationFrame(gameLoop);
-        }
-        
-        // Eventler
-        function attachEvents() {
-            canvas.addEventListener('mousedown', onDragStart);
-            window.addEventListener('mousemove', onDragMove);
-            window.addEventListener('mouseup', onDragEnd);
-            canvas.addEventListener('touchstart', onDragStart, {passive:false});
-            window.addEventListener('touchmove', onDragMove, {passive:false});
-            window.addEventListener('touchend', onDragEnd);
-            document.getElementById('resetHelix').addEventListener('click', () => { resetGame(); });
-        }
-        
-        initPlatforms();
-        attachEvents();
-        gameLoop();
-    })();
+      }
+      
+      // oyun bitiş (top ekran altına düşerse)
+      if (ball.y + ball.r > canvasHeight + 30) {
+        gameActive = false;
+        if (animationId) cancelAnimationFrame(animationId);
+        showGameOver();
+      }
+      
+      // topun yatay sınırları
+      var minX = centerX - platformRadius - 5;
+      var maxX = centerX + platformRadius + 5;
+      if (ball.x - ball.r < minX) ball.x = minX + ball.r;
+      if (ball.x + ball.r > maxX) ball.x = maxX - ball.r;
+    }
+    
+    function showGameOver() {
+      var overlay = document.createElement('div');
+      overlay.style.position = 'fixed';
+      overlay.style.top = '0';
+      overlay.style.left = '0';
+      overlay.style.width = '100%';
+      overlay.style.height = '100%';
+      overlay.style.background = 'rgba(15,19,24,0.95)';
+      overlay.style.display = 'flex';
+      overlay.style.alignItems = 'center';
+      overlay.style.justifyContent = 'center';
+      overlay.style.zIndex = '1000';
+      overlay.style.backdropFilter = 'blur(4px)';
+      overlay.innerHTML = '<div style="background:#1e2a3a; border-radius:48px; padding:32px; text-align:center; width:260px; border:2px solid #F6B45F;"><h2 style="color:#F6B45F;">💥 OYUN BİTTİ</h2><p style="color:white; margin:16px 0;">Skor: ' + score + '</p><button id="restartGameBtn" style="background:#F6B45F; border:none; padding:8px 20px; border-radius:40px; font-weight:bold;">YENİDEN BAŞLA</button></div>';
+      document.body.appendChild(overlay);
+      document.getElementById('restartGameBtn').addEventListener('click', function() {
+        overlay.remove();
+        resetGame();
+      });
+    }
+    
+    function draw() {
+      if (!ctx) return;
+      ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+      // arkaplan
+      ctx.fillStyle = "#0a1018";
+      ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+      
+      // platformları çiz
+      for (var i = 0; i < platforms.length; i++) {
+        var p = platforms[i];
+        ctx.beginPath();
+        ctx.arc(centerX, p.y, platformRadius, 0, Math.PI * 2);
+        ctx.strokeStyle = "#F6B45F";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.fillStyle = "#1e2a3a";
+        ctx.fill();
+        // boşluğu göster (kırmızı)
+        var gapStart = p.gapCenter - p.gapHalf;
+        var gapEnd = p.gapCenter + p.gapHalf;
+        ctx.beginPath();
+        ctx.arc(centerX, p.y, platformRadius - 2, gapStart, gapEnd);
+        ctx.strokeStyle = "#E74C3C";
+        ctx.lineWidth = 3;
+        ctx.stroke();
+      }
+      
+      // topu çiz
+      ctx.beginPath();
+      ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2);
+      ctx.fillStyle = "#F6B45F";
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(ball.x, ball.y, ball.r - 3, 0, Math.PI * 2);
+      ctx.fillStyle = "#ffdf99";
+      ctx.fill();
+      
+      // skor gösterge
+      ctx.font = "bold 20px system-ui";
+      ctx.fillStyle = "#F6B45F";
+      ctx.fillText("⚡ " + score, 20, 50);
+    }
+    
+    function gameLoop() {
+      if (!gameActive) return;
+      updatePhysics();
+      draw();
+      animationId = requestAnimationFrame(gameLoop);
+    }
+    
+    function resetGame() {
+      if (animationId) cancelAnimationFrame(animationId);
+      gameActive = true;
+      score = 0;
+      document.getElementById("currentScore").innerText = "0";
+      var saved = localStorage.getItem("helix_best");
+      bestScore = saved ? parseInt(saved, 10) : 0;
+      document.getElementById("bestScore").innerText = bestScore;
+      initPlatforms();
+      resetBallPosition();
+      targetAngle = 0;
+      currentAngle = 0;
+      draw();
+      animationId = requestAnimationFrame(gameLoop);
+    }
+    
+    // event listeners
+    var leftBtn = document.getElementById("leftBtn");
+    var rightBtn = document.getElementById("rightBtn");
+    leftBtn.addEventListener("click", function() { rotatePlatform(-0.25); });
+    leftBtn.addEventListener("touchstart", function(e) { e.preventDefault(); rotatePlatform(-0.25); });
+    rightBtn.addEventListener("click", function() { rotatePlatform(0.25); });
+    rightBtn.addEventListener("touchstart", function(e) { e.preventDefault(); rotatePlatform(0.25); });
+    
+    // fare / parmak sürükleme
+    var dragStartX = 0;
+    canvas.addEventListener("mousedown", function(e) { dragStartX = e.clientX; });
+    canvas.addEventListener("touchstart", function(e) { dragStartX = e.touches[0].clientX; });
+    canvas.addEventListener("mousemove", function(e) {
+      if (e.buttons !== 1) return;
+      var delta = e.clientX - dragStartX;
+      if (Math.abs(delta) > 5) {
+        rotatePlatform(delta * 0.008);
+        dragStartX = e.clientX;
+      }
+    });
+    canvas.addEventListener("touchmove", function(e) {
+      var delta = e.touches[0].clientX - dragStartX;
+      if (Math.abs(delta) > 5) {
+        rotatePlatform(delta * 0.008);
+        dragStartX = e.touches[0].clientX;
+        e.preventDefault();
+      }
+    });
+    
+    document.getElementById("resetBtn").addEventListener("click", function() { resetGame(); });
+    
+    window.addEventListener("resize", function() { resizeCanvas(); resetGame(); });
+    resizeCanvas();
+    resetGame();
+  })();
 </script>
 </body>
 </html>

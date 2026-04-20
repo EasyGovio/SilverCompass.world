@@ -88,7 +88,7 @@
       border-radius: 32px;
       width: 100%;
       aspect-ratio: 1 / 1;
-      cursor: pointer;
+      cursor: grab;
       touch-action: none;
     }
     .mobile-buttons {
@@ -134,7 +134,7 @@
     <div class="dir-btn" id="leftBtn">◀ SOL</div>
     <div class="dir-btn" id="rightBtn">SAĞ ▶</div>
   </div>
-  <div class="footer">Fare veya parmak ile sola/sağa sürükle → top döner ve düşer</div>
+  <div class="footer">Fare veya parmak ile sola/sağa sürükle → platform döner</div>
 </div>
 
 <script>
@@ -147,16 +147,15 @@
     var animationId = null;
     
     // top
-    var ball = { x: 0, y: 0, r: 12, vx: 0, vy: 0 };
-    var targetAngle = 0;      // hedef dönüş açısı (radyan)
-    var currentAngle = 0;
+    var ball = { x: 0, y: 0, r: 12, vy: 0 };
+    var targetRotation = 0;
+    var currentRotation = 0;
     
     // platformlar
     var platforms = [];
-    var platformCount = 14;
-    var baseY = 0;
-    var platformRadius = 180;   // yarıçap (piksel)
-    var gapAngle = Math.PI / 3;  // boşluk açısı (60 derece)
+    var platformCount = 12;
+    var platformRadius = 160;
+    var gapAngle = Math.PI / 2.8;  // boşluk genişliği
     
     var canvasWidth = 500, canvasHeight = 500;
     var centerX = 250, centerY = 250;
@@ -169,19 +168,18 @@
       canvasHeight = canvas.height;
       centerX = canvasWidth / 2;
       centerY = canvasHeight / 2;
-      platformRadius = Math.min(canvasWidth, canvasHeight) * 0.35;
+      platformRadius = Math.min(canvasWidth, canvasHeight) * 0.32;
       initPlatforms();
-      resetBallPosition();
+      resetBall();
     }
     
     function initPlatforms() {
       platforms = [];
-      var startY = centerY - platformRadius - 20;
+      var startY = centerY - platformRadius - 30;
       for (var i = 0; i < platformCount; i++) {
-        var gapDir = (Math.random() < 0.5) ? -1 : 1;
-        var gapCenter = gapDir * (Math.PI / 2 + Math.random() * 0.8);
+        var gapCenter = (Math.random() * Math.PI * 2);
         platforms.push({
-          y: startY + i * 38,
+          y: startY + i * 42,
           gapCenter: gapCenter,
           gapHalf: gapAngle / 2,
           passed: false
@@ -189,46 +187,42 @@
       }
     }
     
-    function resetBallPosition() {
+    function resetBall() {
       ball.x = centerX;
-      ball.y = platforms[0].y - 28;
-      ball.vx = 0;
+      ball.y = platforms[0].y - 20;
       ball.vy = 0;
-      currentAngle = 0;
-      targetAngle = 0;
+      currentRotation = 0;
+      targetRotation = 0;
     }
     
-    function rotatePlatform(angleDelta) {
-      targetAngle += angleDelta;
-      // sınırla
-      if (targetAngle > Math.PI * 2) targetAngle -= Math.PI * 2;
-      if (targetAngle < 0) targetAngle += Math.PI * 2;
+    function rotatePlatform(delta) {
+      targetRotation += delta;
     }
     
     function updatePhysics() {
       if (!gameActive) return;
       
       // yerçekimi
-      ball.vy += 0.35;
+      ball.vy += 0.38;
       ball.y += ball.vy;
       
-      // yatay hareket (dönüşe bağlı)
-      currentAngle += (targetAngle - currentAngle) * 0.2;
-      var rot = currentAngle;
-      // topu dairesel yörüngede tut (x, platform yarıçapına göre)
-      var radius = platformRadius + 8;
-      var desiredX = centerX + Math.sin(rot) * radius;
-      ball.x += (desiredX - ball.x) * 0.3;
+      // dönüşü yumuşak uygula
+      currentRotation += (targetRotation - currentRotation) * 0.15;
+      var rot = currentRotation;
       
-      // platform çarpışma kontrolü
+      // topun x pozisyonu dönüşe göre
+      var radius = platformRadius + 5;
+      var desiredX = centerX + Math.sin(rot) * radius;
+      ball.x += (desiredX - ball.x) * 0.25;
+      
+      // çarpışma kontrolü
       var collided = false;
       for (var i = 0; i < platforms.length; i++) {
         var p = platforms[i];
-        if (ball.y + ball.r >= p.y && ball.y - ball.r <= p.y + 8 && ball.vy > 0) {
-          // topun açısını hesapla
+        if (ball.y + ball.r >= p.y && ball.y - ball.r <= p.y + 6 && ball.vy > 0) {
+          // topun açısını bul
           var dx = ball.x - centerX;
-          var dy = 0;
-          var angle = Math.atan2(dy, dx);
+          var angle = Math.atan2(0, dx);
           var angleNorm = (angle + Math.PI * 2) % (Math.PI * 2);
           var gapStart = (p.gapCenter - p.gapHalf + Math.PI * 2) % (Math.PI * 2);
           var gapEnd = (p.gapCenter + p.gapHalf + Math.PI * 2) % (Math.PI * 2);
@@ -241,9 +235,9 @@
           if (insideGap) {
             // boşluk: çarpma yok, düşmeye devam
           } else {
-            // platforma çarptı: zıpla
+            // platforma çarptı
             ball.y = p.y - ball.r;
-            ball.vy = -4.2;
+            ball.vy = -4.5;
             collided = true;
             if (!p.passed) {
               p.passed = true;
@@ -260,18 +254,65 @@
         }
       }
       
-      // oyun bitiş (top ekran altına düşerse)
-      if (ball.y + ball.r > canvasHeight + 30) {
+      // oyun bitiş
+      if (ball.y + ball.r > canvasHeight + 40) {
         gameActive = false;
         if (animationId) cancelAnimationFrame(animationId);
         showGameOver();
       }
       
-      // topun yatay sınırları
-      var minX = centerX - platformRadius - 5;
-      var maxX = centerX + platformRadius + 5;
+      // yatay sınır
+      var minX = centerX - platformRadius - 10;
+      var maxX = centerX + platformRadius + 10;
       if (ball.x - ball.r < minX) ball.x = minX + ball.r;
       if (ball.x + ball.r > maxX) ball.x = maxX - ball.r;
+    }
+    
+    function draw() {
+      if (!ctx) return;
+      ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+      ctx.fillStyle = "#0a1018";
+      ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+      
+      // platformları çiz
+      for (var i = 0; i < platforms.length; i++) {
+        var p = platforms[i];
+        ctx.beginPath();
+        ctx.arc(centerX, p.y, platformRadius, 0, Math.PI * 2);
+        ctx.strokeStyle = "#F6B45F";
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+        ctx.fillStyle = "#1e2a3a";
+        ctx.fill();
+        // boşluğu vurgula
+        ctx.beginPath();
+        ctx.arc(centerX, p.y, platformRadius - 3, p.gapCenter - p.gapHalf, p.gapCenter + p.gapHalf);
+        ctx.strokeStyle = "#E74C3C";
+        ctx.lineWidth = 3;
+        ctx.stroke();
+      }
+      
+      // top
+      ctx.beginPath();
+      ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2);
+      ctx.fillStyle = "#F6B45F";
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(ball.x, ball.y, ball.r - 3, 0, Math.PI * 2);
+      ctx.fillStyle = "#ffdf99";
+      ctx.fill();
+      
+      // skor
+      ctx.font = "bold 20px system-ui";
+      ctx.fillStyle = "#F6B45F";
+      ctx.fillText("⚡ " + score, 20, 50);
+    }
+    
+    function gameLoop() {
+      if (!gameActive) return;
+      updatePhysics();
+      draw();
+      animationId = requestAnimationFrame(gameLoop);
     }
     
     function showGameOver() {
@@ -295,56 +336,6 @@
       });
     }
     
-    function draw() {
-      if (!ctx) return;
-      ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-      // arkaplan
-      ctx.fillStyle = "#0a1018";
-      ctx.fillRect(0, 0, canvasWidth, canvasHeight);
-      
-      // platformları çiz
-      for (var i = 0; i < platforms.length; i++) {
-        var p = platforms[i];
-        ctx.beginPath();
-        ctx.arc(centerX, p.y, platformRadius, 0, Math.PI * 2);
-        ctx.strokeStyle = "#F6B45F";
-        ctx.lineWidth = 2;
-        ctx.stroke();
-        ctx.fillStyle = "#1e2a3a";
-        ctx.fill();
-        // boşluğu göster (kırmızı)
-        var gapStart = p.gapCenter - p.gapHalf;
-        var gapEnd = p.gapCenter + p.gapHalf;
-        ctx.beginPath();
-        ctx.arc(centerX, p.y, platformRadius - 2, gapStart, gapEnd);
-        ctx.strokeStyle = "#E74C3C";
-        ctx.lineWidth = 3;
-        ctx.stroke();
-      }
-      
-      // topu çiz
-      ctx.beginPath();
-      ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2);
-      ctx.fillStyle = "#F6B45F";
-      ctx.fill();
-      ctx.beginPath();
-      ctx.arc(ball.x, ball.y, ball.r - 3, 0, Math.PI * 2);
-      ctx.fillStyle = "#ffdf99";
-      ctx.fill();
-      
-      // skor gösterge
-      ctx.font = "bold 20px system-ui";
-      ctx.fillStyle = "#F6B45F";
-      ctx.fillText("⚡ " + score, 20, 50);
-    }
-    
-    function gameLoop() {
-      if (!gameActive) return;
-      updatePhysics();
-      draw();
-      animationId = requestAnimationFrame(gameLoop);
-    }
-    
     function resetGame() {
       if (animationId) cancelAnimationFrame(animationId);
       gameActive = true;
@@ -354,9 +345,9 @@
       bestScore = saved ? parseInt(saved, 10) : 0;
       document.getElementById("bestScore").innerText = bestScore;
       initPlatforms();
-      resetBallPosition();
-      targetAngle = 0;
-      currentAngle = 0;
+      resetBall();
+      targetRotation = 0;
+      currentRotation = 0;
       draw();
       animationId = requestAnimationFrame(gameLoop);
     }
@@ -364,34 +355,32 @@
     // event listeners
     var leftBtn = document.getElementById("leftBtn");
     var rightBtn = document.getElementById("rightBtn");
-    leftBtn.addEventListener("click", function() { rotatePlatform(-0.25); });
-    leftBtn.addEventListener("touchstart", function(e) { e.preventDefault(); rotatePlatform(-0.25); });
-    rightBtn.addEventListener("click", function() { rotatePlatform(0.25); });
-    rightBtn.addEventListener("touchstart", function(e) { e.preventDefault(); rotatePlatform(0.25); });
+    leftBtn.addEventListener("click", function() { rotatePlatform(-0.28); });
+    rightBtn.addEventListener("click", function() { rotatePlatform(0.28); });
+    leftBtn.addEventListener("touchstart", function(e) { e.preventDefault(); rotatePlatform(-0.28); });
+    rightBtn.addEventListener("touchstart", function(e) { e.preventDefault(); rotatePlatform(0.28); });
     
-    // fare / parmak sürükleme
-    var dragStartX = 0;
-    canvas.addEventListener("mousedown", function(e) { dragStartX = e.clientX; });
-    canvas.addEventListener("touchstart", function(e) { dragStartX = e.touches[0].clientX; });
+    var dragStart = 0;
+    canvas.addEventListener("mousedown", function(e) { dragStart = e.clientX; });
+    canvas.addEventListener("touchstart", function(e) { dragStart = e.touches[0].clientX; });
     canvas.addEventListener("mousemove", function(e) {
       if (e.buttons !== 1) return;
-      var delta = e.clientX - dragStartX;
+      var delta = e.clientX - dragStart;
       if (Math.abs(delta) > 5) {
         rotatePlatform(delta * 0.008);
-        dragStartX = e.clientX;
+        dragStart = e.clientX;
       }
     });
     canvas.addEventListener("touchmove", function(e) {
-      var delta = e.touches[0].clientX - dragStartX;
+      var delta = e.touches[0].clientX - dragStart;
       if (Math.abs(delta) > 5) {
         rotatePlatform(delta * 0.008);
-        dragStartX = e.touches[0].clientX;
+        dragStart = e.touches[0].clientX;
         e.preventDefault();
       }
     });
     
-    document.getElementById("resetBtn").addEventListener("click", function() { resetGame(); });
-    
+    document.getElementById("resetBtn").addEventListener("click", resetGame);
     window.addEventListener("resize", function() { resizeCanvas(); resetGame(); });
     resizeCanvas();
     resetGame();

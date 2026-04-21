@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Echo of the Past · İşitsel Hafıza | SilverCompass</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; user-select:none; -webkit-tap-highlight-color:transparent; }
+    body {
+      background: #0F1318;
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 16px;
+    }
+    .game-container {
+      max-width: 460px;
+      width: 100%;
+      background: #1e2a3a;
+      border-radius: 48px;
+      padding: 22px 20px 28px;
+      box-shadow: 0 20px 35px rgba(0,0,0,0.4);
+      border: 1px solid rgba(246,180,95,0.25);
+    }
+    .header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 14px; }
+    .logo { font-size: 1.4rem; font-weight: bold; color: #F6B45F; }
+    .sub  { font-size: 0.62rem; color: #b8d0e8; margin-top: 1px; }
+    .back-link { color: #F6B45F; text-decoration: none; font-weight: bold; font-size: 0.78rem; background: #0a1018; padding: 5px 12px; border-radius: 40px; }
+
+```
+.info-bar {
+  display: flex; justify-content: space-between; align-items: center;
+  background: #0a1018; border-radius: 40px;
+  padding: 7px 16px; margin-bottom: 14px;
+}
+.info-box { color: #F6B45F; font-weight: bold; font-size: 0.78rem; }
+.info-box span { color: #eaf2fb; }
+.new-btn { background: #F6B45F; border: none; font-weight: bold; padding: 5px 14px; border-radius: 40px; color: #0F1318; cursor: pointer; font-size: 0.78rem; }
+
+/* Status */
+.status-wrap {
+  background: #0a1018;
+  border-radius: 28px;
+  padding: 14px;
+  margin-bottom: 14px;
+  text-align: center;
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.status-text {
+  font-size: 0.9rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+  color: #F6B45F;
+  transition: color 0.3s;
+}
+.status-text.go     { color: #2ECC71; }
+.status-text.wrong  { color: #E74C3C; }
+.status-text.wait   { color: #b8d0e8; }
+
+/* Sequence display */
+.seq-display {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+  min-height: 24px;
+}
+.seq-dot {
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: #1e2a3a;
+  border: 1px solid #2a3a4a;
+  transition: background 0.15s;
+}
+.seq-dot.active   { background: #F6B45F; border-color: #d4a050; }
+.seq-dot.done     { background: #2ECC71; border-color: #27AE60; }
+.seq-dot.pending  { background: #1e2a3a; border-color: #F6B45F; }
+
+/* Sound buttons — 2x2 grid */
+.buttons-panel {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  padding: 4px;
+  margin-bottom: 14px;
+}
+.sound-btn {
+  aspect-ratio: 1;
+  border-radius: 28px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 6px;
+  border: 3px solid transparent;
+  transition: transform 0.06s, opacity 0.15s, border-color 0.1s;
+  box-shadow: 0 6px 0 rgba(0,0,0,0.3);
+}
+.sound-btn:active { transform: translateY(3px); box-shadow: 0 2px 0 rgba(0,0,0,0.3); }
+.sound-btn.active {
+  transform: translateY(3px) scale(1.04);
+  box-shadow: 0 2px 0 rgba(0,0,0,0.3);
+  border-color: rgba(255,255,255,0.5);
+}
+.sound-btn.disabled { opacity: 0.4; pointer-events: none; }
+
+.sound-btn[data-sound="0"] { background: #2ECC71; }
+.sound-btn[data-sound="1"] { background: #3498DB; }
+.sound-btn[data-sound="2"] { background: #F6B45F; }
+.sound-btn[data-sound="3"] { background: #9B59B6; }
+
+.btn-icon  { font-size: 2rem; line-height: 1; }
+.btn-label { font-size: 0.65rem; font-weight: bold; color: rgba(0,0,0,0.6); letter-spacing: 1px; }
+
+/* Level progress */
+.level-wrap {
+  background: #0a1018;
+  border-radius: 40px;
+  padding: 7px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.level-label { font-size: 0.7rem; color: #F6B45F; font-weight: bold; flex-shrink: 0; }
+.level-track { flex: 1; height: 7px; background: #1e2a3a; border-radius: 4px; overflow: hidden; }
+.level-fill  { height: 100%; background: linear-gradient(90deg, #9B59B6, #F6B45F); border-radius: 4px; transition: width 0.4s; }
+.level-val   { font-size: 0.72rem; color: #eaf2fb; font-weight: bold; flex-shrink: 0; }
+
+/* Overlay */
+.overlay {
+  position: fixed; top:0; left:0; width:100%; height:100%;
+  background: rgba(15,19,24,0.93);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 100; backdrop-filter: blur(6px);
+  opacity: 0; pointer-events: none; transition: opacity 0.3s;
+}
+.overlay.show { opacity: 1; pointer-events: all; }
+.overlay-box {
+  background: #1e2a3a; border-radius: 40px;
+  padding: 36px 40px; text-align: center;
+  border: 2px solid #F6B45F; max-width: 300px; width: 90%;
+}
+.overlay-icon  { font-size: 3rem; margin-bottom: 10px; }
+.overlay-title { font-size: 1.5rem; font-weight: bold; color: #F6B45F; letter-spacing: 2px; margin-bottom: 8px; }
+.overlay-msg   { color: #eaf2fb; font-size: 0.85rem; margin-bottom: 18px; line-height: 1.8; }
+.overlay-btn   { background: #F6B45F; border: none; font-weight: bold; padding: 10px 28px; border-radius: 40px; color: #0F1318; cursor: pointer; font-size: 0.9rem; }
+
+.footer { text-align: center; font-size: 0.6rem; color: #6c8fb0; margin-top: 12px; }
+```
+
+  </style>
+</head>
+<body>
+<div class="game-container">
+  <div class="header">
+    <div>
+      <div class="logo">ECHO OF THE PAST</div>
+      <div class="sub">SilverCompass · İşitsel Hafıza</div>
+    </div>
+    <a href="index.html" class="back-link">← Geri</a>
+  </div>
+
+  <div class="info-bar">
+    <div class="info-box">Seviye: <span id="levelNum">1</span></div>
+    <div class="info-box">🏆 En Yüksek: <span id="bestNum">—</span></div>
+    <button class="new-btn" id="newBtn">↺ Yeni</button>
+  </div>
+
+  <div class="status-wrap">
+    <div class="status-text wait" id="statusText">Başlamak için bekle…</div>
+  </div>
+
+  <div class="seq-display" id="seqDisplay"></div>
+
+  <div class="buttons-panel">
+    <div class="sound-btn disabled" data-sound="0">
+      <div class="btn-icon">🎵</div>
+      <div class="btn-label">DO</div>
+    </div>
+    <div class="sound-btn disabled" data-sound="1">
+      <div class="btn-icon">🎶</div>
+      <div class="btn-label">RE</div>
+    </div>
+    <div class="sound-btn disabled" data-sound="2">
+      <div class="btn-icon">🎹</div>
+      <div class="btn-label">Mİ</div>
+    </div>
+    <div class="sound-btn disabled" data-sound="3">
+      <div class="btn-icon">🥁</div>
+      <div class="btn-label">SOL</div>
+    </div>
+  </div>
+
+  <div class="level-wrap">
+    <div class="level-label">İlerleme</div>
+    <div class="level-track"><div class="level-fill" id="levelFill" style="width:0%"></div></div>
+    <div class="level-val" id="levelVal">Sıra: 1</div>
+  </div>
+
+  <div class="footer">Sırayı dinle → Aynı sırayla tekrarla · Seviye arttıkça sıra uzar</div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="overlay-box">
+    <div class="overlay-icon" id="overlayIcon">🎧</div>
+    <div class="overlay-title" id="overlayTitle">OYUN BİTTİ</div>
+    <div class="overlay-msg"  id="overlayMsg"></div>
+    <button class="overlay-btn" id="overlayBtn">Tekrar Oyna</button>
+  </div>
+</div>
+
+<script>
+(function () {
+
+  /* ---- AUDIO — tek global instance ---- */
+  var audioCtx = null;
+  function getAudioCtx() {
+    if (!audioCtx) {
+      var AC = window.AudioContext || window.webkitAudioContext;
+      if (AC) audioCtx = new AC();
+    }
+    return audioCtx;
+  }
+
+  /* Nota frekansları — belirgin fark için geniş aralık */
+  var FREQS = [261.6, 329.6, 392.0, 523.3]; /* C4 E4 G4 C5 */
+  var ICONS = ['🎵', '🎶', '🎹', '🥁'];
+  var NAMES = ['DO', 'RE', 'Mİ', 'SOL'];
+
+  function playNote(soundIdx, duration) {
+    var ctx = getAudioCtx();
+    if (!ctx) return;
+    duration = duration || 0.45;
+    try {
+      var osc  = ctx.createOscillator();
+      var gain = ctx.createGain();
+      /* Sine wave — piyano benzeri yumuşak ton */
+      osc.type = 'sine';
+      osc.frequency.value = FREQS[soundIdx];
+      gain.gain.setValueAtTime(0, ctx.currentTime);
+      gain.gain.linearRampToValueAtTime(0.25, ctx.currentTime + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + duration);
+    } catch (e) {}
+  }
+
+  /* ---- STATE ---- */
+  var sequence     = [];
+  var playerInput  = [];
+  var level        = 1;
+  var bestLevel    = parseInt(localStorage.getItem('echo_best') || '0', 10);
+  var isPlaying    = false;   /* sequence çalınıyor */
+  var playerTurn   = false;   /* oyuncunun sırası */
+  var seqTimer     = null;
+
+  /* ---- ELEMENTS ---- */
+  var statusEl   = document.getElementById('statusText');
+  var seqDisplay = document.getElementById('seqDisplay');
+  var levelEl    = document.getElementById('levelNum');
+  var bestEl     = document.getElementById('bestNum');
+  var levelFill  = document.getElementById('levelFill');
+  var levelVal   = document.getElementById('levelVal');
+  var overlay    = document.getElementById('overlay');
+  var soundBtns  = document.querySelectorAll('.sound-btn');
+
+  bestEl.textContent = bestLevel > 0 ? bestLevel : '—';
+
+  /* ---- SET STATUS ---- */
+  function setStatus(msg, cls) {
+    statusEl.textContent = msg;
+    statusEl.className   = 'status-text ' + (cls || '');
+  }
+
+  /* ---- ENABLE / DISABLE BUTTONS ---- */
+  function setBtnsEnabled(on) {
+    for (var i = 0; i < soundBtns.length; i++) {
+      if (on) soundBtns[i].classList.remove('disabled');
+      else    soundBtns[i].classList.add('disabled');
+    }
+  }
+
+  /* ---- SEQ DOTS ---- */
+  function renderSeqDots(highlightIdx) {
+    seqDisplay.innerHTML = '';
+    for (var i = 0; i < sequence.length; i++) {
+      var d = document.createElement('div');
+      var cls = 'seq-dot';
+      if (highlightIdx !== undefined) {
+        if (i < highlightIdx)      cls += ' done';
+        else if (i === highlightIdx) cls += ' active';
+        else                       cls += ' pending';
+      }
+      d.className = cls;
+      seqDisplay.appendChild(d);
+    }
+  }
+
+  /* ---- PLAY SEQUENCE ---- */
+  function playSequence() {
+    isPlaying  = true;
+    playerTurn = false;
+    setBtnsEnabled(false);
+    setStatus('Dinle ve hatırla…', 'wait');
+    renderSeqDots(0);
+
+    var idx = 0;
+    function playNext() {
+      if (idx >= sequence.length) {
+        isPlaying  = false;
+        playerTurn = true;
+        playerInput = [];
+        setBtnsEnabled(true);
+        setStatus('Şimdi sen tekrarla!', 'go');
+        renderSeqDots();
+        return;
+      }
+      var si = sequence[idx];
+      /* visual */
+      var btn = soundBtns[si];
+      btn.classList.add('active');
+      playNote(si, 0.4);
+      renderSeqDots(idx);
+
+      setTimeout(function () {
+        btn.classList.remove('active');
+        idx++;
+        setTimeout(playNext, 180);
+      }, 420);
+    }
+
+    setTimeout(playNext, 400);
+  }
+
+  /* ---- PLAYER INPUT ---- */
+  function onBtnClick(soundIdx) {
+    if (!playerTurn) return;
+
+    /* unlock audio on first tap */
+    getAudioCtx();
+
+    var btn = soundBtns[soundIdx];
+    btn.classList.add('active');
+    playNote(soundIdx, 0.35);
+    setTimeout(function () { btn.classList.remove('active'); }, 280);
+
+    playerInput.push(soundIdx);
+    var pos = playerInput.length - 1;
+
+    if (playerInput[pos] !== sequence[pos]) {
+      /* WRONG */
+      playerTurn = false;
+      setBtnsEnabled(false);
+      setStatus('Yanlış! Tekrar dinle…', 'wrong');
+      setTimeout(function () { playSequence(); }, 1200);
+      return;
+    }
+
+    if (playerInput.length === sequence.length) {
+      /* CORRECT — level up */
+      playerTurn = false;
+      setBtnsEnabled(false);
+      level++;
+      levelEl.textContent = level;
+      if (level - 1 > bestLevel) {
+        bestLevel = level - 1;
+        localStorage.setItem('echo_best', bestLevel);
+        bestEl.textContent = bestLevel;
+      }
+      setStatus('Harika! Sonraki seviye…', 'go');
+      levelFill.style.width = Math.min((level / 20) * 100, 100) + '%';
+      levelVal.textContent  = 'Sıra: ' + sequence.length + 1;
+
+      sequence.push(Math.floor(Math.random() * 4));
+
+      if (sequence.length > 20) {
+        /* tamamladı */
+        endGame(true);
+        return;
+      }
+      setTimeout(playSequence, 900);
+    }
+  }
+
+  /* ---- END ---- */
+  function endGame(won) {
+    playerTurn = false;
+    isPlaying  = false;
+    setBtnsEnabled(false);
+    document.getElementById('overlayIcon').textContent  = won ? '🏆' : '🎧';
+    document.getElementById('overlayTitle').textContent = won ? 'MÜKEMMEL!' : 'OYUN BİTTİ';
+    document.getElementById('overlayMsg').textContent   =
+      'Seviye: ' + level + '\n' +
+      'Sıra uzunluğu: ' + sequence.length + '\n' +
+      'En yüksek: ' + bestLevel;
+    overlay.classList.add('show');
+  }
+
+  /* ---- NEW GAME ---- */
+  function newGame() {
+    clearTimeout(seqTimer);
+    overlay.classList.remove('show');
+    sequence    = [];
+    playerInput = [];
+    level       = 1;
+    isPlaying   = false;
+    playerTurn  = false;
+
+    levelEl.textContent   = '1';
+    levelFill.style.width = '0%';
+    levelVal.textContent  = 'Sıra: 1';
+    seqDisplay.innerHTML  = '';
+    setBtnsEnabled(false);
+    setStatus('Hazırlanıyor…', 'wait');
+
+    /* ilk ses */
+    sequence.push(Math.floor(Math.random() * 4));
+    setTimeout(playSequence, 800);
+  }
+
+  /* ---- EVENTS ---- */
+  for (var i = 0; i < soundBtns.length; i++) {
+    (function (idx) {
+      soundBtns[idx].addEventListener('click', function () { onBtnClick(idx); });
+    })(i);
+  }
+
+  document.getElementById('newBtn').addEventListener('click', newGame);
+  document.getElementById('overlayBtn').addEventListener('click', newGame);
+
+  /* ---- INIT ---- */
+  newGame();
+}());
+</script>
+
+</body>
+</html>

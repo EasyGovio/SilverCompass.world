@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Word Garden · Zihin Egzersizi | SilverCompass</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; user-select:none; -webkit-tap-highlight-color:transparent; }
+    body {
+      background: #0F1318;
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 16px;
+    }
+    .game-container {
+      max-width: 480px;
+      width: 100%;
+      background: #1e2a3a;
+      border-radius: 48px;
+      padding: 22px 20px 28px;
+      box-shadow: 0 20px 35px rgba(0,0,0,0.4);
+      border: 1px solid rgba(246,180,95,0.25);
+    }
+    .header {
+      display: flex; justify-content: space-between; align-items: baseline;
+      margin-bottom: 14px;
+    }
+    .logo { font-size: 1.5rem; font-weight: bold; color: #F6B45F; }
+    .sub  { font-size: 0.62rem; color: #b8d0e8; margin-top: 1px; }
+    .back-link { color: #F6B45F; text-decoration: none; font-weight: bold; font-size: 0.78rem; background: #0a1018; padding: 5px 12px; border-radius: 40px; }
+
+```
+.info-bar {
+  display: flex; justify-content: space-between; align-items: center;
+  background: #0a1018; border-radius: 40px;
+  padding: 7px 16px; margin-bottom: 14px;
+}
+.info-box { color: #F6B45F; font-weight: bold; font-size: 0.78rem; }
+.info-box span { color: #eaf2fb; }
+.new-btn { background: #F6B45F; border: none; font-weight: bold; padding: 5px 14px; border-radius: 40px; color: #0F1318; cursor: pointer; font-size: 0.78rem; }
+
+/* Ana kelime ipucu */
+.clue-wrap {
+  background: #0a1018;
+  border-radius: 20px;
+  padding: 10px 16px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.clue-label { font-size: 0.68rem; color: #6c8fb0; letter-spacing: 1px; text-transform: uppercase; flex-shrink: 0; }
+.clue-blanks { font-size: 1.1rem; font-weight: bold; letter-spacing: 6px; color: #F6B45F; }
+
+/* Harfler */
+.letters-area {
+  background: #0a1018;
+  border-radius: 28px;
+  padding: 16px;
+  margin-bottom: 12px;
+  text-align: center;
+}
+.letter-tiles {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+.letter {
+  width: 56px; height: 56px;
+  background: #F6B45F;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: #0F1318;
+  cursor: pointer;
+  transition: transform 0.08s, opacity 0.1s;
+  box-shadow: 0 4px 0 #b47c20;
+}
+.letter:active { transform: translateY(2px); box-shadow: 0 1px 0 #b47c20; }
+.letter.used {
+  opacity: 0.25;
+  pointer-events: none;
+  transform: none;
+}
+
+/* Oluşturulan kelime */
+.word-area {
+  background: #0a1018;
+  border-radius: 28px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  text-align: center;
+}
+.current-word {
+  font-size: 2rem;
+  font-weight: 900;
+  letter-spacing: 6px;
+  color: #F6B45F;
+  background: #1e2a3a;
+  padding: 10px 16px;
+  border-radius: 50px;
+  margin-bottom: 12px;
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.action-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+.action-btn {
+  background: #2a3a4a;
+  border: none;
+  font-weight: bold;
+  padding: 8px 18px;
+  border-radius: 40px;
+  color: #eaf2fb;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+.action-btn.primary { background: #F6B45F; color: #0F1318; }
+.action-btn:active { opacity: 0.8; }
+
+/* Bulunan kelimeler */
+.found-wrap {
+  background: #0a1018;
+  border-radius: 28px;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+}
+.found-title {
+  font-size: 0.65rem;
+  color: #6c8fb0;
+  text-align: center;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.found-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+  min-height: 30px;
+}
+.word-tag {
+  background: #1e2a3a;
+  color: #2ECC71;
+  border: 1px solid rgba(46,204,113,0.3);
+  padding: 3px 12px;
+  border-radius: 30px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+/* İlerleme */
+.progress-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #0a1018;
+  border-radius: 40px;
+  padding: 7px 16px;
+  margin-bottom: 12px;
+}
+.progress-label { font-size: 0.72rem; color: #F6B45F; font-weight: bold; flex-shrink: 0; }
+.progress-track { flex: 1; height: 7px; background: #1e2a3a; border-radius: 4px; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, #2ECC71, #F6B45F); border-radius: 4px; transition: width 0.3s; width: 0%; }
+.progress-count { font-size: 0.72rem; color: #eaf2fb; font-weight: bold; flex-shrink: 0; }
+
+/* Toast mesaj */
+.toast {
+  position: fixed;
+  bottom: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 8px 20px;
+  border-radius: 40px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  z-index: 150;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s;
+  white-space: nowrap;
+}
+.toast.show { opacity: 1; }
+
+/* Overlay */
+.overlay {
+  position: fixed; top:0; left:0; width:100%; height:100%;
+  background: rgba(15,19,24,0.93);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 100; backdrop-filter: blur(6px);
+  opacity: 0; pointer-events: none; transition: opacity 0.3s;
+}
+.overlay.show { opacity: 1; pointer-events: all; }
+.overlay-box {
+  background: #1e2a3a; border-radius: 40px;
+  padding: 36px 40px; text-align: center;
+  border: 2px solid #F6B45F; max-width: 300px; width: 90%;
+}
+.overlay-icon { font-size: 3rem; margin-bottom: 10px; }
+.overlay-title { font-size: 1.5rem; font-weight: bold; color: #F6B45F; letter-spacing: 2px; margin-bottom: 8px; }
+.overlay-msg { color: #eaf2fb; font-size: 0.85rem; margin-bottom: 18px; line-height: 1.8; }
+.overlay-btn { background: #F6B45F; border: none; font-weight: bold; padding: 10px 28px; border-radius: 40px; color: #0F1318; cursor: pointer; font-size: 0.9rem; }
+
+.footer { text-align: center; font-size: 0.6rem; color: #6c8fb0; margin-top: 10px; }
+```
+
+  </style>
+</head>
+<body>
+<div class="game-container">
+  <div class="header">
+    <div>
+      <div class="logo">WORD GARDEN</div>
+      <div class="sub">SilverCompass · Kelime Bahçesi</div>
+    </div>
+    <a href="index.html" class="back-link">← Geri</a>
+  </div>
+
+  <div class="info-bar">
+    <div class="info-box">🌼 Skor: <span id="scoreNum">0</span></div>
+    <div class="info-box">🏆 En İyi: <span id="bestNum">—</span></div>
+    <button class="new-btn" id="newBtn">↺ Yeni Bahçe</button>
+  </div>
+
+  <div class="clue-wrap">
+    <div class="clue-label">Ana Kelime:</div>
+    <div class="clue-blanks" id="clueBlanks"></div>
+  </div>
+
+  <div class="letters-area">
+    <div class="letter-tiles" id="letterTiles"></div>
+  </div>
+
+  <div class="word-area">
+    <div class="current-word" id="currentWord"></div>
+    <div class="action-buttons">
+      <button class="action-btn" id="clearBtn">✕ Temizle</button>
+      <button class="action-btn primary" id="submitBtn">🌱 Ekle</button>
+      <button class="action-btn" id="shuffleBtn">↺ Karıştır</button>
+    </div>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-label">🌻 Hasat</div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="progress-count" id="progressCount">0 / 0</div>
+  </div>
+
+  <div class="found-wrap">
+    <div class="found-title">Hasat Edilen Kelimeler</div>
+    <div class="found-list" id="foundList"></div>
+  </div>
+
+  <div class="footer">Harfleri seç · Kelime oluştur · Bahçeni büyüt 🌱</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="overlay" id="overlay">
+  <div class="overlay-box">
+    <div class="overlay-icon">🌸</div>
+    <div class="overlay-title" id="overlayTitle">TEBRİKLER!</div>
+    <div class="overlay-msg" id="overlayMsg"></div>
+    <button class="overlay-btn" id="overlayBtn">Yeni Bahçe</button>
+  </div>
+</div>
+
+<script>
+(function () {
+
+  /*
+    Oyun mantığı:
+    - Her turda bir "ana kelime" seçilir (örn. KALEM)
+    - O kelimenin harfleri ekranda gösterilir
+    - Oyuncu bu harflerden geçerli alt kelimeler oluşturur
+    - Ana kelimeyi de bulursa bonus puan
+    - Zaman yok — stressiz, rahat oyun
+  */
+
+  /* ---- KELIME HAVUZU ---- */
+  /* Her entry: { main: "ANA_KELİME", words: ["alt", "kelime", ...] } */
+  var PUZZLES = [
+    { main: "KALEM", words: ["KAL", "AK", "EL", "AL", "KALE", "KALEM", "ELK", "LAK", "MEL", "KAM"] },
+    { main: "ELMAS", words: ["EL", "AL", "AS", "MAL", "SEL", "ELMA", "ELMAS", "SAL", "MAS", "ELM", "LAM"] },
+    { main: "BAHCE", words: ["BAH", "BAC", "HEB", "AHC", "BACE", "CEH", "ACE", "BAHCE"] },
+    { main: "GUNES", words: ["GUN", "UNE", "NES", "GUN", "GUNE", "GES", "USE", "NUS", "GUNES"] },
+    { main: "DENIZ", words: ["DEN", "NEZ", "ZEN", "DIN", "NIZ", "DENI", "DENIZ", "ENZ", "IDE"] },
+    { main: "BULUT", words: ["BUL", "ULU", "TUL", "LUT", "BUT", "BULU", "BULUT", "ULT", "TUB"] },
+    { main: "YAPRAK", words: ["YAP", "PAR", "ARK", "KAR", "RAP", "YAR", "YARA", "KARA", "PARA", "YAPRAK"] },
+    { main: "CICEK", words: ["CIC", "ICE", "CEK", "EKİ", "CICE", "CICEK", "ICK", "KEC"] },
+    { main: "KITAP", words: ["KIT", "TAP", "PIT", "KAP", "TIP", "KITA", "KITAP", "ATK", "PAK"] },
+    { main: "DUVAR", words: ["DUV", "VAR", "RAD", "DUR", "VUR", "DUVA", "DUVAR", "RAV", "ARD"] },
+    { main: "MEYVE", words: ["MEY", "EYV", "VEY", "MEV", "YEM", "MEYE", "MEYVE", "EVY", "VEM"] },
+    { main: "SABAH", words: ["SAB", "ABA", "BAH", "SAH", "BAS", "SABA", "SABAH", "ABS", "HAS"] },
+    { main: "TAVAN", words: ["TAV", "ANA", "VAN", "TAN", "NAV", "TAVA", "TAVAN", "ANT", "VAT"] },
+    { main: "YILDIZ", words: ["YIL", "ILD", "DIZ", "ZIL", "LDI", "YILDI", "YILDIZ", "ILZ", "ZID"] },
+    { main: "ORMAN", words: ["ORM", "RMA", "MAN", "NOR", "ROM", "ORMA", "ORMAN", "ARN", "NAR"] },
+    { main: "CADDE", words: ["CAD", "ADD", "DDE", "ACE", "DAC", "CADD", "CADDE", "EDA", "DAD"] },
+    { main: "FENER", words: ["FEN", "ENE", "NER", "FER", "REF", "FENE", "FENER", "ERF", "REN"] },
+    { main: "TOPRAK", words: ["TOP", "OPR", "PRA", "RAK", "KAR", "TOPR", "TOPRAK", "PAR", "ARK"] },
+    { main: "PENCERE", words: ["PEN", "ENC", "NCE", "CER", "ERE", "PENCE", "PENCERE", "NEP", "REP"] },
+    { main: "SINCAP", words: ["SIN", "INC", "NCA", "CAP", "APS", "SINCA", "SINCAP", "CAN", "PAN"] }
+  ];
+
+  /* ---- DURUM ---- */
+  var puzzle        = null;
+  var letterStates  = [];   /* true = kullanılabilir */
+  var currentWord   = '';
+  var usedIndices   = [];   /* seçilen harf indisleri */
+  var foundWords    = {};   /* { "KELİME": true } */
+  var score         = 0;
+  var bestScore     = parseInt(localStorage.getItem('wg_best') || '0', 10);
+
+  /* ---- ELEMANLAR ---- */
+  var tilesEl       = document.getElementById('letterTiles');
+  var currentWordEl = document.getElementById('currentWord');
+  var scoreEl       = document.getElementById('scoreNum');
+  var bestEl        = document.getElementById('bestNum');
+  var clueEl        = document.getElementById('clueBlanks');
+  var progressFill  = document.getElementById('progressFill');
+  var progressCount = document.getElementById('progressCount');
+  var foundListEl   = document.getElementById('foundList');
+  var toastEl       = document.getElementById('toast');
+  var overlay       = document.getElementById('overlay');
+  var toastTimer    = null;
+
+  /* ---- TOAST ---- */
+  function showToast(msg, color) {
+    toastEl.textContent = msg;
+    toastEl.style.background = color === 'red' ? '#2a0a0a' : '#0a1e0a';
+    toastEl.style.color       = color === 'red' ? '#E74C3C' : '#2ECC71';
+    toastEl.style.border      = '1px solid ' + (color === 'red' ? '#E74C3C' : '#2ECC71');
+    toastEl.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toastEl.classList.remove('show'); }, 1600);
+  }
+
+  /* ---- BEST ---- */
+  function saveBest() {
+    if (score > bestScore) {
+      bestScore = score;
+      localStorage.setItem('wg_best', bestScore);
+      bestEl.textContent = bestScore;
+    }
+  }
+
+  /* ---- PUZZLE SEÇ ---- */
+  function pickPuzzle() {
+    return PUZZLES[Math.floor(Math.random() * PUZZLES.length)];
+  }
+
+  /* ---- ANA KELİMEYİ GÖSTER ---- */
+  function renderClue() {
+    /* Her harf için _ göster, uzunluk bilgisi ver */
+    var blanks = '';
+    for (var i = 0; i < puzzle.main.length; i++) blanks += '_ ';
+    clueEl.textContent = blanks.trim() + '  (' + puzzle.main.length + ')';
+  }
+
+  /* ---- HARFLERİ OLUŞTUR ---- */
+  function buildLetters() {
+    /* Ana kelimenin harflerini karıştır */
+    var letters = puzzle.main.split('');
+    /* Fisher-Yates */
+    for (var i = letters.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = letters[i]; letters[i] = letters[j]; letters[j] = t;
+    }
+    letterStates = [];
+    for (var k = 0; k < letters.length; k++) letterStates.push({ char: letters[k], used: false });
+  }
+
+  /* ---- RENDER HARFLERİ ---- */
+  function renderLetters() {
+    tilesEl.innerHTML = '';
+    for (var i = 0; i < letterStates.length; i++) {
+      (function (idx) {
+        var tile = document.createElement('div');
+        tile.className = 'letter' + (letterStates[idx].used ? ' used' : '');
+        tile.textContent = letterStates[idx].char;
+        tile.addEventListener('click', function () { onLetterClick(idx); });
+        tilesEl.appendChild(tile);
+      })(i);
+    }
+  }
+
+  /* ---- HARF TIKLA ---- */
+  function onLetterClick(idx) {
+    if (letterStates[idx].used) return;
+    letterStates[idx].used = true;
+    usedIndices.push(idx);
+    currentWord += letterStates[idx].char;
+    currentWordEl.textContent = currentWord;
+    renderLetters();
+  }
+
+  /* ---- TEMIZLE ---- */
+  function clearWord() {
+    for (var i = 0; i < usedIndices.length; i++) {
+      letterStates[usedIndices[i]].used = false;
+    }
+    usedIndices = [];
+    currentWord = '';
+    currentWordEl.textContent = '';
+    renderLetters();
+  }
+
+  /* ---- KARISTIR ---- */
+  function shuffleLetters() {
+    clearWord();
+    buildLetters();
+    renderLetters();
+  }
+
+  /* ---- KELİME GÖNDER ---- */
+  function submitWord() {
+    var word = currentWord.trim().toUpperCase();
+    if (word.length < 2) {
+      showToast('En az 2 harf gir', 'red');
+      clearWord();
+      return;
+    }
+    if (foundWords[word]) {
+      showToast('Zaten bulundu!', 'red');
+      clearWord();
+      return;
+    }
+
+    /* Geçerli mi? */
+    var valid = false;
+    for (var i = 0; i < puzzle.words.length; i++) {
+      if (puzzle.words[i].toUpperCase() === word) { valid = true; break; }
+    }
+
+    if (!valid) {
+      showToast('Geçerli kelime değil', 'red');
+      clearWord();
+      return;
+    }
+
+    /* Başarı */
+    foundWords[word] = true;
+    var pts = word.length >= puzzle.main.length ? word.length * 30 : word.length * 10;
+    score += pts;
+    scoreEl.textContent = score;
+    saveBest();
+    clearWord();
+    updateFoundList();
+    updateProgress();
+
+    if (word === puzzle.main) {
+      showToast('🌟 Ana kelime! +' + pts, 'green');
+      setTimeout(endGame, 800);
+    } else {
+      showToast('✓ ' + word + ' +' + pts, 'green');
+      /* Tüm alt kelimeler bulundu mu? */
+      var allFound = true;
+      for (var j = 0; j < puzzle.words.length; j++) {
+        if (!foundWords[puzzle.words[j].toUpperCase()]) { allFound = false; break; }
+      }
+      if (allFound) setTimeout(endGame, 600);
+    }
+  }
+
+  /* ---- BULUNAN LİSTE ---- */
+  function updateFoundList() {
+    foundListEl.innerHTML = '';
+    for (var w in foundWords) {
+      var tag = document.createElement('span');
+      tag.className = 'word-tag';
+      tag.textContent = w;
+      foundListEl.appendChild(tag);
+    }
+  }
+
+  /* ---- İLERLEME ---- */
+  function updateProgress() {
+    var total   = puzzle.words.length;
+    var found   = 0;
+    for (var w in foundWords) found++;
+    var pct = Math.round((found / total) * 100);
+    progressFill.style.width = pct + '%';
+    progressCount.textContent = found + ' / ' + total;
+  }
+
+  /* ---- OYUN BİTİŞ ---- */
+  function endGame() {
+    var found = 0;
+    for (var w in foundWords) found++;
+    document.getElementById('overlayTitle').textContent = '🌸 BAHÇEN TAMAMLANDI!';
+    document.getElementById('overlayMsg').textContent =
+      'Skor: ' + score + '\n' +
+      found + ' / ' + puzzle.words.length + ' kelime bulundu\n' +
+      'En iyi: ' + bestScore;
+    overlay.classList.add('show');
+  }
+
+  /* ---- YENİ OYUN ---- */
+  function newGame() {
+    overlay.classList.remove('show');
+    puzzle     = pickPuzzle();
+    foundWords = {};
+    score      = 0;
+    currentWord = '';
+    usedIndices = [];
+
+    scoreEl.textContent = '0';
+    bestEl.textContent  = bestScore > 0 ? bestScore : '—';
+    currentWordEl.textContent = '';
+    foundListEl.innerHTML = '';
+
+    renderClue();
+    buildLetters();
+    renderLetters();
+    updateProgress();
+  }
+
+  /* ---- EVENTLER ---- */
+  document.getElementById('clearBtn').addEventListener('click', clearWord);
+  document.getElementById('submitBtn').addEventListener('click', submitWord);
+  document.getElementById('shuffleBtn').addEventListener('click', shuffleLetters);
+  document.getElementById('newBtn').addEventListener('click', newGame);
+  document.getElementById('overlayBtn').addEventListener('click', newGame);
+
+  /* ---- BAŞLAT ---- */
+  newGame();
+}());
+</script>
+
+</body>
+</html>

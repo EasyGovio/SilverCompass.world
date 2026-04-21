@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Pacdi Sırala · Düzen ve Mantık | PACDI Games</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background: #04162E;
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 16px;
+    }
+
+    .game-container {
+      max-width: 500px;
+      width: 100%;
+      background: rgba(4, 22, 46, 0.8);
+      border-radius: 56px;
+      padding: 20px 16px 24px;
+      box-shadow: 0 20px 35px rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(2px);
+      border: 1px solid rgba(246, 180, 95, 0.3);
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 14px;
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #F6B45F;
+    }
+
+    .sub {
+      font-size: 0.62rem;
+      color: #9bb7d4;
+      margin-top: 2px;
+    }
+
+    .back-link {
+      color: #F6B45F;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 0.78rem;
+      background: #0a1018;
+      padding: 5px 12px;
+      border-radius: 40px;
+    }
+
+    .info-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #0a1018;
+      border-radius: 40px;
+      padding: 7px 16px;
+      margin-bottom: 14px;
+    }
+
+    .info-box {
+      color: #F6B45F;
+      font-weight: bold;
+      font-size: 0.78rem;
+    }
+    .info-box span {
+      color: #eaf2fb;
+    }
+
+    .new-btn {
+      background: #F6B45F;
+      border: none;
+      font-weight: bold;
+      padding: 5px 14px;
+      border-radius: 40px;
+      color: #0F1318;
+      cursor: pointer;
+      font-size: 0.78rem;
+    }
+
+    .game-area {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .tube {
+      width: 70px;
+      height: 200px;
+      background: rgba(10, 16, 24, 0.5);
+      border: 3px solid rgba(246, 180, 95, 0.4);
+      border-bottom-left-radius: 35px;
+      border-bottom-right-radius: 35px;
+      display: flex;
+      flex-direction: column-reverse;
+      align-items: center;
+      padding-bottom: 8px;
+      cursor: pointer;
+      transition: transform 0.1s, border-color 0.1s;
+      backdrop-filter: blur(4px);
+    }
+
+    .tube.selected {
+      transform: translateY(-8px);
+      border-color: #F6B45F;
+      box-shadow: 0 8px 16px rgba(246, 180, 95, 0.2);
+    }
+
+    .ball {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      margin-bottom: 6px;
+      box-shadow: inset -4px -4px 8px rgba(0,0,0,0.3), 0 2px 4px rgba(0,0,0,0.2);
+      transition: transform 0.05s;
+    }
+
+    .stats-row {
+      display: flex;
+      justify-content: space-between;
+      background: #0a1018;
+      border-radius: 40px;
+      padding: 8px 16px;
+      margin-bottom: 12px;
+    }
+
+    .stat-item {
+      font-size: 0.75rem;
+      color: #F6B45F;
+    }
+    .stat-item span {
+      color: #eaf2fb;
+      font-weight: bold;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin: 12px 0;
+    }
+
+    .action-btn {
+      background: #1e2a3a;
+      border: 1px solid #F6B45F;
+      color: #F6B45F;
+      padding: 6px 16px;
+      border-radius: 40px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 0.8rem;
+    }
+    .action-btn:active {
+      background: #F6B45F;
+      color: #04162E;
+    }
+
+    .status {
+      text-align: center;
+      font-size: 0.85rem;
+      font-weight: bold;
+      color: #F6B45F;
+      min-height: 28px;
+      margin-bottom: 8px;
+    }
+
+    .footer {
+      text-align: center;
+      font-size: 0.6rem;
+      color: #6c8fb0;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 550px) {
+      .tube {
+        width: 60px;
+        height: 170px;
+      }
+      .ball {
+        width: 42px;
+        height: 42px;
+      }
+      .game-area {
+        gap: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="game-container">
+  <div class="header">
+    <div>
+      <div class="logo">PACDI SIRALA</div>
+      <div class="sub">Düzen · Mantık · Strateji</div>
+    </div>
+    <a href="index.html" class="back-link">← Geri</a>
+  </div>
+
+  <div class="info-bar">
+    <div class="info-box">🎯 Hamle: <span id="moveCount">0</span></div>
+    <div class="info-box">🏆 En İyi: <span id="bestNum">—</span></div>
+    <button class="new-btn" id="resetBtn">↺ Yeni Oyun</button>
+  </div>
+
+  <div class="game-area" id="gameArea"></div>
+
+  <div class="stats-row">
+    <div class="stat-item">🔹 Kural: Aynı renk üst üste veya boş tüpe taşı</div>
+  </div>
+
+  <div class="action-buttons">
+    <button class="action-btn" id="undoBtn">↩️ Geri Al</button>
+  </div>
+
+  <div class="status" id="statusMsg">Tüpe dokun → topu seç → başka tüpe taşı</div>
+
+  <div class="footer">Her tüpte aynı renkleri topla · Kazanmak için tüm tüpleri düzenle</div>
+</div>
+
+<script>
+  (function() {
+    // ---- RENKLER (PACDI tema) ----
+    var COLORS = ['#1ABC9C', '#F6B45F', '#E74C3C'];  // Teal, Gold, Red
+    var COLOR_NAMES = ['TEAL', 'ALTIN', 'KIRMIZI'];
+
+    // ---- OYUN DURUMU ----
+    var tubes = [];          // her tüp bir dizi (alt->üst)
+    var history = [];       // geçmiş durumlar (hamle geri almak için)
+    var moves = 0;
+    var bestScore = 0;
+    var selectedTube = -1;
+    var gameActive = true;
+    var winFlag = false;
+
+    // DOM elementleri
+    var gameArea = document.getElementById('gameArea');
+    var moveSpan = document.getElementById('moveCount');
+    var bestSpan = document.getElementById('bestNum');
+    var resetBtn = document.getElementById('resetBtn');
+    var undoBtn = document.getElementById('undoBtn');
+    var statusMsg = document.getElementById('statusMsg');
+
+    // LocalStorage anahtarı
+    var bestKey = 'pacdi_sirala_best';
+
+    // ---- YARDIMCI FONKSİYONLAR ----
+    function loadBest() {
+      var saved = localStorage.getItem(bestKey);
+      if (saved !== null) bestScore = parseInt(saved, 10);
+      else bestScore = 0;
+      bestSpan.textContent = bestScore > 0 ? bestScore : '—';
+    }
+
+    function saveBest() {
+      if (moves < bestScore || bestScore === 0) {
+        bestScore = moves;
+        localStorage.setItem(bestKey, bestScore);
+        bestSpan.textContent = bestScore;
+      }
+    }
+
+    // Başlangıç seviyesi (3 renk, 4 tüp, her tüpte 3 top – karışık)
+    function initGame() {
+      // 4 tüp: ilk üç tüpte 3'er top, dördüncü boş
+      // Renk indeksleri: 0:Teal, 1:Gold, 2:Red
+      // Rastgele başlangıç düzeni (çözülebilir olması için manuel)
+      var startTubes = [
+        [0, 1, 2],   // Teal, Gold, Red
+        [1, 2, 0],   // Gold, Red, Teal
+        [2, 0, 1],   // Red, Teal, Gold
+        []           // boş
+      ];
+      tubes = JSON.parse(JSON.stringify(startTubes));
+      moves = 0;
+      selectedTube = -1;
+      gameActive = true;
+      winFlag = false;
+      moveSpan.textContent = '0';
+      statusMsg.innerHTML = 'Tüpe dokun → topu seç → başka tüpe taşı';
+      statusMsg.style.color = '#F6B45F';
+      history = [];   // temizle
+      saveHistory();  // başlangıç durumunu kaydet
+      renderGame();
+    }
+
+    // Geçmişe durumu kaydet (derin kopya)
+    function saveHistory() {
+      var copy = [];
+      for (var i = 0; i < tubes.length; i++) {
+        copy.push(tubes[i].slice());
+      }
+      history.push({ tubes: copy, moves: moves });
+      // Geçmişi çok şişirmemek için son 30 hamle tut
+      if (history.length > 30) history.shift();
+    }
+
+    // Geri al
+    function undoMove() {
+      if (!gameActive || winFlag) return;
+      if (history.length <= 1) {
+        statusMsg.innerHTML = '⚠️ Geri alınacak hamle yok!';
+        return;
+      }
+      history.pop();  // son durumu at
+      var last = history[history.length - 1];
+      tubes = JSON.parse(JSON.stringify(last.tubes));
+      moves = last.moves;
+      moveSpan.textContent = moves;
+      selectedTube = -1;
+      renderGame();
+      statusMsg.innerHTML = '↩️ Hamle geri alındı';
+      setTimeout(function() { if (!winFlag) statusMsg.innerHTML = 'Tüpe dokun → topu seç → başka tüpe taşı'; }, 1000);
+    }
+
+    // Hamle geçerlilik kontrolü
+    function isValidMove(fromIdx, toIdx) {
+      var fromTube = tubes[fromIdx];
+      var toTube = tubes[toIdx];
+      if (fromTube.length === 0) return false;           // kaynak boş
+      if (toTube.length >= 3) return false;              // hedef dolu (max 3 top)
+      if (toTube.length === 0) return true;              // boş hedefe her zaman taşınabilir
+      var topFrom = fromTube[fromTube.length - 1];
+      var topTo = toTube[toTube.length - 1];
+      return (topFrom === topTo);                        // ancak aynı renk üst üste gelebilir
+    }
+
+    // Hamle uygula
+    function applyMove(fromIdx, toIdx) {
+      if (!isValidMove(fromIdx, toIdx)) return false;
+      saveHistory();  // mevcut durumu geçmişe kaydet
+      var ball = tubes[fromIdx].pop();
+      tubes[toIdx].push(ball);
+      moves++;
+      moveSpan.textContent = moves;
+      return true;
+    }
+
+    // Kazanma kontrolü: her tüp ya boş ya da aynı renklerden oluşuyor
+    function checkWin() {
+      var totalBalls = 0;
+      for (var i = 0; i < tubes.length; i++) {
+        var tube = tubes[i];
+        if (tube.length === 0) continue;
+        totalBalls += tube.length;
+        var firstColor = tube[0];
+        for (var j = 1; j < tube.length; j++) {
+          if (tube[j] !== firstColor) return false;
+        }
+      }
+      // Toplam top sayısı 9 olmalı (3 renk × 3 top)
+      if (totalBalls !== 9) return false;
+      return true;
+    }
+
+    // Oyunu kazanma
+    function winGame() {
+      gameActive = false;
+      winFlag = true;
+      saveBest();
+      statusMsg.innerHTML = '🎉 MÜKEMMEL DÜZEN! KAZANDINIZ! 🎉';
+      statusMsg.style.color = '#1ABC9C';
+      // Ek olarak butonlara gerek yok, yeni oyun butonu zaten var
+    }
+
+    // Tüpe tıklama olayı
+    function onTubeClick(idx) {
+      if (!gameActive || winFlag) return;
+      if (selectedTube === -1) {
+        // seçim modu
+        if (tubes[idx].length > 0) {
+          selectedTube = idx;
+          renderGame();
+          statusMsg.innerHTML = '✅ Top seçildi. Hedef tüpe dokun.';
+        } else {
+          statusMsg.innerHTML = '⚠️ Boş tüp seçilemez. Önce top seç.';
+        }
+      } else {
+        // taşıma modu
+        var from = selectedTube;
+        var to = idx;
+        if (from === to) {
+          // aynı tüpe tıklama: seçimi iptal et
+          selectedTube = -1;
+          renderGame();
+          statusMsg.innerHTML = 'Seçim iptal edildi.';
+          return;
+        }
+        if (isValidMove(from, to)) {
+          applyMove(from, to);
+          selectedTube = -1;
+          renderGame();
+          if (checkWin()) {
+            winGame();
+            renderGame();
+          } else {
+            statusMsg.innerHTML = '✔️ Hamle yapıldı. Devam et.';
+          }
+        } else {
+          statusMsg.innerHTML = '❌ Geçersiz hamle! Aynı renk üst üste olmalı veya hedef boş.';
+          selectedTube = -1;   // hatalı hamlede seçimi temizle
+          renderGame();
+        }
+      }
+    }
+
+    // Oyunu sıfırla (tamamen yeni oyun)
+    function resetGame() {
+      initGame();
+      selectedTube = -1;
+      gameActive = true;
+      winFlag = false;
+      renderGame();
+      statusMsg.innerHTML = 'Yeni oyun başladı. İyi şanslar!';
+      setTimeout(function() {
+        if (!winFlag) statusMsg.innerHTML = 'Tüpe dokun → topu seç → başka tüpe taşı';
+      }, 1500);
+    }
+
+    // Görsel render
+    function renderGame() {
+      gameArea.innerHTML = '';
+      for (var i = 0; i < tubes.length; i++) {
+        var tubeDiv = document.createElement('div');
+        tubeDiv.className = 'tube';
+        if (selectedTube === i) tubeDiv.classList.add('selected');
+        tubeDiv.setAttribute('data-idx', i);
+        // Tüpün içindeki topları (alttan üste doğru)
+        var tubeContent = tubes[i];
+        for (var j = 0; j < tubeContent.length; j++) {
+          var ballDiv = document.createElement('div');
+          ballDiv.className = 'ball';
+          ballDiv.style.backgroundColor = COLORS[tubeContent[j]];
+          ballDiv.style.position = 'relative';
+          // Hafif gölge efekti
+          tubeDiv.appendChild(ballDiv);
+        }
+        // Boşlukları doldur (görsel olarak hizalama için)
+        for (var k = tubeContent.length; k < 3; k++) {
+          var emptySpace = document.createElement('div');
+          emptySpace.style.width = '48px';
+          emptySpace.style.height = '48px';
+          emptySpace.style.marginBottom = '6px';
+          emptySpace.style.visibility = 'hidden';
+          tubeDiv.appendChild(emptySpace);
+        }
+        tubeDiv.addEventListener('click', (function(idx) {
+          return function() { onTubeClick(idx); };
+        })(i));
+        gameArea.appendChild(tubeDiv);
+      }
+    }
+
+    // ---- EVENT LİSTENERLAR ----
+    resetBtn.addEventListener('click', function() {
+      resetGame();
+    });
+    undoBtn.addEventListener('click', function() {
+      if (!gameActive || winFlag) return;
+      undoMove();
+    });
+
+    // ---- BAŞLAT ----
+    loadBest();
+    initGame();
+  })();
+</script>
+</body>
+</html>

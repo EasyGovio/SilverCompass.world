@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Pacdi Rulo · Kule Dizme | PACDI Games</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background: #04162E;
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 16px;
+    }
+
+    .game-container {
+      max-width: 500px;
+      width: 100%;
+      background: rgba(4, 22, 46, 0.8);
+      border-radius: 56px;
+      padding: 20px 16px 24px;
+      box-shadow: 0 20px 35px rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(2px);
+      border: 1px solid rgba(246, 180, 95, 0.3);
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 14px;
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #F6B45F;
+    }
+
+    .sub {
+      font-size: 0.62rem;
+      color: #9bb7d4;
+      margin-top: 2px;
+    }
+
+    .back-link {
+      color: #F6B45F;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 0.78rem;
+      background: #0a1018;
+      padding: 5px 12px;
+      border-radius: 40px;
+    }
+
+    .info-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #0a1018;
+      border-radius: 40px;
+      padding: 7px 16px;
+      margin-bottom: 14px;
+    }
+
+    .info-box {
+      color: #F6B45F;
+      font-weight: bold;
+      font-size: 0.78rem;
+    }
+
+    .info-box span {
+      color: #eaf2fb;
+    }
+
+    .new-btn {
+      background: #F6B45F;
+      border: none;
+      font-weight: bold;
+      padding: 5px 14px;
+      border-radius: 40px;
+      color: #0F1318;
+      cursor: pointer;
+      font-size: 0.78rem;
+    }
+
+    .canvas-wrap {
+      background: #0a1018;
+      border-radius: 28px;
+      padding: 12px;
+      margin-bottom: 14px;
+      display: flex;
+      justify-content: center;
+    }
+
+    canvas {
+      display: block;
+      background: #1e2a3a;
+      border-radius: 20px;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      cursor: pointer;
+      touch-action: none;
+    }
+
+    .status {
+      text-align: center;
+      font-size: 0.85rem;
+      font-weight: bold;
+      color: #F6B45F;
+      min-height: 28px;
+      margin-bottom: 10px;
+    }
+
+    .controls {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      margin-bottom: 12px;
+    }
+
+    .action-btn {
+      background: #1e2a3a;
+      border: 2px solid #1ABC9C;
+      color: #1ABC9C;
+      padding: 10px 20px;
+      font-size: 1rem;
+      border-radius: 60px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: 0.05s linear;
+    }
+
+    .action-btn:active {
+      background: #1ABC9C;
+      color: #04162E;
+      transform: scale(0.96);
+    }
+
+    .footer {
+      text-align: center;
+      font-size: 0.6rem;
+      color: #6c8fb0;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 550px) {
+      .action-btn {
+        padding: 8px 16px;
+        font-size: 0.85rem;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="game-container">
+  <div class="header">
+    <div>
+      <div class="logo">PACDI RULO</div>
+      <div class="sub">Kule Dizme · Denge Oyunu</div>
+    </div>
+    <a href="index.html" class="back-link">← Geri</a>
+  </div>
+
+  <div class="info-bar">
+    <div class="info-box">🎯 Skor: <span id="scoreNum">0</span></div>
+    <div class="info-box">🏆 En İyi: <span id="bestNum">—</span></div>
+    <button class="new-btn" id="resetBtn">↺ Yeni Oyun</button>
+  </div>
+
+  <div class="canvas-wrap">
+    <canvas id="gameCanvas" width="500" height="500"></canvas>
+  </div>
+
+  <div class="status" id="statusMsg">⚡ Hareket eden bloğu durdurmak için dokun</div>
+
+  <div class="controls">
+    <button class="action-btn" id="leftBtn">◀ Sol</button>
+    <button class="action-btn" id="rightBtn">Sağ ▶</button>
+  </div>
+
+  <div class="footer">Bloğu tam üstüne yerleştir · Taşan kısım kesilir · Her blok +1 puan</div>
+</div>
+
+<script>
+  (function() {
+    // ----- OYUN DEĞİŞKENLERİ -----
+    var canvas = document.getElementById('gameCanvas');
+    var ctx = canvas.getContext('2d');
+
+    // Oyun boyutları
+    var CANVAS_W = 500;
+    var CANVAS_H = 500;
+    var BLOCK_W = 80;      // başlangıç blok genişliği
+    var BLOCK_H = 40;
+    var MOVE_SPEED = 3.5;   // piksel/animasyon
+    var FALL_SPEED = 6;
+
+    // Oyun durumu
+    var gameActive = true;
+    var score = 0;
+    var bestScore = 0;
+    var blocks = [];        // { x, y, width, color }  (x: sol üst köşe, y: üstten)
+    var movingBlock = null;
+    var movingDirection = 1;   // 1 = sağ, -1 = sol
+    var fallingBlock = null;
+    var animationId = null;
+    var gameLoopActive = false;
+
+    // En iyi skor
+    var bestKey = 'pacdi_rulo_best';
+
+    function loadBest() {
+      var saved = localStorage.getItem(bestKey);
+      if (saved !== null) bestScore = parseInt(saved, 10);
+      else bestScore = 0;
+      document.getElementById('bestNum').textContent = bestScore > 0 ? bestScore : '—';
+    }
+
+    function saveBest() {
+      if (score > bestScore) {
+        bestScore = score;
+        localStorage.setItem(bestKey, bestScore);
+        document.getElementById('bestNum').textContent = bestScore;
+      }
+    }
+
+    // ----- YARDIMCI FONKSİYONLAR -----
+    function updateScoreUI() {
+      document.getElementById('scoreNum').textContent = score;
+    }
+
+    // Blok rengi: sırayla altın / teal
+    function getBlockColor(index) {
+      return (index % 2 === 0) ? '#F6B45F' : '#1ABC9C';
+    }
+
+    // ----- OYUNU SIFIRLA -----
+    function resetGame() {
+      if (animationId) cancelAnimationFrame(animationId);
+      gameActive = true;
+      score = 0;
+      updateScoreUI();
+
+      // İlk taban bloğu (zemin)
+      var baseX = (CANVAS_W - BLOCK_W) / 2;
+      blocks = [{
+        x: baseX,
+        y: CANVAS_H - BLOCK_H,
+        width: BLOCK_W,
+        color: getBlockColor(0)
+      }];
+
+      // Hareket eden blok (üstte)
+      movingBlock = {
+        x: 0,
+        y: blocks[0].y - BLOCK_H,
+        width: BLOCK_W,
+        color: getBlockColor(1),
+        direction: 1
+      };
+      movingDirection = 1;
+      fallingBlock = null;
+      drawCanvas();
+      startGameLoop();
+    }
+
+    // ----- ÇİZİM -----
+    function drawCanvas() {
+      if (!ctx) return;
+      canvas.width = CANVAS_W;
+      canvas.height = CANVAS_H;
+      ctx.clearRect(0, 0, CANVAS_W, CANVAS_H);
+
+      // Arkaplan (hafif grid)
+      ctx.fillStyle = '#0a1018';
+      ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+      ctx.strokeStyle = '#1e2a3a';
+      ctx.lineWidth = 1;
+      for (var i = 0; i < 5; i++) {
+        ctx.beginPath();
+        ctx.moveTo(0, i * 100);
+        ctx.lineTo(CANVAS_W, i * 100);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(i * 100, 0);
+        ctx.lineTo(i * 100, CANVAS_H);
+        ctx.stroke();
+      }
+
+      // Duran blokları çiz
+      for (var i = 0; i < blocks.length; i++) {
+        var b = blocks[i];
+        ctx.fillStyle = b.color;
+        ctx.shadowBlur = 0;
+        ctx.fillRect(b.x, b.y, b.width, BLOCK_H);
+        ctx.strokeStyle = '#FFFFFF30';
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(b.x, b.y, b.width, BLOCK_H);
+      }
+
+      // Düşen blok varsa onu çiz
+      if (fallingBlock) {
+        ctx.fillStyle = fallingBlock.color;
+        ctx.fillRect(fallingBlock.x, fallingBlock.y, fallingBlock.width, BLOCK_H);
+        ctx.strokeStyle = '#FFFFFF50';
+        ctx.strokeRect(fallingBlock.x, fallingBlock.y, fallingBlock.width, BLOCK_H);
+      }
+
+      // Hareket eden blok
+      if (movingBlock && gameActive) {
+        ctx.fillStyle = movingBlock.color;
+        ctx.fillRect(movingBlock.x, movingBlock.y, movingBlock.width, BLOCK_H);
+        ctx.strokeStyle = '#FFFFFF80';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(movingBlock.x, movingBlock.y, movingBlock.width, BLOCK_H);
+      }
+
+      // Skor gösterge
+      ctx.font = 'bold 24px monospace';
+      ctx.fillStyle = '#F6B45F';
+      ctx.shadowBlur = 0;
+      ctx.fillText('' + score, 20, 50);
+    }
+
+    // ----- OYUN MANTIĞI -----
+    function placeBlock() {
+      if (!gameActive) return;
+      if (!movingBlock) return;
+
+      var lastBlock = blocks[blocks.length - 1];
+      var movingLeft = movingBlock.x;
+      var movingRight = movingBlock.x + movingBlock.width;
+      var lastLeft = lastBlock.x;
+      var lastRight = lastBlock.x + lastBlock.width;
+
+      // Çakışma aralığı
+      var overlapLeft = Math.max(movingLeft, lastLeft);
+      var overlapRight = Math.min(movingRight, lastRight);
+      var overlap = overlapRight - overlapLeft;
+
+      if (overlap <= 0) {
+        // Tamamen kaçırdı -> oyun bitti
+        gameOver();
+        return;
+      }
+
+      // Yeni blok genişliği = overlap
+      var newWidth = overlap;
+      var newX = overlapLeft;
+      var newColor = getBlockColor(blocks.length);
+
+      // Yeni bloğu ekle
+      var newBlock = {
+        x: newX,
+        y: lastBlock.y - BLOCK_H,
+        width: newWidth,
+        color: newColor
+      };
+      blocks.push(newBlock);
+      score++;
+      updateScoreUI();
+      saveBest();
+
+      // Taşan parçayı düşen blok olarak ekle (kesilen parça)
+      var cutLeft = null;
+      var cutRight = null;
+      if (movingLeft < lastLeft) {
+        // soldan taşan parça
+        cutLeft = {
+          x: movingLeft,
+          y: movingBlock.y,
+          width: lastLeft - movingLeft,
+          color: movingBlock.color
+        };
+      }
+      if (movingRight > lastRight) {
+        // sağdan taşan parça
+        cutRight = {
+          x: lastRight,
+          y: movingBlock.y,
+          width: movingRight - lastRight,
+          color: movingBlock.color
+        };
+      }
+
+      // Düşen parça varsa, onu düşür
+      if (cutLeft || cutRight) {
+        // Önce düşecek olanı seç (sadece bir tane düşsün, kural gereği)
+        fallingBlock = cutLeft || cutRight;
+        fallingBlock.vy = 0;
+        fallingBlock.gravity = FALL_SPEED;
+      }
+
+      // Yeni hareket eden blok (bir sonraki kat için)
+      // Yön değiştir (x ekseninde hareket)
+      var nextDir = (blocks.length % 2 === 1) ? 1 : -1; // sırayla sağ-sol
+      movingBlock = {
+        x: newX,
+        y: newBlock.y - BLOCK_H,
+        width: newWidth,
+        color: getBlockColor(blocks.length + 1),
+        direction: nextDir
+      };
+      movingDirection = nextDir;
+
+      // Düşen blok varsa animasyonu başlat, yoksa normal devam
+      if (fallingBlock) {
+        gameActive = false;  // düşerken yeni blok yerleştirme yapılamaz
+      }
+    }
+
+    function updateMoving() {
+      if (!gameActive) return;
+      if (!movingBlock) return;
+      var step = MOVE_SPEED * movingDirection;
+      movingBlock.x += step;
+      // Sınır kontrolü (ekran kenarları)
+      var minX = 0;
+      var maxX = CANVAS_W - movingBlock.width;
+      if (movingBlock.x < minX) {
+        movingBlock.x = minX;
+        movingDirection = 1;
+      }
+      if (movingBlock.x > maxX) {
+        movingBlock.x = maxX;
+        movingDirection = -1;
+      }
+      movingBlock.direction = movingDirection;
+    }
+
+    function updateFalling() {
+      if (!fallingBlock) return true; // düşen yok
+      fallingBlock.vy += 0.5;
+      fallingBlock.y += fallingBlock.vy;
+      if (fallingBlock.y + BLOCK_H > CANVAS_H) {
+        // düştü, oyun biter
+        gameOver();
+        return false;
+      }
+      return true;
+    }
+
+    function gameOver() {
+      if (!gameActive) return;
+      gameActive = false;
+      movingBlock = null;
+      fallingBlock = null;
+      if (animationId) cancelAnimationFrame(animationId);
+      document.getElementById('statusMsg').innerHTML = '💥 Kule devrildi! Yeni oyun başlat.';
+      drawCanvas();
+      // yeniden başlatma butonu zaten var
+    }
+
+    // ----- DOKUNMA / TIKLAMA (blok yerleştirme) -----
+    function onTap() {
+      if (!gameActive) return;
+      if (fallingBlock) return; // düşme anında yerleştirme olmaz
+      placeBlock();
+      drawCanvas();
+      // Eğer düşen blok oluştuysa oyun aktifliği placeBlock içinde false olur
+      if (fallingBlock) {
+        // düşüş animasyonu başladı, artık yerleştirme yapılamaz
+        document.getElementById('statusMsg').innerHTML = '⚠️ Düşüş...';
+      }
+    }
+
+    // ----- SOL / SAĞ BUTONLARI (hareket yönünü değiştir) -----
+    function moveLeft() {
+      if (!gameActive) return;
+      if (fallingBlock) return;
+      movingDirection = -1;
+      if (movingBlock) movingBlock.direction = -1;
+    }
+
+    function moveRight() {
+      if (!gameActive) return;
+      if (fallingBlock) return;
+      movingDirection = 1;
+      if (movingBlock) movingBlock.direction = 1;
+    }
+
+    // ----- ANİMASYON DÖNGÜSÜ -----
+    function gameLoop() {
+      if (!gameActive && !fallingBlock) {
+        // Oyun bitti ve düşen yok, sadece çiz
+        drawCanvas();
+        animationId = requestAnimationFrame(gameLoop);
+        return;
+      }
+
+      if (gameActive && !fallingBlock) {
+        updateMoving();
+      }
+
+      if (fallingBlock) {
+        var stillFalling = updateFalling();
+        if (!stillFalling) {
+          // oyun bitti, loop devam etsin ama artık düşen yok
+          fallingBlock = null;
+          drawCanvas();
+          animationId = requestAnimationFrame(gameLoop);
+          return;
+        }
+      }
+
+      drawCanvas();
+      animationId = requestAnimationFrame(gameLoop);
+    }
+
+    function startGameLoop() {
+      if (animationId) cancelAnimationFrame(animationId);
+      gameLoopActive = true;
+      animationId = requestAnimationFrame(gameLoop);
+    }
+
+    // ----- EVENTLER -----
+    function attachEvents() {
+      // Canvas'a dokunma / tıklama
+      canvas.addEventListener('click', function(e) {
+        e.preventDefault();
+        onTap();
+      });
+      canvas.addEventListener('touchstart', function(e) {
+        e.preventDefault();
+        onTap();
+      });
+
+      // Butonlar
+      var leftBtn = document.getElementById('leftBtn');
+      var rightBtn = document.getElementById('rightBtn');
+      var resetBtn = document.getElementById('resetBtn');
+
+      leftBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        moveLeft();
+      });
+      leftBtn.addEventListener('touchstart', function(e) {
+        e.preventDefault();
+        moveLeft();
+      });
+      rightBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        moveRight();
+      });
+      rightBtn.addEventListener('touchstart', function(e) {
+        e.preventDefault();
+        moveRight();
+      });
+      resetBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        resetGame();
+      });
+      resetBtn.addEventListener('touchstart', function(e) {
+        e.preventDefault();
+        resetGame();
+      });
+    }
+
+    // ----- BAŞLAT -----
+    function init() {
+      loadBest();
+      attachEvents();
+      resetGame();
+    }
+
+    init();
+  })();
+</script>
+</body>
+</html>

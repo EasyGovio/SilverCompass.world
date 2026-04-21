@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Pacdi Çivi · Strateji | PACDI Games</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background: #04162E;
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 16px;
+    }
+
+    .game-container {
+      max-width: 450px;
+      width: 100%;
+      background: rgba(4, 22, 46, 0.8);
+      border-radius: 56px;
+      padding: 20px 16px 24px;
+      box-shadow: 0 20px 35px rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(2px);
+      border: 1px solid rgba(246, 180, 95, 0.3);
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 14px;
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #F6B45F;
+    }
+
+    .sub {
+      font-size: 0.62rem;
+      color: #9bb7d4;
+      margin-top: 2px;
+    }
+
+    .back-link {
+      color: #F6B45F;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 0.78rem;
+      background: #0a1018;
+      padding: 5px 12px;
+      border-radius: 40px;
+    }
+
+    .info-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #0a1018;
+      border-radius: 40px;
+      padding: 7px 16px;
+      margin-bottom: 14px;
+    }
+
+    .info-box {
+      color: #F6B45F;
+      font-weight: bold;
+      font-size: 0.78rem;
+    }
+    .info-box span {
+      color: #eaf2fb;
+    }
+
+    .new-btn {
+      background: #F6B45F;
+      border: none;
+      font-weight: bold;
+      padding: 5px 14px;
+      border-radius: 40px;
+      color: #0F1318;
+      cursor: pointer;
+      font-size: 0.78rem;
+    }
+
+    .canvas-wrap {
+      background: #0a1018;
+      border-radius: 28px;
+      padding: 12px;
+      margin-bottom: 14px;
+      display: flex;
+      justify-content: center;
+    }
+
+    canvas {
+      display: block;
+      background: #1e2a3a;
+      border-radius: 20px;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      cursor: pointer;
+      touch-action: none;
+    }
+
+    .status {
+      text-align: center;
+      font-size: 0.85rem;
+      font-weight: bold;
+      color: #F6B45F;
+      min-height: 28px;
+      margin-bottom: 10px;
+    }
+
+    .footer {
+      text-align: center;
+      font-size: 0.6rem;
+      color: #6c8fb0;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 550px) {
+      .info-bar { flex-wrap: wrap; gap: 8px; justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+<div class="game-container">
+  <div class="header">
+    <div>
+      <div class="logo">PACDI ÇİVİ</div>
+      <div class="sub">Strateji · Denge Bulmacası</div>
+    </div>
+    <a href="index.html" class="back-link">← Geri</a>
+  </div>
+
+  <div class="info-bar">
+    <div class="info-box">🎯 Skor: <span id="scoreNum">0</span></div>
+    <div class="info-box">🏆 En İyi: <span id="bestNum">—</span></div>
+    <button class="new-btn" id="resetBtn">↺ Yeni Oyun</button>
+  </div>
+
+  <div class="canvas-wrap">
+    <canvas id="gameCanvas" width="400" height="400"></canvas>
+  </div>
+
+  <div class="status" id="statusMsg">🔩 Çiviye dokun → top serbest kalır → hedefe düşsün</div>
+
+  <div class="footer">Her başarılı düşüş +1 puan · Yeni bir çivi gelir</div>
+</div>
+
+<script>
+  (function() {
+    // ----- CANVAS ve OYUN BOYUTLARI -----
+    var canvas = document.getElementById('gameCanvas');
+    var ctx = canvas.getContext('2d');
+
+    var W = 400, H = 400;
+    canvas.width = W;
+    canvas.height = H;
+
+    // ----- OYUN DEĞİŞKENLERİ -----
+    var score = 0;
+    var bestScore = 0;
+    var gameActive = true;
+    var waitingForReset = false;   // top düştükten sonra yeni tura geçiş
+    var animationId = null;
+
+    // Fizik nesneleri
+    var ball = null;        // { x, y, vx, vy, radius, active }
+    var pin = null;         // { x, y, width, height, active }
+    var target = null;      // { x, y, width, height } (hedef kutu)
+    var ground = null;      // { y } (zemin)
+    var walls = null;       // sol ve sağ duvar
+
+    // Fizik sabitleri
+    var GRAVITY = 0.25;
+    var BOUNCE = 0.55;
+    var FRICTION_AIR = 0.99;
+
+    // Skor localStorage
+    var bestKey = 'pacdi_civi_best';
+    function loadBest() {
+      var saved = localStorage.getItem(bestKey);
+      if (saved !== null) bestScore = parseInt(saved, 10);
+      else bestScore = 0;
+      document.getElementById('bestNum').textContent = bestScore > 0 ? bestScore : '—';
+    }
+    function saveBest() {
+      if (score > bestScore) {
+        bestScore = score;
+        localStorage.setItem(bestKey, bestScore);
+        document.getElementById('bestNum').textContent = bestScore;
+      }
+    }
+    function updateScoreUI() {
+      document.getElementById('scoreNum').textContent = score;
+    }
+
+    // ----- OYUN NESNELERİNİ BAŞLAT -----
+    function initObjects() {
+      // Zemin (alt)
+      ground = { y: H - 25 };
+
+      // Hedef kutu (merkezde, zemine yakın)
+      target = {
+        x: W/2 - 45,
+        y: ground.y - 30,
+        width: 90,
+        height: 30
+      };
+
+      // Duvar sınırları
+      walls = {
+        left: 10,
+        right: W - 10
+      };
+
+      // Top (başlangıçta çivinin üzerinde)
+      ball = {
+        x: W/2,
+        y: H - 95,
+        vx: 0,
+        vy: 0,
+        radius: 12,
+        active: true
+      };
+
+      // Çivi (pim) – topun altında, onu tutuyor
+      pin = {
+        x: W/2 - 18,
+        y: ball.y + ball.radius - 2,
+        width: 36,
+        height: 8,
+        active: true
+      };
+    }
+
+    // ----- FİZİK GÜNCELLEME (ES5, kütüphanesiz)-----
+    function updatePhysics() {
+      if (!gameActive) return;
+      if (!ball.active) return; // top zaten düştü ve tur bitti
+
+      // Yerçekimi ve sürtünme
+      ball.vy += GRAVITY;
+      ball.vx *= FRICTION_AIR;
+      ball.vy *= FRICTION_AIR;
+
+      ball.x += ball.vx;
+      ball.y += ball.vy;
+
+      // Duvar çarpışması (yatay)
+      if (ball.x - ball.radius < walls.left) {
+        ball.x = walls.left + ball.radius;
+        ball.vx = -ball.vx * BOUNCE;
+      }
+      if (ball.x + ball.radius > walls.right) {
+        ball.x = walls.right - ball.radius;
+        ball.vx = -ball.vx * BOUNCE;
+      }
+
+      // Zemin çarpışması
+      if (ball.y + ball.radius > ground.y) {
+        ball.y = ground.y - ball.radius;
+        ball.vy = -ball.vy * BOUNCE;
+        if (Math.abs(ball.vy) < 0.5) ball.vy = 0;
+      }
+
+      // Hedef kutuya çarpma kontrolü (sadece top aktifken ve hedef alanına düşerse)
+      if (ball.active && ball.y + ball.radius >= target.y && ball.y - ball.radius <= target.y + target.height &&
+          ball.x + ball.radius >= target.x && ball.x - ball.radius <= target.x + target.width) {
+        // Başarılı!
+        ball.active = false;
+        gameActive = false;
+        waitingForReset = true;
+        score++;
+        updateScoreUI();
+        saveBest();
+        document.getElementById('statusMsg').innerHTML = '🎉 Başarılı! +1 puan · Yeni tur hazırlanıyor...';
+        setTimeout(function() {
+          resetRound();
+        }, 1200);
+        return;
+      }
+
+      // Top ekran altına düştüyse ve hedefe giremediyse (kaybetti)
+      if (ball.y + ball.radius > H + 30) {
+        ball.active = false;
+        gameActive = false;
+        waitingForReset = true;
+        document.getElementById('statusMsg').innerHTML = '❌ Hedef kaçtı! Tekrar dene.';
+        setTimeout(function() {
+          resetRound();
+        }, 1200);
+      }
+    }
+
+    // ----- TURU SIFIRLA (yeni çivi, aynı skorla devam) -----
+    function resetRound() {
+      // Topu ve çiviyi yeniden konumlandır
+      ball = {
+        x: W/2,
+        y: H - 95,
+        vx: 0,
+        vy: 0,
+        radius: 12,
+        active: true
+      };
+      pin = {
+        x: W/2 - 18,
+        y: ball.y + ball.radius - 2,
+        width: 36,
+        height: 8,
+        active: true
+      };
+      gameActive = true;
+      waitingForReset = false;
+      document.getElementById('statusMsg').innerHTML = '🔩 Yeni çivi! Topu serbest bırakmak için dokun.';
+      drawCanvas(); // hemen çiz
+    }
+
+    // ----- ÇİVİYİ ÇEK (tıklama) -----
+    function pullPin() {
+      if (!gameActive) return;
+      if (waitingForReset) return;
+      if (!pin.active) return;
+      if (!ball.active) return;
+
+      // Çiviyi kaldır
+      pin.active = false;
+      // Topa küçük bir başlangıç ivmesi verme (opsiyonel)
+      ball.vx = (Math.random() - 0.5) * 0.8;
+      ball.vy = -0.5;
+      document.getElementById('statusMsg').innerHTML = '⚡ Top serbest! Hedefe düşsün.';
+    }
+
+    // ----- ÇİZİM (PACDI teması) -----
+    function drawCanvas() {
+      ctx.clearRect(0, 0, W, H);
+      // Arkaplan
+      ctx.fillStyle = '#0a1018';
+      ctx.fillRect(0, 0, W, H);
+
+      // Izgara deseni
+      ctx.strokeStyle = '#1e2a3a';
+      ctx.lineWidth = 1;
+      for (var i = 0; i < 5; i++) {
+        ctx.beginPath();
+        ctx.moveTo(0, i * 80);
+        ctx.lineTo(W, i * 80);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(i * 80, 0);
+        ctx.lineTo(i * 80, H);
+        ctx.stroke();
+      }
+
+      // Zemin
+      ctx.fillStyle = '#1e2a3a';
+      ctx.fillRect(0, ground.y, W, H - ground.y);
+      ctx.fillStyle = '#F6B45F';
+      ctx.fillRect(0, ground.y - 3, W, 3);
+
+      // Hedef kutu (altın çerçeveli)
+      ctx.fillStyle = 'rgba(26, 188, 156, 0.2)';
+      ctx.fillRect(target.x, target.y, target.width, target.height);
+      ctx.strokeStyle = '#1ABC9C';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(target.x, target.y, target.width, target.height);
+      ctx.fillStyle = '#1ABC9C';
+      ctx.font = 'bold 12px monospace';
+      ctx.fillText('HEDEF', target.x + target.width/2 - 18, target.y + target.height/2 + 4);
+
+      // Çivi (varsa)
+      if (pin.active) {
+        ctx.fillStyle = '#F6B45F';
+        ctx.shadowBlur = 4;
+        ctx.shadowColor = '#F6B45F';
+        ctx.fillRect(pin.x, pin.y, pin.width, pin.height);
+        // çivi başı
+        ctx.fillStyle = '#e0a030';
+        ctx.beginPath();
+        ctx.arc(pin.x + pin.width/2, pin.y - 3, 6, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#F6B45F';
+        ctx.beginPath();
+        ctx.arc(pin.x + pin.width/2, pin.y - 3, 4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      }
+
+      // Top
+      if (ball.active) {
+        var grad = ctx.createRadialGradient(ball.x - 3, ball.y - 3, 3, ball.x, ball.y, ball.radius);
+        grad.addColorStop(0, '#F6B45F');
+        grad.addColorStop(1, '#e0a030');
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = 'white';
+        ctx.beginPath();
+        ctx.arc(ball.x - 3, ball.y - 3, 3, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // Skor yazısı
+      ctx.font = 'bold 22px monospace';
+      ctx.fillStyle = '#F6B45F';
+      ctx.shadowBlur = 0;
+      ctx.fillText('' + score, 15, 40);
+    }
+
+    // ----- ANİMASYON DÖNGÜSÜ -----
+    function animate() {
+      if (!waitingForReset && gameActive && ball.active) {
+        updatePhysics();
+      }
+      drawCanvas();
+      animationId = requestAnimationFrame(animate);
+    }
+
+    // ----- DOKUNMA OLAYI (çiviye tıklama) -----
+    function handleTap(e) {
+      if (waitingForReset) return;
+      if (!gameActive) return;
+      // Canvas koordinatlarını al
+      var rect = canvas.getBoundingClientRect();
+      var scaleX = canvas.width / rect.width;
+      var scaleY = canvas.height / rect.height;
+      var clientX, clientY;
+      if (e.touches) {
+        clientX = e.touches[0].clientX;
+        clientY = e.touches[0].clientY;
+        e.preventDefault();
+      } else {
+        clientX = e.clientX;
+        clientY = e.clientY;
+      }
+      var canvasX = (clientX - rect.left) * scaleX;
+      var canvasY = (clientY - rect.top) * scaleY;
+
+      // Çiviye tıklama kontrolü
+      if (pin.active && canvasX >= pin.x && canvasX <= pin.x + pin.width &&
+          canvasY >= pin.y && canvasY <= pin.y + pin.height) {
+        pullPin();
+      }
+    }
+
+    // ----- OYUNU SIFIRLA (tamamen sıfır, skor sıfırlanır) -----
+    function resetGame() {
+      if (animationId) cancelAnimationFrame(animationId);
+      score = 0;
+      updateScoreUI();
+      gameActive = true;
+      waitingForReset = false;
+      initObjects();
+      drawCanvas();
+      startAnimation();
+      document.getElementById('statusMsg').innerHTML = '🔩 Yeni oyun! Çiviye dokun ve topu hedefe gönder.';
+      loadBest();  // en iyi skoru yeniden oku
+    }
+
+    function startAnimation() {
+      if (animationId) cancelAnimationFrame(animationId);
+      animationId = requestAnimationFrame(animate);
+    }
+
+    // ----- EVENTLER -----
+    function attachEvents() {
+      canvas.addEventListener('click', handleTap);
+      canvas.addEventListener('touchstart', function(e) {
+        e.preventDefault();
+        handleTap(e);
+      });
+      document.getElementById('resetBtn').addEventListener('click', function() {
+        resetGame();
+      });
+    }
+
+    // ----- BAŞLAT -----
+    function init() {
+      loadBest();
+      initObjects();
+      attachEvents();
+      drawCanvas();
+      startAnimation();
+    }
+
+    init();
+  })();
+</script>
+</body>
+</html>

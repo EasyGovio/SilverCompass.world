@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Dijital Miras | Legacy Puzzle | PACDI Games</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background: #04162E;
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 16px;
+    }
+
+    .game-container {
+      max-width: 550px;
+      width: 100%;
+      background: rgba(4, 22, 46, 0.8);
+      border-radius: 56px;
+      padding: 20px 16px 24px;
+      box-shadow: 0 20px 35px rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(2px);
+      border: 1px solid rgba(246, 180, 95, 0.3);
+      text-align: center;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 14px;
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #F6B45F;
+    }
+
+    .sub {
+      font-size: 0.62rem;
+      color: #9bb7d4;
+      margin-top: 2px;
+    }
+
+    .back-link {
+      color: #F6B45F;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 0.78rem;
+      background: #0a1018;
+      padding: 5px 12px;
+      border-radius: 40px;
+    }
+
+    .lang-selector {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 12px;
+      justify-content: flex-end;
+    }
+
+    .lang-btn {
+      background: #0a1018;
+      border: 1px solid #F6B45F;
+      color: #F6B45F;
+      font-size: 0.7rem;
+      padding: 3px 10px;
+      border-radius: 30px;
+      cursor: pointer;
+    }
+
+    .lang-btn.active {
+      background: #F6B45F;
+      color: #04162E;
+    }
+
+    .info-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #0a1018;
+      border-radius: 40px;
+      padding: 7px 16px;
+      margin-bottom: 14px;
+    }
+
+    .info-box {
+      color: #F6B45F;
+      font-weight: bold;
+      font-size: 0.78rem;
+    }
+    .info-box span { color: #eaf2fb; }
+
+    .new-btn {
+      background: #F6B45F;
+      border: none;
+      font-weight: bold;
+      padding: 5px 14px;
+      border-radius: 40px;
+      color: #0F1318;
+      cursor: pointer;
+      font-size: 0.78rem;
+    }
+
+    .image-upload-area {
+      background: #0a1018;
+      border-radius: 32px;
+      padding: 16px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .image-preview {
+      width: 100%;
+      aspect-ratio: 1;
+      background: #1e2a3a;
+      border-radius: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 12px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .image-preview canvas {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .upload-btn {
+      background: #F6B45F;
+      color: #04162E;
+      border: none;
+      border-radius: 60px;
+      padding: 10px 20px;
+      font-weight: bold;
+      cursor: pointer;
+      margin: 8px;
+    }
+
+    .puzzle-stats {
+      background: #0a1018;
+      border-radius: 40px;
+      padding: 8px 16px;
+      margin: 12px 0;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .question-area {
+      background: #0a1018;
+      border-radius: 28px;
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+
+    .question-text {
+      font-size: 1rem;
+      font-weight: bold;
+      color: #F6B45F;
+      margin-bottom: 12px;
+    }
+
+    .options-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .opt-btn {
+      background: #1e2a3a;
+      border: 2px solid #1ABC9C;
+      border-radius: 60px;
+      padding: 10px 8px;
+      font-weight: bold;
+      color: #1ABC9C;
+      cursor: pointer;
+      transition: 0.05s linear;
+      font-size: 0.85rem;
+    }
+
+    .opt-btn:active {
+      background: #1ABC9C;
+      color: #04162E;
+      transform: scale(0.96);
+    }
+
+    .feedback {
+      margin: 12px 0;
+      font-size: 0.9rem;
+      font-weight: bold;
+      min-height: 50px;
+      color: #2ECC71;
+    }
+    .feedback.error { color: #E74C3C; }
+
+    .progress-wrap {
+      background: #0a1018;
+      border-radius: 40px;
+      padding: 6px 12px;
+      margin-top: 8px;
+      font-size: 0.7rem;
+      color: #6c8fb0;
+    }
+
+    .share-btn {
+      background: #1ABC9C;
+      color: #04162E;
+      border: none;
+      border-radius: 60px;
+      padding: 10px 20px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    .footer {
+      text-align: center;
+      font-size: 0.6rem;
+      color: #6c8fb0;
+      margin-top: 12px;
+    }
+  </style>
+</head>
+<body>
+<div class="game-container">
+  <div class="header">
+    <div><div class="logo" id="gameTitle">DİJİTAL MİRAS</div><div class="sub" id="gameSub">Legacy Puzzle · Onur Sertifikası</div></div>
+    <a href="index.html" class="back-link" id="backLink">← Geri</a>
+  </div>
+  <div class="lang-selector" id="langSelector">
+    <button class="lang-btn active" data-lang="tr">TR</button>
+    <button class="lang-btn" data-lang="de">DE</button>
+    <button class="lang-btn" data-lang="en">EN</button>
+  </div>
+  <div class="info-bar">
+    <div class="info-box"><span id="scoreLabel">🧩 Tamamlanan:</span> <span id="scoreNum">0</span></div>
+    <div class="info-box"><span id="bestLabel">🏆 En İyi:</span> <span id="bestNum">—</span></div>
+    <button class="new-btn" id="resetBtn"><span id="resetText">↺ Yeniden</span></button>
+  </div>
+
+  <div class="image-upload-area">
+    <div class="image-preview" id="imagePreview">
+      <canvas id="puzzleCanvas" width="400" height="400"></canvas>
+    </div>
+    <input type="file" id="imageUpload" accept="image/*" style="display: none;">
+    <button class="upload-btn" id="uploadBtn">📷 Fotoğraf Seç</button>
+    <div class="puzzle-stats">
+      <div>🧩 Parça Boyutu: <span id="pieceSize">—</span></div>
+      <div>🔓 Açılan: <span id="unlockedPieces">0</span></div>
+    </div>
+  </div>
+
+  <div class="question-area" id="questionArea">
+    <div class="question-text" id="questionText">Bir fotoğraf seçerek başlayın...</div>
+    <div class="options-grid" id="optionsGrid"></div>
+  </div>
+
+  <div class="feedback" id="feedbackMsg"></div>
+  <div class="progress-wrap" id="progressMsg">Her doğru cevap bir parçayı açar. Mirasını tamamla!</div>
+  <div class="footer" id="footerText">Seçtiğin fotoğraf sadece senin cihazında kalır. Hiçbir yere gönderilmez.</div>
+</div>
+
+<script>
+  (function() {
+    // Çok dilli içerik
+    var langData = {
+      tr: {
+        title: "DİJİTAL MİRAS", sub: "Legacy Puzzle · Onur Sertifikası", back: "← Geri",
+        score: "🧩 Tamamlanan:", best: "🏆 En İyi:", reset: "↺ Yeniden",
+        progress: "Her doğru cevap bir parçayı açar. Mirasını tamamla!",
+        footer: "Seçtiğin fotoğraf sadece senin cihazında kalır. Hiçbir yere gönderilmez.",
+        uploadBtn: "📷 Fotoğraf Seç",
+        questionBase: "Soru ",
+        correct: "✅ Doğru! +1 parça açıldı",
+        wrong: "❌ Yanlış cevap. Tekrar dene.",
+        congrats: "🎉 TEBRİKLER! Mirasını tamamladın!",
+        share: "📤 Onur Sertifikamı Paylaş",
+        certificate: "PACDI Onur Sertifikası",
+        completed: "Dijital Mirasımı Tamamladım"
+      },
+      de: {
+        title: "DIGITALES ERBE", sub: "Legacy Puzzle · Ehrenurkunde", back: "← Zurück",
+        score: "🧩 Abgeschlossen:", best: "🏆 Beste:", reset: "↺ Neustart",
+        progress: "Jede richtige Antwort öffnet ein Puzzleteil. Vervollständige dein Erbe!",
+        footer: "Das ausgewählte Foto bleibt nur auf deinem Gerät. Es wird nirgendwohin gesendet.",
+        uploadBtn: "📷 Foto Wählen",
+        questionBase: "Frage ",
+        correct: "✅ Richtig! +1 Teil geöffnet",
+        wrong: "❌ Falsche Antwort. Versuche es erneut.",
+        congrats: "🎉 GLÜCKWUNSCH! Du hast dein Erbe vollendet!",
+        share: "📤 Meine Ehrenurkunde Teilen",
+        certificate: "PACDI Ehrenurkunde",
+        completed: "Ich habe mein digitales Erbe vollendet"
+      },
+      en: {
+        title: "DIGITAL LEGACY", sub: "Legacy Puzzle · Honor Certificate", back: "← Back",
+        score: "🧩 Completed:", best: "🏆 Best:", reset: "↺ Reset",
+        progress: "Each correct answer unlocks a puzzle piece. Complete your legacy!",
+        footer: "The selected photo stays only on your device. It is not sent anywhere.",
+        uploadBtn: "📷 Choose Photo",
+        questionBase: "Question ",
+        correct: "✅ Correct! +1 piece unlocked",
+        wrong: "❌ Wrong answer. Try again.",
+        congrats: "🎉 CONGRATULATIONS! You completed your legacy!",
+        share: "📤 Share My Honor Certificate",
+        certificate: "PACDI Honor Certificate",
+        completed: "I Completed My Digital Legacy"
+      }
+    };
+
+    var currentLang = "tr";
+    var score = 0;
+    var bestScore = 0;
+    var unlockedPieces = 0;
+    var totalPieces = 9;
+    var pieceSize = 0;
+    var originalImage = null;
+    var puzzleImageData = null;
+    var questions = [];
+    var currentQuestionIndex = 0;
+    var gameActive = false;
+    var timeoutId = null;
+
+    // DOM elementleri
+    var canvas = document.getElementById('puzzleCanvas');
+    var ctx = canvas.getContext('2d');
+    var uploadBtn = document.getElementById('uploadBtn');
+    var imageUpload = document.getElementById('imageUpload');
+    var questionText = document.getElementById('questionText');
+    var optionsGrid = document.getElementById('optionsGrid');
+    var feedbackDiv = document.getElementById('feedbackMsg');
+    var scoreSpan = document.getElementById('scoreNum');
+    var bestSpan = document.getElementById('bestNum');
+    var unlockedSpan = document.getElementById('unlockedPieces');
+    var pieceSizeSpan = document.getElementById('pieceSize');
+    var resetBtn = document.getElementById('resetBtn');
+    var langBtns = document.querySelectorAll('.lang-btn');
+
+    function loadBest() {
+      var saved = localStorage.getItem('legacy_best_' + currentLang);
+      bestScore = saved ? parseInt(saved, 10) : 0;
+      bestSpan.textContent = bestScore || '—';
+    }
+    function saveBest() {
+      if (score > bestScore) {
+        bestScore = score;
+        localStorage.setItem('legacy_best_' + currentLang, bestScore);
+        bestSpan.textContent = bestScore;
+      }
+    }
+
+    function updateLanguage() {
+      var t = langData[currentLang];
+      if (!t) return;
+      document.getElementById('gameTitle').innerText = t.title;
+      document.getElementById('gameSub').innerText = t.sub;
+      document.getElementById('backLink').innerText = t.back;
+      document.getElementById('scoreLabel').innerHTML = t.score;
+      document.getElementById('bestLabel').innerHTML = t.best;
+      document.getElementById('resetText').innerText = t.reset;
+      document.getElementById('progressMsg').innerHTML = t.progress;
+      document.getElementById('footerText').innerHTML = t.footer;
+      uploadBtn.innerText = t.uploadBtn;
+      if (!gameActive && !originalImage) {
+        questionText.innerText = "📷 " + t.uploadBtn + " ile başla";
+      }
+    }
+
+    function setLanguage(lang) {
+      currentLang = lang;
+      updateLanguage();
+      loadBest();
+      var btns = document.querySelectorAll('.lang-btn');
+      for (var i = 0; i < btns.length; i++) {
+        if (btns[i].getAttribute('data-lang') === lang) btns[i].classList.add('active');
+        else btns[i].classList.remove('active');
+      }
+    }
+
+    // Soru bankası (rastgele seçilecek)
+    var questionBank = [
+      { q: "Türkiye'nin başkenti neresidir?", a: "Ankara", opts: ["İstanbul", "Ankara", "İzmir", "Bursa"] },
+      { q: "Almanya'nın başkenti neresidir?", a: "Berlin", opts: ["Münih", "Berlin", "Hamburg", "Köln"] },
+      { q: "Hangi renk PACDI'nin ana vurgu rengidir?", a: "Altın Sarısı", opts: ["Lacivert", "Altın Sarısı", "Teal", "Kırmızı"] },
+      { q: "'Teknoloji insanlığın hizmetinde' hangi markanın sloganıdır?", a: "PACDI", opts: ["Apple", "Google", "PACDI", "Microsoft"] },
+      { q: "2 + 2 x 2 = ?", a: "6", opts: ["6", "8", "4", "10"] },
+      { q: "Hangi ülke Avrupa Birliği'nin kurucu üyelerindendir?", a: "Almanya", opts: ["Türkiye", "Almanya", "İsviçre", "Norveç"] },
+      { q: "Nazar boncuğu hangi kültüre aittir?", a: "Türk", opts: ["Yunan", "Türk", "İtalyan", "Alman"] }
+    ];
+
+    function shuffle(arr) {
+      for (var i = arr.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var t = arr[i]; arr[i] = arr[j]; arr[j] = t;
+      }
+      return arr;
+    }
+
+    function generateQuestions(count) {
+      var shuffled = shuffle(questionBank.slice());
+      return shuffled.slice(0, count);
+    }
+
+    function resizeAndDrawImage(img) {
+      var size = 400;
+      canvas.width = size;
+      canvas.height = size;
+      var scale = Math.min(size / img.width, size / img.height);
+      var x = (size - img.width * scale) / 2;
+      var y = (size - img.height * scale) / 2;
+      ctx.clearRect(0, 0, size, size);
+      ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
+      originalImage = ctx.getImageData(0, 0, size, size);
+      puzzleImageData = ctx.getImageData(0, 0, size, size);
+      pieceSize = Math.floor(size / 3);
+      pieceSizeSpan.innerText = pieceSize + "px";
+      drawPuzzle();
+    }
+
+    function drawPuzzle() {
+      if (!puzzleImageData) return;
+      ctx.putImageData(puzzleImageData, 0, 0);
+      // parça sınırlarını çiz
+      ctx.strokeStyle = '#F6B45F';
+      ctx.lineWidth = 1.5;
+      for (var row = 0; row < 3; row++) {
+        for (var col = 0; col < 3; col++) {
+          var idx = row * 3 + col;
+          var x = col * pieceSize;
+          var y = row * pieceSize;
+          if (unlockedPieces > idx) {
+            // açık parça: normal
+          } else {
+            // kapalı parça: karart
+            ctx.fillStyle = 'rgba(4, 22, 46, 0.85)';
+            ctx.fillRect(x, y, pieceSize, pieceSize);
+            ctx.fillStyle = '#F6B45F';
+            ctx.font = "bold 20px sans-serif";
+            ctx.fillText("🔒", x + pieceSize/2 - 12, y + pieceSize/2 + 8);
+          }
+          ctx.strokeRect(x, y, pieceSize, pieceSize);
+        }
+      }
+    }
+
+    function loadQuestion() {
+      if (currentQuestionIndex >= questions.length) {
+        if (unlockedPieces >= totalPieces) {
+          finishGame();
+        } else {
+          // tüm sorular bitti ama parçalar tamamlanmadı (hata durumu)
+          finishGame();
+        }
+        return;
+      }
+      var q = questions[currentQuestionIndex];
+      questionText.innerText = langData[currentLang].questionBase + (currentQuestionIndex+1) + ": " + q.q;
+      var opts = q.opts.slice();
+      optionsGrid.innerHTML = '';
+      for (var i = 0; i < opts.length; i++) {
+        var btn = document.createElement('button');
+        btn.className = 'opt-btn';
+        btn.innerText = opts[i];
+        btn.addEventListener('click', (function(selected) {
+          return function() { checkAnswer(selected, q.a); };
+        })(opts[i]));
+        optionsGrid.appendChild(btn);
+      }
+    }
+
+    function checkAnswer(selected, correct) {
+      if (!gameActive) return;
+      if (timeoutId) return;
+      var t = langData[currentLang];
+      if (selected === correct) {
+        // doğru cevap: bir parça aç
+        if (unlockedPieces < totalPieces) {
+          unlockedPieces++;
+          score++;
+          scoreSpan.innerText = score;
+          unlockedSpan.innerText = unlockedPieces;
+          saveBest();
+          // parçayı aç (puzzleImageData'da ilgili alanı göster)
+          if (unlockedPieces <= totalPieces) {
+            var pieceIdx = unlockedPieces - 1;
+            var row = Math.floor(pieceIdx / 3);
+            var col = pieceIdx % 3;
+            var sx = col * pieceSize;
+            var sy = row * pieceSize;
+            var imgData = ctx.getImageData(sx, sy, pieceSize, pieceSize);
+            puzzleImageData.data.set(imgData.data, (sx + sy * canvas.width) * 4);
+          }
+          drawPuzzle();
+          feedbackDiv.innerHTML = t.correct;
+          feedbackDiv.style.color = '#2ECC71';
+        }
+        currentQuestionIndex++;
+        if (unlockedPieces >= totalPieces) {
+          finishGame();
+          return;
+        }
+        if (currentQuestionIndex < questions.length) {
+          timeoutId = setTimeout(function() {
+            timeoutId = null;
+            loadQuestion();
+          }, 1000);
+        } else {
+          // sorular bitti ama parçalar tamamlanmadıysa (tamamlanmış olmalı)
+          if (unlockedPieces >= totalPieces) finishGame();
+          else timeoutId = setTimeout(finishGame, 500);
+        }
+      } else {
+        feedbackDiv.innerHTML = t.wrong;
+        feedbackDiv.style.color = '#E74C3C';
+        var btns = document.querySelectorAll('.opt-btn');
+        for (var i = 0; i < btns.length; i++) btns[i].style.pointerEvents = 'none';
+        timeoutId = setTimeout(function() {
+          feedbackDiv.innerHTML = '';
+          for (var j = 0; j < btns.length; j++) btns[j].style.pointerEvents = '';
+          timeoutId = null;
+          loadQuestion();
+        }, 1500);
+      }
+    }
+
+    function finishGame() {
+      gameActive = false;
+      var t = langData[currentLang];
+      var msg = t.congrats;
+      if (score === totalPieces && (bestScore === score || score > bestScore)) msg += " " + t.newBest;
+      feedbackDiv.innerHTML = msg;
+      feedbackDiv.style.color = '#2ECC71';
+      optionsGrid.innerHTML = '';
+      // paylaş butonu
+      var shareContainer = document.getElementById('questionArea');
+      var existingShare = document.getElementById('shareCertificateBtn');
+      if (!existingShare) {
+        var shareBtn = document.createElement('button');
+        shareBtn.id = 'shareCertificateBtn';
+        shareBtn.className = 'share-btn';
+        shareBtn.innerText = t.share;
+        shareBtn.onclick = function() {
+          // Sertifika oluştur (canvas'a çiz)
+          var certCanvas = document.createElement('canvas');
+          certCanvas.width = 600;
+          certCanvas.height = 400;
+          var certCtx = certCanvas.getContext('2d');
+          certCtx.fillStyle = '#04162E';
+          certCtx.fillRect(0, 0, 600, 400);
+          certCtx.fillStyle = '#F6B45F';
+          certCtx.font = "bold 28px sans-serif";
+          certCtx.fillText(t.certificate, 50, 70);
+          certCtx.fillStyle = '#eaf2fb';
+          certCtx.font = "18px sans-serif";
+          certCtx.fillText(t.completed, 50, 130);
+          certCtx.fillText("⭐ " + score + "/" + totalPieces + " ⭐", 50, 190);
+          var imgData = canvas.toDataURL('image/png');
+          var img = new Image();
+          img.onload = function() {
+            certCtx.drawImage(img, 50, 230, 200, 130);
+            var link = document.createElement('a');
+            link.download = 'pacdi_certificate.png';
+            link.href = certCanvas.toDataURL();
+            link.click();
+          };
+          img.src = imgData;
+        };
+        shareContainer.appendChild(shareBtn);
+      }
+    }
+
+    function resetGame() {
+      if (timeoutId) clearTimeout(timeoutId);
+      gameActive = false;
+      score = 0;
+      unlockedPieces = 0;
+      currentQuestionIndex = 0;
+      scoreSpan.innerText = '0';
+      unlockedSpan.innerText = '0';
+      feedbackDiv.innerHTML = '';
+      if (originalImage) {
+        puzzleImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        drawPuzzle();
+      } else {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#1e2a3a';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#F6B45F';
+        ctx.font = "16px sans-serif";
+        ctx.fillText("📷 Fotoğraf seç", canvas.width/2-70, canvas.height/2);
+      }
+      var shareBtn = document.getElementById('shareCertificateBtn');
+      if (shareBtn) shareBtn.remove();
+      questionText.innerText = langData[currentLang].uploadBtn + " ile başla";
+      optionsGrid.innerHTML = '';
+    }
+
+    function startWithImage(img) {
+      resetGame();
+      resizeAndDrawImage(img);
+      unlockedPieces = 0;
+      score = 0;
+      currentQuestionIndex = 0;
+      questions = generateQuestions(totalPieces);
+      gameActive = true;
+      loadQuestion();
+    }
+
+    uploadBtn.addEventListener('click', function() {
+      imageUpload.click();
+    });
+    imageUpload.addEventListener('change', function(e) {
+      var file = e.target.files[0];
+      if (!file) return;
+      var reader = new FileReader();
+      reader.onload = function(ev) {
+        var img = new Image();
+        img.onload = function() {
+          startWithImage(img);
+        };
+        img.src = ev.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+
+    resetBtn.addEventListener('click', function() {
+      if (originalImage) {
+        var tempCanvas = document.createElement('canvas');
+        var tempCtx = tempCanvas.getContext('2d');
+        tempCanvas.width = originalImage.width;
+        tempCanvas.height = originalImage.height;
+        tempCtx.putImageData(originalImage, 0, 0);
+        var img = new Image();
+        img.onload = function() {
+          startWithImage(img);
+        };
+        img.src = tempCanvas.toDataURL();
+      } else {
+        resetGame();
+      }
+    });
+
+    for (var i = 0; i < langBtns.length; i++) {
+      langBtns[i].addEventListener('click', function() {
+        var lang = this.getAttribute('data-lang');
+        if (lang !== currentLang) setLanguage(lang);
+      });
+    }
+
+    setLanguage('tr');
+    loadBest();
+    resetGame();
+  })();
+</script>
+</body>
+</html>

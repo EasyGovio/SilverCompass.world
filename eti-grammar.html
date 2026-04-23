@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>İyiliğin Grameri | PACDI Games</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background: #04162E;
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 16px;
+    }
+
+    .game-container {
+      max-width: 550px;
+      width: 100%;
+      background: rgba(4, 22, 46, 0.8);
+      border-radius: 56px;
+      padding: 20px 16px 24px;
+      box-shadow: 0 20px 35px rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(2px);
+      border: 1px solid rgba(246, 180, 95, 0.3);
+      text-align: center;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 14px;
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #F6B45F;
+    }
+
+    .sub {
+      font-size: 0.62rem;
+      color: #9bb7d4;
+      margin-top: 2px;
+    }
+
+    .back-link {
+      color: #F6B45F;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 0.78rem;
+      background: #0a1018;
+      padding: 5px 12px;
+      border-radius: 40px;
+    }
+
+    .lang-selector {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 12px;
+      justify-content: flex-end;
+    }
+
+    .lang-btn {
+      background: #0a1018;
+      border: 1px solid #F6B45F;
+      color: #F6B45F;
+      font-size: 0.7rem;
+      padding: 3px 10px;
+      border-radius: 30px;
+      cursor: pointer;
+    }
+
+    .lang-btn.active {
+      background: #F6B45F;
+      color: #04162E;
+    }
+
+    .info-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #0a1018;
+      border-radius: 40px;
+      padding: 7px 16px;
+      margin-bottom: 14px;
+    }
+
+    .info-box {
+      color: #F6B45F;
+      font-weight: bold;
+      font-size: 0.78rem;
+    }
+    .info-box span { color: #eaf2fb; }
+
+    .new-btn {
+      background: #F6B45F;
+      border: none;
+      font-weight: bold;
+      padding: 5px 14px;
+      border-radius: 40px;
+      color: #0F1318;
+      cursor: pointer;
+      font-size: 0.78rem;
+    }
+
+    .question-area {
+      background: #0a1018;
+      border-radius: 28px;
+      padding: 20px 16px;
+      margin-bottom: 20px;
+    }
+
+    .word-display {
+      font-size: 2.2rem;
+      font-weight: bold;
+      color: #F6B45F;
+      margin-bottom: 12px;
+      letter-spacing: 2px;
+    }
+
+    .question-text {
+      font-size: 0.9rem;
+      color: #eaf2fb;
+      margin-bottom: 16px;
+    }
+
+    .options-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .opt-btn {
+      background: #1e2a3a;
+      border: 2px solid #1ABC9C;
+      border-radius: 60px;
+      padding: 12px 8px;
+      font-weight: bold;
+      color: #1ABC9C;
+      cursor: pointer;
+      transition: 0.05s linear;
+      font-size: 0.9rem;
+      text-align: center;
+    }
+
+    .opt-btn:active {
+      background: #1ABC9C;
+      color: #04162E;
+      transform: scale(0.96);
+    }
+
+    .feedback {
+      margin: 12px 0;
+      font-size: 0.9rem;
+      font-weight: bold;
+      min-height: 50px;
+      color: #2ECC71;
+    }
+    .feedback.error { color: #E74C3C; }
+
+    .progress-wrap {
+      background: #0a1018;
+      border-radius: 40px;
+      padding: 6px 12px;
+      margin-top: 8px;
+      font-size: 0.7rem;
+      color: #6c8fb0;
+    }
+
+    .info-card {
+      background: #0a1018;
+      border-radius: 20px;
+      padding: 12px;
+      margin-top: 12px;
+      font-size: 0.7rem;
+      color: #9bb7d4;
+      line-height: 1.4;
+      border: 1px solid rgba(246,180,95,0.2);
+    }
+
+    .footer {
+      text-align: center;
+      font-size: 0.6rem;
+      color: #6c8fb0;
+      margin-top: 12px;
+    }
+  </style>
+</head>
+<body>
+<div class="game-container">
+  <div class="header">
+    <div><div class="logo" id="gameTitle">İYİLİĞİN GRAMERİ</div><div class="sub" id="gameSub">Diller · Barış · Ortak Ses</div></div>
+    <a href="index.html" class="back-link" id="backLink">← Geri</a>
+  </div>
+  <div class="lang-selector" id="langSelector">
+    <button class="lang-btn active" data-lang="tr">TR</button>
+    <button class="lang-btn" data-lang="de">DE</button>
+    <button class="lang-btn" data-lang="en">EN</button>
+  </div>
+  <div class="info-bar">
+    <div class="info-box"><span id="scoreLabel">🎯 Skor:</span> <span id="scoreNum">0</span></div>
+    <div class="info-box"><span id="bestLabel">🏆 En İyi:</span> <span id="bestNum">—</span></div>
+    <button class="new-btn" id="resetBtn"><span id="resetText">↺ Yeniden</span></button>
+  </div>
+
+  <div class="question-area">
+    <div class="word-display" id="wordDisplay">🌿</div>
+    <div class="question-text" id="questionText">Bu kelime hangi dili ve anlamı temsil eder?</div>
+    <div class="options-grid" id="optionsGrid"></div>
+    <div class="info-card" id="infoCard"></div>
+  </div>
+
+  <div class="feedback" id="feedbackMsg"></div>
+  <div class="progress-wrap" id="progressMsg">Barış, huzur, selam... Ortak sesimiz.</div>
+  <div class="footer" id="footerText">Shalom · Selam · Shanti — hepsi aynı dile seslenir.</div>
+</div>
+
+<script>
+  (function() {
+    var langData = {
+      tr: {
+        title: "İYİLİĞİN GRAMERİ", sub: "Diller · Barış · Ortak Ses", back: "← Geri",
+        score: "🎯 Skor:", best: "🏆 En İyi:", reset: "↺ Yeniden",
+        progress: "Barış, huzur, selam... Ortak sesimiz.", footer: "Shalom · Selam · Shanti — hepsi aynı dile seslenir.",
+        correct: "✅ Doğru! +1 puan", wrong: "❌ Yanlış. Doğru cevap: ",
+        gameOver: "🎉 TEBRİKLER! İyiliğin gramerini öğrendin!", newBest: " (YENİ REKOR!)"
+      },
+      de: {
+        title: "GRAMMATIK DER GÜTE", sub: "Sprachen · Frieden · Gemeinsame Stimme", back: "← Zurück",
+        score: "🎯 Punkt:", best: "🏆 Beste:", reset: "↺ Neustart",
+        progress: "Frieden, Ruhe, Heil... Unsere gemeinsame Stimme.", footer: "Schalom · Salam · Shanti — sie sprechen dieselbe Sprache.",
+        correct: "✅ Richtig! +1 Punkt", wrong: "❌ Falsch. Richtige Antwort: ",
+        gameOver: "🎉 GLÜCKWUNSCH! Du hast die Grammatik der Güte gelernt!", newBest: " (NEUER REKORD!)"
+      },
+      en: {
+        title: "GRAMMAR OF GOODNESS", sub: "Languages · Peace · Common Voice", back: "← Back",
+        score: "🎯 Score:", best: "🏆 Best:", reset: "↺ Reset",
+        progress: "Peace, serenity, hello... Our common voice.", footer: "Shalom · Salam · Shanti — all speak the same language.",
+        correct: "✅ Correct! +1 point", wrong: "❌ Wrong. Correct answer: ",
+        gameOver: "🎉 CONGRATULATIONS! You learned the grammar of goodness!", newBest: " (NEW RECORD!)"
+      }
+    };
+
+    var currentLang = "tr";
+    var score = 0;
+    var bestScore = 0;
+    var currentIndex = 0;
+    var gameActive = true;
+    var timeoutId = null;
+
+    var words = [
+      { word: "שָׁלוֹם (Shalom)", meaning: "Barış, esenlik, tamlık", lang: "İbranice", family: "Semitik", phonetic: "Şalom" },
+      { word: "سَلاَم (Selam)", meaning: "Barış, güvenlik, selamet", lang: "Arapça", family: "Semitik", phonetic: "Selam" },
+      { word: "शान्ति (Shanti)", meaning: "Huzur, sükûnet, iç dinginliği", lang: "Sanskritçe", family: "Hint-Avrupa", phonetic: "Şanti" },
+      { word: "Pax", meaning: "Barış", lang: "Latince", family: "Hint-Avrupa", phonetic: "Paks" },
+      { word: "Frieden", meaning: "Barış, huzur", lang: "Almanca", family: "Cermen", phonetic: "Friden" },
+      { word: "Peace", meaning: "Barış, sükûnet", lang: "İngilizce", family: "Cermen", phonetic: "Pis" }
+    ];
+    var totalRounds = words.length;
+    var allMeanings = words.map(function(w) { return w.lang + " · " + w.meaning; });
+
+    var scoreSpan = document.getElementById('scoreNum');
+    var bestSpan = document.getElementById('bestNum');
+    var wordDisplay = document.getElementById('wordDisplay');
+    var questionText = document.getElementById('questionText');
+    var optionsGrid = document.getElementById('optionsGrid');
+    var infoCard = document.getElementById('infoCard');
+    var feedbackDiv = document.getElementById('feedbackMsg');
+    var resetBtn = document.getElementById('resetBtn');
+    var langBtns = document.querySelectorAll('.lang-btn');
+    var gameTitle = document.getElementById('gameTitle');
+    var gameSub = document.getElementById('gameSub');
+    var backLink = document.getElementById('backLink');
+    var scoreLabel = document.getElementById('scoreLabel');
+    var bestLabel = document.getElementById('bestLabel');
+    var resetSpan = document.getElementById('resetText');
+    var progressMsg = document.getElementById('progressMsg');
+    var footerText = document.getElementById('footerText');
+
+    function loadBest() { var s = localStorage.getItem('grammar_best_' + currentLang); bestScore = s ? parseInt(s) : 0; bestSpan.textContent = bestScore || '—'; }
+    function saveBest() { if (score > bestScore) { bestScore = score; localStorage.setItem('grammar_best_' + currentLang, bestScore); bestSpan.textContent = bestScore; } }
+
+    function updateLanguage() {
+      var t = langData[currentLang];
+      if (!t) return;
+      gameTitle.innerText = t.title; gameSub.innerText = t.sub; backLink.innerText = t.back;
+      scoreLabel.innerText = t.score; bestLabel.innerText = t.best; resetSpan.innerText = t.reset;
+      progressMsg.innerText = t.progress; footerText.innerText = t.footer;
+    }
+
+    function setLanguage(lang) {
+      currentLang = lang; updateLanguage(); loadBest();
+      var btns = document.querySelectorAll('.lang-btn');
+      for (var i = 0; i < btns.length; i++) {
+        if (btns[i].getAttribute('data-lang') === lang) btns[i].classList.add('active');
+        else btns[i].classList.remove('active');
+      }
+      if (!gameActive && currentIndex >= totalRounds) {
+        var t = langData[currentLang]; feedbackDiv.innerHTML = t.gameOver; feedbackDiv.style.color = '#2ECC71';
+      }
+    }
+
+    function shuffle(arr) { for (var i = arr.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = arr[i]; arr[i] = arr[j]; arr[j] = t; } return arr; }
+
+    function loadQuestion() {
+      if (currentIndex >= totalRounds) { endGame(); return; }
+      var q = words[currentIndex];
+      wordDisplay.innerText = q.word;
+      infoCard.innerHTML = '🔊 <strong>' + q.phonetic + '</strong><br>' + q.family + ' dil ailesi · ' + q.lang;
+      var opts = [q.lang + " · " + q.meaning];
+      while (opts.length < 4) {
+        var r = allMeanings[Math.floor(Math.random() * allMeanings.length)];
+        if (opts.indexOf(r) === -1) opts.push(r);
+      }
+      opts = shuffle(opts);
+      optionsGrid.innerHTML = '';
+      for (var i = 0; i < opts.length; i++) {
+        var btn = document.createElement('button'); btn.className = 'opt-btn'; btn.innerText = opts[i];
+        btn.addEventListener('click', (function(selected) { return function() { checkAnswer(selected, q.lang + " · " + q.meaning); }; })(opts[i]));
+        optionsGrid.appendChild(btn);
+      }
+      feedbackDiv.innerHTML = '';
+    }
+
+    function checkAnswer(selected, correct) {
+      if (!gameActive) return; if (timeoutId) return;
+      var t = langData[currentLang];
+      if (selected === correct) {
+        score++; scoreSpan.innerText = score; saveBest();
+        feedbackDiv.innerHTML = t.correct; feedbackDiv.style.color = '#2ECC71';
+        currentIndex++;
+        if (currentIndex >= totalRounds) { endGame(); return; }
+        timeoutId = setTimeout(function() { timeoutId = null; loadQuestion(); }, 800);
+      } else {
+        feedbackDiv.innerHTML = t.wrong + correct; feedbackDiv.style.color = '#E74C3C';
+        var btns = document.querySelectorAll('.opt-btn');
+        for (var i = 0; i < btns.length; i++) btns[i].style.pointerEvents = 'none';
+        timeoutId = setTimeout(function() {
+          feedbackDiv.innerHTML = '';
+          for (var j = 0; j < btns.length; j++) btns[j].style.pointerEvents = '';
+          timeoutId = null;
+          loadQuestion();
+        }, 1500);
+      }
+    }
+
+    function endGame() {
+      gameActive = false; var t = langData[currentLang]; var msg = t.gameOver;
+      if (score === totalRounds && (bestScore === score || score > bestScore)) msg += t.newBest;
+      feedbackDiv.innerHTML = msg; feedbackDiv.style.color = '#2ECC71';
+      optionsGrid.innerHTML = ''; wordDisplay.innerText = '☮️'; progressMsg.innerText = t.gameOver;
+    }
+
+    function resetGame() {
+      if (timeoutId) clearTimeout(timeoutId);
+      gameActive = true; score = 0; currentIndex = 0; scoreSpan.innerText = '0';
+      feedbackDiv.innerHTML = ''; var t = langData[currentLang]; progressMsg.innerText = t.progress;
+      loadQuestion(); loadBest();
+    }
+
+    for (var i = 0; i < langBtns.length; i++) {
+      langBtns[i].addEventListener('click', function() { var lang = this.getAttribute('data-lang'); if (lang !== currentLang) setLanguage(lang); });
+    }
+    resetBtn.addEventListener('click', function() { resetGame(); });
+    setLanguage('tr'); loadBest(); resetGame();
+  })();
+</script>
+</body>
+</html>

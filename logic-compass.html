@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Logic Compass | Mantık Pusulası | PACDI Games</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background: #04162E;
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 16px;
+    }
+
+    .game-container {
+      max-width: 550px;
+      width: 100%;
+      background: rgba(4, 22, 46, 0.8);
+      border-radius: 56px;
+      padding: 20px 16px 24px;
+      box-shadow: 0 20px 35px rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(2px);
+      border: 1px solid rgba(246, 180, 95, 0.3);
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 14px;
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #F6B45F;
+    }
+
+    .sub {
+      font-size: 0.62rem;
+      color: #9bb7d4;
+      margin-top: 2px;
+    }
+
+    .back-link {
+      color: #F6B45F;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 0.78rem;
+      background: #0a1018;
+      padding: 5px 12px;
+      border-radius: 40px;
+    }
+
+    /* difficulty */
+    .diff-row {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .diff-btn {
+      background: #0a1018;
+      color: #F6B45F;
+      border: 1px solid #F6B45F;
+      padding: 4px 14px;
+      border-radius: 40px;
+      font-size: 0.75rem;
+      cursor: pointer;
+    }
+
+    .diff-btn.active {
+      background: #F6B45F;
+      color: #04162E;
+      border-color: #F6B45F;
+    }
+
+    /* info bar */
+    .info-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #0a1018;
+      border-radius: 40px;
+      padding: 7px 16px;
+      margin-bottom: 14px;
+    }
+
+    .info-box {
+      color: #F6B45F;
+      font-weight: bold;
+      font-size: 0.8rem;
+    }
+
+    .info-box span {
+      color: #eaf2fb;
+    }
+
+    .new-btn {
+      background: #F6B45F;
+      border: none;
+      font-weight: bold;
+      padding: 5px 14px;
+      border-radius: 40px;
+      color: #0F1318;
+      cursor: pointer;
+      font-size: 0.78rem;
+    }
+
+    /* board */
+    .board {
+      background: #0a1018;
+      border-radius: 28px;
+      padding: 14px 12px;
+      margin-bottom: 14px;
+    }
+
+    .row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .row:last-child {
+      margin-bottom: 0;
+    }
+
+    .row-num {
+      width: 22px;
+      text-align: right;
+      font-size: 0.7rem;
+      color: #4a6a8a;
+      flex-shrink: 0;
+    }
+
+    .pegs {
+      display: flex;
+      gap: 7px;
+      flex: 1;
+    }
+
+    .peg {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: #1e2a3a;
+      border: 2px solid #2a3a4a;
+      flex-shrink: 0;
+      transition: transform 0.1s;
+    }
+
+    .peg.filled {
+      border-color: transparent;
+    }
+
+    .hints {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
+      width: 36px;
+      flex-shrink: 0;
+    }
+
+    .hint {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #1e2a3a;
+      border: 1px solid #2a3a4a;
+    }
+
+    .hint.black {
+      background: #1a1a1a;
+      border-color: #555;
+    }
+
+    .hint.white {
+      background: #e0e0e0;
+      border-color: #aaa;
+    }
+
+    .row.active .peg {
+      border-color: rgba(246, 180, 95, 0.4);
+    }
+
+    .row.active .row-num {
+      color: #F6B45F;
+    }
+
+    /* palette */
+    .palette-wrap {
+      background: #0a1018;
+      border-radius: 28px;
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+
+    .palette-label {
+      font-size: 0.65rem;
+      letter-spacing: 2px;
+      color: #4a6a8a;
+      text-align: center;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+    }
+
+    .palette {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .color-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 3px solid transparent;
+      cursor: pointer;
+      transition: transform 0.1s, border-color 0.1s;
+      flex-shrink: 0;
+    }
+
+    .color-btn:active {
+      transform: scale(0.9);
+    }
+
+    .color-btn.selected {
+      border-color: white;
+      transform: scale(1.15);
+    }
+
+    /* action row */
+    .action-row {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 10px;
+    }
+
+    .act-btn {
+      background: #F6B45F;
+      border: none;
+      font-weight: bold;
+      padding: 8px 22px;
+      border-radius: 40px;
+      color: #0F1318;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+
+    .act-btn.secondary {
+      background: #0a1018;
+      color: #F6B45F;
+      border: 1px solid #F6B45F;
+    }
+
+    .act-btn:disabled {
+      opacity: 0.35;
+      cursor: default;
+    }
+
+    /* legend */
+    .hint-legend {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.68rem;
+      color: #6c8fb0;
+    }
+
+    .legend-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* overlay */
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(4, 22, 46, 0.95);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      backdrop-filter: blur(6px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+
+    .overlay.show {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .overlay-box {
+      background: #0A1F3A;
+      border-radius: 56px;
+      padding: 32px 24px;
+      text-align: center;
+      border: 2px solid #F6B45F;
+      max-width: 300px;
+      width: 90%;
+    }
+
+    .overlay-icon {
+      font-size: 3rem;
+      margin-bottom: 10px;
+    }
+
+    .overlay-title {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #F6B45F;
+      letter-spacing: 2px;
+      margin-bottom: 8px;
+    }
+
+    .overlay-msg {
+      color: #eaf2fb;
+      font-size: 0.85rem;
+      margin-bottom: 8px;
+      line-height: 1.6;
+    }
+
+    .secret-display {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      margin: 14px 0;
+    }
+
+    .secret-peg {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+    }
+
+    .overlay-btn {
+      background: #F6B45F;
+      border: none;
+      font-weight: bold;
+      padding: 10px 28px;
+      border-radius: 40px;
+      color: #04162E;
+      cursor: pointer;
+      font-size: 0.9rem;
+      margin-top: 6px;
+    }
+
+    .footer {
+      text-align: center;
+      font-size: 0.6rem;
+      color: #6c8fb0;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 480px) {
+      .peg {
+        width: 32px;
+        height: 32px;
+      }
+      .color-btn {
+        width: 38px;
+        height: 38px;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="game-container">
+  <div class="header">
+    <div>
+      <div class="logo">LOGIC COMPASS</div>
+      <div class="sub">PACDI · Mantık Egzersizi</div>
+    </div>
+    <a href="index.html" class="back-link">← Geri</a>
+  </div>
+
+  <div class="diff-row">
+    <div class="diff-btn active" data-pegs="4" data-colors="6" data-rows="10">Kolay</div>
+    <div class="diff-btn" data-pegs="5" data-colors="7" data-rows="10">Orta</div>
+    <div class="diff-btn" data-pegs="5" data-colors="8" data-rows="8">Zor</div>
+  </div>
+
+  <div class="info-bar">
+    <div class="info-box">Hamle: <span id="moveCount">0</span> / <span id="maxMoves">10</span></div>
+    <div class="info-box">🏆 En İyi: <span id="bestScore">—</span></div>
+    <button class="new-btn" id="newBtn">↺ Yeni</button>
+  </div>
+
+  <div class="hint-legend">
+    <div class="legend-item">
+      <div class="legend-dot" style="background:#1a1a1a;border:1px solid #555;"></div>
+      Doğru renk + doğru yer
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:#e0e0e0;border:1px solid #aaa;"></div>
+      Doğru renk + yanlış yer
+    </div>
+  </div>
+
+  <div class="board" id="board"></div>
+
+  <div class="palette-wrap">
+    <div class="palette-label">Renk Seç</div>
+    <div class="palette" id="palette"></div>
+  </div>
+
+  <div class="action-row">
+    <button class="act-btn secondary" id="clearBtn">✕ Temizle</button>
+    <button class="act-btn" id="submitBtn" disabled>✓ Onayla</button>
+  </div>
+
+  <div class="footer">Gizli kodu bul · Siyah = doğru yer · Beyaz = yanlış yer</div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="overlay-box">
+    <div class="overlay-icon" id="overlayIcon">🎉</div>
+    <div class="overlay-title" id="overlayTitle">KAZANDIN!</div>
+    <div class="overlay-msg" id="overlayMsg"></div>
+    <div class="secret-display" id="secretDisplay"></div>
+    <button class="overlay-btn" id="overlayBtn">Yeni Oyun</button>
+  </div>
+</div>
+
+<script>
+  (function() {
+    // ----- COLORS (gold/teal/navy theme) -----
+    var ALL_COLORS = [
+      { id: 1, hex: '#E74C3C', name: 'Kırmızı' },
+      { id: 2, hex: '#3498DB', name: 'Mavi' },
+      { id: 3, hex: '#2ECC71', name: 'Yeşil' },
+      { id: 4, hex: '#F6B45F', name: 'Turuncu' },
+      { id: 5, hex: '#9B59B6', name: 'Mor' },
+      { id: 6, hex: '#F1C40F', name: 'Sarı' },
+      { id: 7, hex: '#1ABC9C', name: 'Turkuaz' },
+      { id: 8, hex: '#E91E8C', name: 'Pembe' }
+    ];
+
+    // ----- STATE -----
+    var NUM_PEGS = 4;
+    var NUM_COLORS = 6;
+    var MAX_ROWS = 10;
+
+    var secret = [];
+    var guesses = [];
+    var currentGuess = [];
+    var selectedColor = null;
+    var gameOver = false;
+    var moveCount = 0;
+
+    // ----- DOM elements -----
+    var boardEl = document.getElementById('board');
+    var paletteEl = document.getElementById('palette');
+    var submitBtn = document.getElementById('submitBtn');
+    var clearBtn = document.getElementById('clearBtn');
+    var newBtn = document.getElementById('newBtn');
+    var overlay = document.getElementById('overlay');
+    var diffBtns = document.querySelectorAll('.diff-btn');
+
+    // ----- BEST SCORE (localStorage) -----
+    function bestKey() {
+      return 'lc_best_' + NUM_PEGS + '_' + NUM_COLORS;
+    }
+    function loadBest() {
+      var v = localStorage.getItem(bestKey());
+      document.getElementById('bestScore').textContent = v ? v + ' hamle' : '—';
+    }
+    function saveBest(moves) {
+      var key = bestKey();
+      var cur = localStorage.getItem(key);
+      if (!cur || moves < parseInt(cur, 10)) {
+        localStorage.setItem(key, moves);
+        document.getElementById('bestScore').textContent = moves + ' hamle';
+      }
+    }
+
+    // ----- GENERATE SECRET CODE -----
+    function generateSecret() {
+      var colors = ALL_COLORS.slice(0, NUM_COLORS);
+      var s = [];
+      for (var i = 0; i < NUM_PEGS; i++) {
+        s.push(colors[Math.floor(Math.random() * colors.length)].id);
+      }
+      return s;
+    }
+
+    // ----- EVALUATE GUESS (black/white pegs) -----
+    function evaluate(guess, sec) {
+      var black = 0,
+        white = 0;
+      var secCopy = sec.slice();
+      var guessCopy = guess.slice();
+
+      for (var i = 0; i < NUM_PEGS; i++) {
+        if (guessCopy[i] === secCopy[i]) {
+          black++;
+          secCopy[i] = -1;
+          guessCopy[i] = -2;
+        }
+      }
+      for (var i = 0; i < NUM_PEGS; i++) {
+        if (guessCopy[i] === -2) continue;
+        for (var j = 0; j < NUM_PEGS; j++) {
+          if (secCopy[j] === -1) continue;
+          if (guessCopy[i] === secCopy[j]) {
+            white++;
+            secCopy[j] = -1;
+            break;
+          }
+        }
+      }
+      return {
+        black: black,
+        white: white
+      };
+    }
+
+    // ----- PALETTE -----
+    function buildPalette() {
+      paletteEl.innerHTML = '';
+      selectedColor = null;
+      var colors = ALL_COLORS.slice(0, NUM_COLORS);
+      for (var i = 0; i < colors.length; i++) {
+        (function(c) {
+          var btn = document.createElement('div');
+          btn.className = 'color-btn';
+          btn.style.background = c.hex;
+          btn.setAttribute('data-id', c.id);
+          btn.addEventListener('click', function() {
+            if (gameOver) return;
+            selectedColor = c.id;
+            var btns = paletteEl.querySelectorAll('.color-btn');
+            for (var k = 0; k < btns.length; k++) btns[k].classList.remove('selected');
+            btn.classList.add('selected');
+          });
+          paletteEl.appendChild(btn);
+        })(colors[i]);
+      }
+    }
+
+    // ----- BOARD RENDER -----
+    function buildBoard() {
+      boardEl.innerHTML = '';
+      for (var r = 0; r < MAX_ROWS; r++) {
+        var row = document.createElement('div');
+        row.className = 'row' + (r === 0 ? ' active' : '');
+        row.setAttribute('data-row', r);
+
+        var numEl = document.createElement('div');
+        numEl.className = 'row-num';
+        numEl.textContent = (MAX_ROWS - r);
+        row.appendChild(numEl);
+
+        var pegsEl = document.createElement('div');
+        pegsEl.className = 'pegs';
+        for (var p = 0; p < NUM_PEGS; p++) {
+          (function(pegIdx) {
+            var peg = document.createElement('div');
+            peg.className = 'peg';
+            peg.setAttribute('data-peg', pegIdx);
+            peg.addEventListener('click', function() {
+              if (gameOver) return;
+              if (selectedColor === null) return;
+              placePeg(pegIdx, selectedColor);
+            });
+            pegsEl.appendChild(peg);
+          })(p);
+        }
+        row.appendChild(pegsEl);
+
+        var hintsEl = document.createElement('div');
+        hintsEl.className = 'hints';
+        for (var h = 0; h < NUM_PEGS; h++) {
+          var hint = document.createElement('div');
+          hint.className = 'hint';
+          hintsEl.appendChild(hint);
+        }
+        row.appendChild(hintsEl);
+        boardEl.appendChild(row);
+      }
+    }
+
+    // ----- PLACE COLOR IN CURRENT ROW -----
+    function placePeg(pegIdx, colorId) {
+      currentGuess[pegIdx] = colorId;
+      var activeRow = boardEl.querySelector('.row.active');
+      if (!activeRow) return;
+      var pegs = activeRow.querySelectorAll('.peg');
+      var color = null;
+      for (var i = 0; i < ALL_COLORS.length; i++) {
+        if (ALL_COLORS[i].id === colorId) {
+          color = ALL_COLORS[i];
+          break;
+        }
+      }
+      if (color) {
+        pegs[pegIdx].style.background = color.hex;
+        pegs[pegIdx].classList.add('filled');
+      }
+      var allFilled = true;
+      for (var i = 0; i < NUM_PEGS; i++) {
+        if (!currentGuess[i]) {
+          allFilled = false;
+          break;
+        }
+      }
+      submitBtn.disabled = !allFilled;
+    }
+
+    // ----- SUBMIT GUESS -----
+    function submitGuess() {
+      if (currentGuess.length < NUM_PEGS) return;
+      for (var i = 0; i < NUM_PEGS; i++) {
+        if (!currentGuess[i]) return;
+      }
+      var result = evaluate(currentGuess, secret);
+      guesses.push(currentGuess.slice());
+      moveCount++;
+      document.getElementById('moveCount').textContent = moveCount;
+
+      var activeRow = boardEl.querySelector('.row.active');
+      var hintDots = activeRow.querySelectorAll('.hint');
+      var hIdx = 0;
+      for (var b = 0; b < result.black; b++) {
+        hintDots[hIdx++].className = 'hint black';
+      }
+      for (var w = 0; w < result.white; w++) {
+        hintDots[hIdx++].className = 'hint white';
+      }
+      activeRow.classList.remove('active');
+
+      if (result.black === NUM_PEGS) {
+        gameOver = true;
+        saveBest(moveCount);
+        setTimeout(function() {
+          showResult(true);
+        }, 300);
+        return;
+      }
+      if (moveCount >= MAX_ROWS) {
+        gameOver = true;
+        setTimeout(function() {
+          showResult(false);
+        }, 300);
+        return;
+      }
+
+      currentGuess = [];
+      submitBtn.disabled = true;
+      var rows = boardEl.querySelectorAll('.row');
+      rows[moveCount].classList.add('active');
+    }
+
+    // ----- CLEAR current row -----
+    function clearRow() {
+      currentGuess = [];
+      var activeRow = boardEl.querySelector('.row.active');
+      if (!activeRow) return;
+      var pegs = activeRow.querySelectorAll('.peg');
+      for (var i = 0; i < pegs.length; i++) {
+        pegs[i].style.background = '';
+        pegs[i].classList.remove('filled');
+      }
+      submitBtn.disabled = true;
+    }
+
+    // ----- RESULT MODAL -----
+    function showResult(won) {
+      document.getElementById('overlayIcon').textContent = won ? '🎉' : '💡';
+      document.getElementById('overlayTitle').textContent = won ? 'KAZANDIN!' : 'OYUN BİTTİ';
+      document.getElementById('overlayMsg').textContent = won ?
+        moveCount + ' hamlede çözdün!' :
+        'Gizli kod buydu:';
+      var sd = document.getElementById('secretDisplay');
+      sd.innerHTML = '';
+      for (var i = 0; i < secret.length; i++) {
+        var sp = document.createElement('div');
+        sp.className = 'secret-peg';
+        for (var j = 0; j < ALL_COLORS.length; j++) {
+          if (ALL_COLORS[j].id === secret[i]) {
+            sp.style.background = ALL_COLORS[j].hex;
+            break;
+          }
+        }
+        sd.appendChild(sp);
+      }
+      overlay.classList.add('show');
+    }
+
+    // ----- NEW GAME -----
+    function startGame() {
+      secret = generateSecret();
+      guesses = [];
+      currentGuess = [];
+      selectedColor = null;
+      gameOver = false;
+      moveCount = 0;
+
+      document.getElementById('moveCount').textContent = '0';
+      document.getElementById('maxMoves').textContent = MAX_ROWS;
+      submitBtn.disabled = true;
+      overlay.classList.remove('show');
+
+      loadBest();
+      buildPalette();
+      buildBoard();
+    }
+
+    // ----- DIFFICULTY SELECT -----
+    for (var d = 0; d < diffBtns.length; d++) {
+      diffBtns[d].addEventListener('click', function() {
+        for (var i = 0; i < diffBtns.length; i++) diffBtns[i].classList.remove('active');
+        this.classList.add('active');
+        NUM_PEGS = parseInt(this.getAttribute('data-pegs'), 10);
+        NUM_COLORS = parseInt(this.getAttribute('data-colors'), 10);
+        MAX_ROWS = parseInt(this.getAttribute('data-rows'), 10);
+        startGame();
+      });
+    }
+
+    // ----- EVENT BINDINGS -----
+    submitBtn.addEventListener('click', submitGuess);
+    clearBtn.addEventListener('click', clearRow);
+    newBtn.addEventListener('click', startGame);
+    document.getElementById('overlayBtn').addEventListener('click', startGame);
+
+    // ----- INIT -----
+    startGame();
+  })();
+</script>
+</body>
+</html>

@@ -147,6 +147,17 @@
       font-size: 0.8rem;
     }
 
+    .warning-note {
+      font-size: 0.7rem;
+      color: #E74C3C;
+      background: rgba(231,76,60,0.1);
+      border-radius: 20px;
+      padding: 8px 12px;
+      margin: 8px 0;
+      text-align: left;
+      border-left: 3px solid #E74C3C;
+    }
+
     .result-promo {
       background: #0a1018;
       border-radius: 28px;
@@ -194,15 +205,6 @@
       border-color: #1e2a3a;
       margin: 12px 0;
     }
-    .sponsor-note {
-      background: #1e2a3a;
-      border-radius: 20px;
-      padding: 6px 12px;
-      font-size: 0.7rem;
-      color: #b8d0e8;
-      text-align: center;
-      margin-top: 8px;
-    }
   </style>
 </head>
 <body>
@@ -227,6 +229,7 @@
       <select id="bankSelect"></select>
     </div>
     <div class="conditions" id="conditionsContainer"></div>
+    <div id="warningContainer" class="warning-note" style="display:none;"></div>
     <div class="result-promo" id="resultBox">
       <div style="font-size:0.8rem; margin-bottom:4px;">Size Özel Net Promosyon</div>
       <div class="result-number" id="calculatedBonus">0 TL</div>
@@ -235,9 +238,9 @@
     <button class="action-btn" id="copyBtn">📋 Sonucu Kopyala</button>
   </div>
 
-  <!-- Banka değiştirme ceza hesaplayıcı (düzeltilmiş mantık) -->
+  <!-- Banka değiştirme - Promosyon İadesi Hesaplayıcı (ceza değil) -->
   <div class="card">
-    <div class="card-title">🔄 Banka Değiştirme Ceza Hesaplayıcı</div>
+    <div class="card-title">🔄 Banka Değiştirme · Promosyon İadesi</div>
     <div class="condition-item" style="justify-content:space-between;">
       <span style="color:#eaf2fb;">Alınan Promosyon (TL):</span>
       <input type="number" id="receivedPromo" value="7500" style="width:130px; background:#1e2a3a; border:1px solid #F6B45F; border-radius:40px; padding:6px 12px; color:white;">
@@ -246,19 +249,16 @@
       <span style="color:#eaf2fb;">Kalan Taahhüt (ay):</span>
       <input type="number" id="remainingMonths" value="6" style="width:80px; background:#1e2a3a; border:1px solid #F6B45F; border-radius:40px; padding:6px 12px; color:white;">
     </div>
-    <button class="action-btn" id="calcPenaltyBtn">💰 Ceza Hesapla</button>
+    <button class="action-btn" id="calcPenaltyBtn">💰 İade Tutarını Hesapla</button>
     <div id="penaltyResult" style="margin-top:12px; text-align:center; color:#2ECC71; font-weight:bold;"></div>
-    <div class="note">*Yaklaşık tutar (alınan promosyon / 36 × kalan ay). Bankadan bankaya değişebilir.</div>
+    <div class="note">*Taahhüt süresi dolmadan banka değiştirirseniz, kalan her ay için promosyonun 1/36'sı bankaya iade edilir.</div>
   </div>
 
-  <div class="sponsor-note">
-    ⚡ Bankaların promosyonları düzenli güncellenir. Sponsorluk anlaşmaları ile öne çıkan bankaları ayrıca vurgulayabiliriz.
-  </div>
   <div class="footer">PACDI · Damlaya damlaya göl olur. Veriler manuel güncellenir, bankalardan teyit ediniz.</div>
 </div>
 
 <script>
-  // ---------- 12 BANKA, ŞARTLI PROMOSYON (ÖRNEK VERİLER, TARAFSIZ) ----------
+  // ---------- 12 BANKA, ŞARTLI PROMOSYON + YAPTIRIM UYARILARI ----------
   var banks = [
     {
       name: "Vakıf Katılım",
@@ -268,6 +268,10 @@
         { desc: "Kredi kartı başvurusu (aktif kullanım)", bonus: 3000 },
         { desc: "Hayat sigortası yaptırmak", bonus: 2000 },
         { desc: "Tüm şartlar + dijital bankacılık", bonus: 5000 }
+      ],
+      warnings: [
+        "⚠️ Hayat sigortasını ilk yıl içinde iptal ederseniz, promosyonun sigorta ile ilgili kısmı (2.000 TL) iade edilir.",
+        "⚠️ Fatura talimatlarını iptal etmeniz durumunda ek promosyon (5.000 TL) geçersiz olur."
       ]
     },
     {
@@ -277,6 +281,9 @@
         { desc: "Fatura ödeme talimatı (2 fatura)", bonus: 5000 },
         { desc: "Kredi kartı başvurusu", bonus: 3000 },
         { desc: "Mobil bankacılık aktif", bonus: 2000 }
+      ],
+      warnings: [
+        "⚠️ Kredi kartını ilk 6 ay içinde iptal ederseniz, kredi kartı promosyonu (3.000 TL) iade edilir."
       ]
     },
     {
@@ -286,6 +293,9 @@
         { desc: "Fatura talimatı (3 fatura)", bonus: 6000 },
         { desc: "Kredi kartı limiti en az 10.000 TL", bonus: 4000 },
         { desc: "Dijital bankacılık üyesi", bonus: 2000 }
+      ],
+      warnings: [
+        "⚠️ Fatura talimatlarından herhangi birini iptal ederseniz, ilgili bonus (2.000 TL/adet) iade edilir."
       ]
     },
     {
@@ -295,6 +305,9 @@
         { desc: "Fatura ödeme talimatı (1 fatura)", bonus: 3000 },
         { desc: "Kredi kartı + World puan programı", bonus: 2000 },
         { desc: "Yatırım hesabı açma", bonus: 2000 }
+      ],
+      warnings: [
+        "⚠️ Yatırım hesabını kapatmanız durumunda ek promosyon (2.000 TL) iade edilir."
       ]
     },
     {
@@ -304,6 +317,9 @@
         { desc: "Fatura ödeme talimatı (elektrik, su, doğalgaz)", bonus: 5000 },
         { desc: "Maximum kart başvurusu", bonus: 3000 },
         { desc: "Maaş müşterisine ek avantaj", bonus: 2000 }
+      ],
+      warnings: [
+        "⚠️ Fatura talimatlarından birini iptal ederseniz, iptal edilen fatura başına 1.500 TL iade yapılır."
       ]
     },
     {
@@ -313,7 +329,8 @@
         { desc: "Fatura ödeme talimatı (2 fatura)", bonus: 4000 },
         { desc: "Kredi kartı başvurusu", bonus: 3000 },
         { desc: "Mobil uygulama kullanımı", bonus: 1000 }
-      ]
+      ],
+      warnings: []
     },
     {
       name: "Halkbank",
@@ -322,7 +339,8 @@
         { desc: "Fatura talimatı (1 fatura)", bonus: 2000 },
         { desc: "Kredi kartı", bonus: 2000 },
         { desc: "Maaş promosyon kampanyası", bonus: 3000 }
-      ]
+      ],
+      warnings: []
     },
     {
       name: "QNB Finansbank",
@@ -331,6 +349,9 @@
         { desc: "Fatura ödeme (2 fatura)", bonus: 4000 },
         { desc: "Kredi kartı (minimum limit 5000 TL)", bonus: 3000 },
         { desc: "Dijital kanal üyesi", bonus: 1500 }
+      ],
+      warnings: [
+        "⚠️ Kredi kartını ilk yıl iptal ederseniz, kredi kartı promosyonu (3.000 TL) iade alınır."
       ]
     },
     {
@@ -340,7 +361,8 @@
         { desc: "Fatura talimatı (2 fatura)", bonus: 3500 },
         { desc: "Kredi kartı başvurusu", bonus: 2500 },
         { desc: "Maaş hesabına ek avantaj", bonus: 2000 }
-      ]
+      ],
+      warnings: []
     },
     {
       name: "Akbank",
@@ -349,7 +371,8 @@
         { desc: "Fatura ödeme (en az 2 fatura)", bonus: 4000 },
         { desc: "Kredi kartı", bonus: 3000 },
         { desc: "Mobil bankacılık aktif", bonus: 2000 }
-      ]
+      ],
+      warnings: []
     },
     {
       name: "Vakıfbank",
@@ -358,6 +381,9 @@
         { desc: "Fatura talimatı (2 fatura)", bonus: 3000 },
         { desc: "Kredi kartı", bonus: 2500 },
         { desc: "Tamamlayıcı emeklilik hesabı", bonus: 2000 }
+      ],
+      warnings: [
+        "⚠️ Tamamlayıcı emeklilik hesabını iptal ederseniz, ilgili bonus (2.000 TL) iade edilir."
       ]
     },
     {
@@ -367,7 +393,8 @@
         { desc: "Fatura ödeme talimatı (1 fatura)", bonus: 2000 },
         { desc: "Kredi kartı", bonus: 2000 },
         { desc: "Maaş müşterisi", bonus: 2500 }
-      ]
+      ],
+      warnings: []
     }
   ];
 
@@ -376,6 +403,7 @@
 
   var bankSelect = document.getElementById('bankSelect');
   var conditionsDiv = document.getElementById('conditionsContainer');
+  var warningContainer = document.getElementById('warningContainer');
   var calculatedBonusSpan = document.getElementById('calculatedBonus');
   var copyBtn = document.getElementById('copyBtn');
   var calcPenaltyBtn = document.getElementById('calcPenaltyBtn');
@@ -391,6 +419,21 @@
       bankSelect.appendChild(opt);
     }
     bankCountSpan.innerText = banks.length;
+  }
+
+  function renderWarnings(bankIndex) {
+    var bank = banks[bankIndex];
+    if (bank.warnings && bank.warnings.length > 0) {
+      var warningHtml = '<div style="margin-bottom:4px;">📌 Önemli Uyarılar:</div><ul style="margin-left:20px; list-style-type:circle;">';
+      for (var i = 0; i < bank.warnings.length; i++) {
+        warningHtml += '<li>' + bank.warnings[i] + '</li>';
+      }
+      warningHtml += '</ul>';
+      warningContainer.innerHTML = warningHtml;
+      warningContainer.style.display = 'block';
+    } else {
+      warningContainer.style.display = 'none';
+    }
   }
 
   function renderConditions(bankIndex) {
@@ -421,6 +464,7 @@
       conditionCheckboxes[j].cb.addEventListener('change', calculateTotal);
     }
     calculateTotal();
+    renderWarnings(bankIndex);
   }
 
   function calculateTotal() {
@@ -452,8 +496,8 @@
     });
   });
 
-  // Ceza hesaplama (düzeltilmiş: alınan promosyona göre)
-  function calculatePenalty() {
+  // Promosyon iadesi hesaplama (ceza değil)
+  function calculateRefund() {
     var received = parseInt(document.getElementById('receivedPromo').value, 10);
     var monthsLeft = parseInt(document.getElementById('remainingMonths').value, 10);
     if (isNaN(received) || isNaN(monthsLeft) || monthsLeft < 0) {
@@ -461,12 +505,12 @@
       return;
     }
     var monthly = received / 36;
-    var penalty = monthly * monthsLeft;
-    penalty = Math.round(penalty);
-    penaltyResultDiv.innerHTML = '⚠️ Yaklaşık ceza tutarı: ' + penalty.toLocaleString() + ' TL (Kalan ' + monthsLeft + ' ay için)';
+    var refund = monthly * monthsLeft;
+    refund = Math.round(refund);
+    penaltyResultDiv.innerHTML = '⚠️ Kalan ' + monthsLeft + ' ay için iade edilmesi gereken promosyon tutarı: ' + refund.toLocaleString() + ' TL<br><span style="font-size:0.7rem;">*Bankanızla görüşerek kesin tutarı teyit ediniz.</span>';
   }
 
-  calcPenaltyBtn.addEventListener('click', calculatePenalty);
+  calcPenaltyBtn.addEventListener('click', calculateRefund);
 
   // başlangıç
   populateBankSelect();

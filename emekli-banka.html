@@ -148,6 +148,7 @@
       font-size: 0.8rem;
       color: #F6B45F;
       font-weight: bold;
+      flex: 1 0 120px;
     }
 
     select, input {
@@ -159,6 +160,7 @@
       font-size: 0.85rem;
       outline: none;
       font-family: inherit;
+      flex: 2;
     }
 
     .result-box {
@@ -170,7 +172,7 @@
     }
 
     .result-text {
-      font-size: 1.1rem;
+      font-size: 1rem;
       font-weight: bold;
       color: #2ECC71;
     }
@@ -250,19 +252,14 @@
     </div>
     <div class="calc-group">
       <label>Alınan promosyon (TL):</label>
-      <input type="number" id="receivedBonus" value="20000" step="1000">
+      <input type="number" id="receivedBonus" value="0" step="500" placeholder="Örn: 7500">
     </div>
+    <div class="note">⚠️ Ceza, sizin aldığınız promosyon tutarına göre hesaplanır. Bankanın güncel promosyonu değil.</div>
     <button class="action-btn" id="calcPenaltyBtn">💰 Hesapla</button>
     <div id="penaltyResult" class="result-box" style="display:none;">
       <div class="result-text" id="penaltyText">—</div>
-      <div class="note">*Yaklaşık tutar, bankadan bankaya değişebilir.</div>
+      <div class="note">*Yaklaşık tutar, bankadan bankaya değişebilir. Resmi bilgi için bankanızı arayın.</div>
     </div>
-  </div>
-
-  <!-- REKLAM ALANI (ODÜLLÜ VİDEO HAZIRLIĞI - İSTEĞE BAĞLI) -->
-  <div class="card" id="adCard" style="display:none;">
-    <div class="card-title">📺 Reklam Desteği</div>
-    <button class="action-btn" id="rewardAdBtn">🎁 1 ipucu için video izle</button>
   </div>
 
   <div class="footer">PACDI · Damlaya damlaya göl olur. Veriler ay sonu güncellenir.</div>
@@ -282,7 +279,6 @@
     { name: "Halkbank", bonus: 24000, taahhutAy: 36, note: "Kampanya süresi uzatıldı" }
   ];
 
-  // Güncelleme tarihi
   var lastUpdate = "22 Nisan 2026";
 
   // DOM elementleri
@@ -339,41 +335,38 @@
     }
   }
 
-  // ---------- CEZA HESAPLAMA (taahhüt ihlali) ----------
+  // ---------- DÜZELTİLMİŞ CEZA HESAPLAMA (kişinin aldığı promosyon bazlı) ----------
   function calculatePenalty() {
     var selectedIdx = parseInt(currentBankSelect.value, 10);
-    var bank = banksData[selectedIdx];
-    var commitmentEndDate = new Date(commitmentEndInput.value + "-01"); // ayın ilk günü
+    var selectedBank = banksData[selectedIdx];
+    // Taahhüt bitiş tarihi (month input "YYYY-MM" formatında)
+    var commitmentEndDate = new Date(commitmentEndInput.value + "-01");
     var today = new Date();
+    // Kalan ay hesabı (eğer bitiş tarihi bugünden küçükse 0)
     var monthsLeft = (commitmentEndDate.getFullYear() - today.getFullYear()) * 12 + (commitmentEndDate.getMonth() - today.getMonth());
     if (monthsLeft < 0) monthsLeft = 0;
-    var received = parseFloat(receivedBonusInput.value);
-    if (isNaN(received)) received = 0;
 
-    // Genel kural: Kalan her ay için promosyonun 1/36'sı kadar ceza
-    var monthlyBonus = bank.bonus / bank.taahhutAy;
-    var penalty = 0;
-    if (monthsLeft > 0) {
-      penalty = monthlyBonus * monthsLeft;
-    } else {
-      penalty = 0;
+    // Kullanıcının aldığı promosyon (TL)
+    var receivedBonus = parseFloat(receivedBonusInput.value);
+    if (isNaN(receivedBonus) || receivedBonus <= 0) {
+      penaltyResultDiv.style.display = 'block';
+      penaltyTextSpan.innerHTML = '❌ Lütfen aldığınız promosyon tutarını girin.';
+      return;
     }
-    penalty = Math.round(penalty);
+
+    // Aylık ceza = alınan promosyon / taahhüt ayı (36 ay)
+    var monthlyPenalty = receivedBonus / selectedBank.taahhutAy;
+    var totalPenalty = monthlyPenalty * monthsLeft;
+    totalPenalty = Math.round(totalPenalty);
+
     penaltyResultDiv.style.display = 'block';
-    if (penalty > 0) {
-      penaltyTextSpan.innerHTML = '⚠️ Yaklaşık ceza tutarı: ' + penalty.toLocaleString() + ' TL<br>Kalan taahhüt: ' + monthsLeft + ' ay';
-    } else {
+    if (monthsLeft > 0 && totalPenalty > 0) {
+      penaltyTextSpan.innerHTML = '⚠️ Yaklaşık ceza tutarı: ' + totalPenalty.toLocaleString() + ' TL<br>Kalan taahhüt: ' + monthsLeft + ' ay';
+    } else if (monthsLeft === 0) {
       penaltyTextSpan.innerHTML = '✅ Taahhüt süreniz dolmuş. Herhangi bir ceza ödemeden banka değiştirebilirsiniz.';
+    } else {
+      penaltyTextSpan.innerHTML = 'ℹ️ Taahhüt süreniz dolduktan sonra cezasız geçiş yapabilirsiniz.';
     }
-  }
-
-  // ---------- REKLAM BÖLÜMÜ (MVP'de gösterilmeyebilir, ama altyapı hazır) ----------
-  // İleride ödüllü video eklenebilir. Şimdilik buton sadece bilgi verir.
-  var rewardAdBtn = document.getElementById('rewardAdBtn');
-  if (rewardAdBtn) {
-    rewardAdBtn.addEventListener('click', function() {
-      alert('🎥 Reklam izleme özelliği yakında aktif olacak. Şimdilik manuel bilgi güncelleniyor.');
-    });
   }
 
   // ---------- OLAY DINLEYICILER ----------
@@ -381,11 +374,6 @@
 
   // Sayfa yüklendiğinde bankaları göster
   renderBanks();
-
-  // İsteğe bağlı: Reklam kartını gösterme (şimdilik gizli)
-  // var adCard = document.getElementById('adCard'); adCard.style.display = 'none'; // MVP'de reklam yok
-
-  // Not: Kullanıcıya "Veriler manuel güncellenir" uyarısı gösteriliyor
 </script>
 </body>
 </html>

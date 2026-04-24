@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Emekli Pusulası | Banka Promosyonları | PACDI</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background: #04162E;
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 16px;
+    }
+
+    .app-container {
+      max-width: 550px;
+      width: 100%;
+      background: rgba(4, 22, 46, 0.8);
+      border-radius: 56px;
+      padding: 20px 16px 24px;
+      box-shadow: 0 20px 35px rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(2px);
+      border: 1px solid rgba(246, 180, 95, 0.3);
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #F6B45F;
+    }
+
+    .sub {
+      font-size: 0.62rem;
+      color: #9bb7d4;
+      margin-top: 2px;
+    }
+
+    .back-link {
+      color: #F6B45F;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 0.78rem;
+      background: #0a1018;
+      padding: 5px 12px;
+      border-radius: 40px;
+    }
+
+    .info-bar {
+      display: flex;
+      justify-content: space-between;
+      background: #0a1018;
+      border-radius: 40px;
+      padding: 8px 16px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .info-item {
+      font-size: 0.75rem;
+      color: #F6B45F;
+    }
+    .info-item span {
+      color: #eaf2fb;
+    }
+
+    .card {
+      background: #0a1018;
+      border-radius: 28px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .card-title {
+      font-size: 1rem;
+      font-weight: bold;
+      color: #F6B45F;
+      margin-bottom: 12px;
+      border-left: 3px solid #F6B45F;
+      padding-left: 10px;
+    }
+
+    .bank-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .bank-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #1e2a3a;
+      border-radius: 60px;
+      padding: 8px 16px;
+      transition: 0.05s;
+    }
+
+    .bank-name {
+      font-weight: bold;
+      color: #eaf2fb;
+      font-size: 0.9rem;
+    }
+
+    .bonus {
+      background: #F6B45F;
+      color: #04162E;
+      padding: 4px 12px;
+      border-radius: 40px;
+      font-weight: bold;
+      font-size: 0.85rem;
+    }
+
+    .bonus.highlight {
+      background: #2ECC71;
+      color: #04162E;
+      box-shadow: 0 0 8px #2ECC71;
+    }
+
+    .calc-group {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+      align-items: center;
+    }
+
+    .calc-group label {
+      font-size: 0.8rem;
+      color: #F6B45F;
+      font-weight: bold;
+    }
+
+    select, input {
+      background: #1e2a3a;
+      border: 1px solid #F6B45F;
+      border-radius: 60px;
+      padding: 8px 16px;
+      color: #eaf2fb;
+      font-size: 0.85rem;
+      outline: none;
+      font-family: inherit;
+    }
+
+    .result-box {
+      background: #1e2a3a;
+      border-radius: 28px;
+      padding: 16px;
+      text-align: center;
+      margin-top: 12px;
+    }
+
+    .result-text {
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: #2ECC71;
+    }
+
+    .note {
+      font-size: 0.65rem;
+      color: #6c8fb0;
+      margin-top: 12px;
+      text-align: center;
+    }
+
+    .action-btn {
+      background: #F6B45F;
+      border: none;
+      font-weight: bold;
+      padding: 10px 16px;
+      border-radius: 60px;
+      color: #04162E;
+      cursor: pointer;
+      width: 100%;
+      font-size: 0.9rem;
+      margin-bottom: 8px;
+      transition: 0.05s;
+    }
+    .action-btn:active {
+      transform: scale(0.97);
+    }
+
+    .footer {
+      text-align: center;
+      font-size: 0.6rem;
+      color: #6c8fb0;
+      margin-top: 12px;
+    }
+
+    .last-update {
+      text-align: right;
+      font-size: 0.6rem;
+      color: #4a6a8a;
+      margin-bottom: 8px;
+    }
+  </style>
+</head>
+<body>
+<div class="app-container">
+  <div class="header">
+    <div>
+      <div class="logo">EMEKLİ PUSULASI</div>
+      <div class="sub">Banka Promosyonları · Rehber</div>
+    </div>
+    <a href="index.html" class="back-link">← Geri</a>
+  </div>
+
+  <div class="info-bar">
+    <div class="info-item">📅 <span id="lastUpdateDate">22 Nisan 2026</span></div>
+    <div class="info-item">🏦 <span id="bankCount">8</span> banka</div>
+    <div class="info-item">⚡ En yüksek promosyon <span id="maxBonus">—</span></div>
+  </div>
+
+  <!-- PROMOSYON LİSTESİ -->
+  <div class="card">
+    <div class="card-title">🏧 Güncel Promosyonlar (3 yıl taahhüt)</div>
+    <div id="bankListContainer" class="bank-list"></div>
+    <div class="last-update">⚠️ Veriler manuel güncellenir, bankaları teyit ediniz.</div>
+  </div>
+
+  <!-- BANK DEĞİŞTİRME MALİYETİ HESAPLAYICI -->
+  <div class="card">
+    <div class="card-title">🔄 Banka Değiştirme Maliyeti</div>
+    <div class="calc-group">
+      <label>Mevcut Banka:</label>
+      <select id="currentBankSelect"></select>
+    </div>
+    <div class="calc-group">
+      <label>Taahhüt bitiş tarihi:</label>
+      <input type="month" id="commitmentEnd" value="2027-12">
+    </div>
+    <div class="calc-group">
+      <label>Alınan promosyon (TL):</label>
+      <input type="number" id="receivedBonus" value="20000" step="1000">
+    </div>
+    <button class="action-btn" id="calcPenaltyBtn">💰 Hesapla</button>
+    <div id="penaltyResult" class="result-box" style="display:none;">
+      <div class="result-text" id="penaltyText">—</div>
+      <div class="note">*Yaklaşık tutar, bankadan bankaya değişebilir.</div>
+    </div>
+  </div>
+
+  <!-- REKLAM ALANI (ODÜLLÜ VİDEO HAZIRLIĞI - İSTEĞE BAĞLI) -->
+  <div class="card" id="adCard" style="display:none;">
+    <div class="card-title">📺 Reklam Desteği</div>
+    <button class="action-btn" id="rewardAdBtn">🎁 1 ipucu için video izle</button>
+  </div>
+
+  <div class="footer">PACDI · Damlaya damlaya göl olur. Veriler ay sonu güncellenir.</div>
+</div>
+
+<script>
+  // ---------- MANUEL GÜNCELLENEN VERİLER (MVP) ----------
+  // Tarih: 22 Nisan 2026 - Kaynak: Sabah, Hangikredi
+  var banksData = [
+    { name: "Vakıf Katılım", bonus: 40000, taahhutAy: 36, note: "En yüksek promosyon" },
+    { name: "ING", bonus: 38000, taahhutAy: 36, note: "Dijital kampanya" },
+    { name: "Garanti BBVA", bonus: 35000, taahhutAy: 36, note: "Ek avantajlar" },
+    { name: "Yapı Kredi", bonus: 32000, taahhutAy: 36, note: "Sınırlı kontenjan" },
+    { name: "QNB Finansbank", bonus: 31000, taahhutAy: 36, note: "3 yıl taahhüt" },
+    { name: "İş Bankası", bonus: 28000, taahhutAy: 36, note: "Şube kanalı" },
+    { name: "Ziraat Bankası", bonus: 25000, taahhutAy: 36, note: "Emekli promosyonu" },
+    { name: "Halkbank", bonus: 24000, taahhutAy: 36, note: "Kampanya süresi uzatıldı" }
+  ];
+
+  // Güncelleme tarihi
+  var lastUpdate = "22 Nisan 2026";
+
+  // DOM elementleri
+  var bankListDiv = document.getElementById('bankListContainer');
+  var lastUpdateSpan = document.getElementById('lastUpdateDate');
+  var bankCountSpan = document.getElementById('bankCount');
+  var maxBonusSpan = document.getElementById('maxBonus');
+  var currentBankSelect = document.getElementById('currentBankSelect');
+  var commitmentEndInput = document.getElementById('commitmentEnd');
+  var receivedBonusInput = document.getElementById('receivedBonus');
+  var calcPenaltyBtn = document.getElementById('calcPenaltyBtn');
+  var penaltyResultDiv = document.getElementById('penaltyResult');
+  var penaltyTextSpan = document.getElementById('penaltyText');
+
+  // En yüksek promosyonu bul
+  function getMaxBonus() {
+    var max = 0;
+    for (var i = 0; i < banksData.length; i++) {
+      if (banksData[i].bonus > max) max = banksData[i].bonus;
+    }
+    return max;
+  }
+
+  // Banka listesini render et
+  function renderBanks() {
+    bankListDiv.innerHTML = '';
+    var maxBonusVal = getMaxBonus();
+    for (var i = 0; i < banksData.length; i++) {
+      var b = banksData[i];
+      var row = document.createElement('div');
+      row.className = 'bank-row';
+      var nameSpan = document.createElement('div');
+      nameSpan.className = 'bank-name';
+      nameSpan.innerText = b.name;
+      var bonusSpan = document.createElement('div');
+      bonusSpan.className = 'bonus';
+      if (b.bonus === maxBonusVal) bonusSpan.classList.add('highlight');
+      bonusSpan.innerText = b.bonus.toLocaleString() + ' TL';
+      row.appendChild(nameSpan);
+      row.appendChild(bonusSpan);
+      bankListDiv.appendChild(row);
+    }
+    bankCountSpan.innerText = banksData.length;
+    maxBonusSpan.innerText = maxBonusVal.toLocaleString() + ' TL';
+    lastUpdateSpan.innerText = lastUpdate;
+
+    // Select dropdown'u doldur
+    currentBankSelect.innerHTML = '';
+    for (var j = 0; j < banksData.length; j++) {
+      var opt = document.createElement('option');
+      opt.value = j;
+      opt.innerText = banksData[j].name + ' (' + banksData[j].bonus.toLocaleString() + ' TL)';
+      currentBankSelect.appendChild(opt);
+    }
+  }
+
+  // ---------- CEZA HESAPLAMA (taahhüt ihlali) ----------
+  function calculatePenalty() {
+    var selectedIdx = parseInt(currentBankSelect.value, 10);
+    var bank = banksData[selectedIdx];
+    var commitmentEndDate = new Date(commitmentEndInput.value + "-01"); // ayın ilk günü
+    var today = new Date();
+    var monthsLeft = (commitmentEndDate.getFullYear() - today.getFullYear()) * 12 + (commitmentEndDate.getMonth() - today.getMonth());
+    if (monthsLeft < 0) monthsLeft = 0;
+    var received = parseFloat(receivedBonusInput.value);
+    if (isNaN(received)) received = 0;
+
+    // Genel kural: Kalan her ay için promosyonun 1/36'sı kadar ceza
+    var monthlyBonus = bank.bonus / bank.taahhutAy;
+    var penalty = 0;
+    if (monthsLeft > 0) {
+      penalty = monthlyBonus * monthsLeft;
+    } else {
+      penalty = 0;
+    }
+    penalty = Math.round(penalty);
+    penaltyResultDiv.style.display = 'block';
+    if (penalty > 0) {
+      penaltyTextSpan.innerHTML = '⚠️ Yaklaşık ceza tutarı: ' + penalty.toLocaleString() + ' TL<br>Kalan taahhüt: ' + monthsLeft + ' ay';
+    } else {
+      penaltyTextSpan.innerHTML = '✅ Taahhüt süreniz dolmuş. Herhangi bir ceza ödemeden banka değiştirebilirsiniz.';
+    }
+  }
+
+  // ---------- REKLAM BÖLÜMÜ (MVP'de gösterilmeyebilir, ama altyapı hazır) ----------
+  // İleride ödüllü video eklenebilir. Şimdilik buton sadece bilgi verir.
+  var rewardAdBtn = document.getElementById('rewardAdBtn');
+  if (rewardAdBtn) {
+    rewardAdBtn.addEventListener('click', function() {
+      alert('🎥 Reklam izleme özelliği yakında aktif olacak. Şimdilik manuel bilgi güncelleniyor.');
+    });
+  }
+
+  // ---------- OLAY DINLEYICILER ----------
+  calcPenaltyBtn.addEventListener('click', calculatePenalty);
+
+  // Sayfa yüklendiğinde bankaları göster
+  renderBanks();
+
+  // İsteğe bağlı: Reklam kartını gösterme (şimdilik gizli)
+  // var adCard = document.getElementById('adCard'); adCard.style.display = 'none'; // MVP'de reklam yok
+
+  // Not: Kullanıcıya "Veriler manuel güncellenir" uyarısı gösteriliyor
+</script>
+</body>
+</html>

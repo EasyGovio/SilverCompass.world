@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Krankenkasse Vergleich | SilverCompass</title>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; user-select:none; -webkit-tap-highlight-color:transparent; }
+        body { background:#f0e4ce; font-family:"Helvetica Neue",Helvetica,Arial,sans-serif; min-height:100vh; display:flex; justify-content:center; align-items:center; padding:16px; }
+        .game-container { max-width:620px; width:100%; background:#fffaf2; border-radius:48px; padding:20px 16px 24px; box-shadow:0 20px 35px rgba(0,0,0,0.1); border:1px solid #e6d5b8; text-align:center; }
+        .top-bar { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+        .logo { font-size:1.4rem; font-weight:800; color:#1a3a5c; }
+        .logo span { color:#d4af37; }
+        .back-link { color:#d4af37; text-decoration:none; font-weight:bold; font-size:0.78rem; background:#fffaf2; padding:5px 12px; border-radius:40px; border:1px solid #d4af37; }
+        .lang-selector { display:flex; gap:6px; margin-bottom:12px; justify-content:flex-end; }
+        .lang-btn { background:#fffaf2; border:1px solid #1a3a5c; color:#1a3a5c; font-size:0.7rem; padding:3px 10px; border-radius:30px; cursor:pointer; }
+        .lang-btn.active { background:#1a3a5c; color:#fffaf2; }
+        .question-area { background:#faf3e6; border-radius:28px; padding:20px 16px; margin-bottom:20px; text-align:left; }
+        .step-indicator { color:#6c757d; font-size:0.7rem; margin-bottom:10px; }
+        .question-text { font-size:1rem; font-weight:bold; color:#1a3a5c; margin-bottom:16px; }
+        .options-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
+        .opt-btn { background:#fffaf2; border:2px solid #d4af37; border-radius:60px; padding:12px 8px; font-weight:bold; color:#1a3a5c; cursor:pointer; font-size:0.85rem; text-align:center; }
+        .opt-btn:active { background:#d4af37; color:#fffaf2; transform:scale(0.96); }
+        .result-box { background:#faf3e6; border-radius:28px; padding:20px; margin-top:20px; border:2px solid #d4af37; text-align:left; }
+        .result-title { font-size:1.3rem; font-weight:800; color:#1a3a5c; margin-bottom:10px; }
+        .result-detail { color:#333; font-size:0.85rem; line-height:1.6; margin-bottom:12px; }
+        .kk-table { width:100%; border-collapse:collapse; margin:12px 0; font-size:0.75rem; }
+        .kk-table th { background:#d4af37; color:#fffaf2; padding:8px; text-align:left; }
+        .kk-table td { padding:8px; border-bottom:1px solid #e6d5b8; color:#333; vertical-align:top; }
+        .mini-btn { background:#1a3a5c; color:#fffaf2; border:none; padding:3px 8px; border-radius:20px; font-size:0.65rem; font-weight:bold; cursor:pointer; text-decoration:none; display:inline-block; margin-top:4px; }
+        .info-badge { background:rgba(212,175,55,0.15); border:1px solid #d4af37; border-radius:16px; padding:12px; margin:12px 0; font-size:0.78rem; color:#1a3a5c; }
+        .warning-box { background:rgba(220,53,69,0.1); border-left:4px solid #dc3545; padding:12px; border-radius:12px; margin:12px 0; font-size:0.8rem; }
+        .community-box { background:rgba(40,167,69,0.1); border-left:4px solid #28a745; padding:12px; border-radius:12px; margin:12px 0; font-size:0.8rem; }
+        .back-btn { background:transparent; border:1px solid #1a3a5c; color:#1a3a5c; padding:8px 16px; border-radius:40px; cursor:pointer; font-weight:bold; margin-top:10px; }
+        .footer { text-align:center; font-size:0.6rem; color:#6c757d; margin-top:12px; }
+    </style>
+</head>
+<body>
+<div class="game-container">
+    <div class="top-bar">
+        <div class="logo">Silver<span>Compass</span></div>
+        <a href="index.html" class="back-link" id="backLink">← Zurück</a>
+    </div>
+    <div class="lang-selector" id="langSelector">
+        <button class="lang-btn active" data-lang="de">DE</button>
+        <button class="lang-btn" data-lang="tr">TR</button>
+        <button class="lang-btn" data-lang="en">EN</button>
+    </div>
+    <div class="question-area" id="questionArea">
+        <div class="step-indicator" id="stepIndicator"></div>
+        <div class="question-text" id="questionText"></div>
+        <div class="options-grid" id="optionsGrid"></div>
+        <button class="back-btn" id="backBtn" style="display:none;">← Zurück</button>
+    </div>
+    <div class="footer" id="footerText">SilverCompass · Ihr Krankenkassen-Vergleich</div>
+</div>
+<script>
+(function(){
+    var langData = {
+        de: {
+            title: "KRANKENKASSE VERGLEICH",
+            back: "← Zurück",
+            steps: "Schritt {0} von {1}",
+            footer: "SilverCompass · Ihr Krankenkassen-Vergleich",
+            resultTitle: "Ihre Krankenkassen-Empfehlung",
+            gkv: "Gesetzliche (GKV)",
+            pkv: "Private (PKV)",
+            kvdR: "KVdR",
+            zusatzbeitrag: "Zusatzbeitrag: {0}%",
+            empfehlung: "Empfehlung",
+            beitragInfo: "💡 Beitragssatz 14,6%, KVdR zahlt 7,3%, Zusatzbeitrag trägt Rentner allein.",
+            partnerLink: "Jetzt informieren",
+            communityTitle: "Gemeinschaftshilfe",
+            communityText: "Viele türkische Rentner sind in Vereinen oder Gemeinden wie DİTİB. Sie sind nicht allein."
+        },
+        tr: {
+            title: "SAĞLIK SİGORTASI KARŞILAŞTIRMA",
+            back: "← Geri",
+            steps: "Adım {0} / {1}",
+            footer: "SilverCompass · Sağlık sigortası karşılaştırmanız",
+            resultTitle: "Sağlık Sigortası Öneriniz",
+            gkv: "Yasal (GKV)",
+            pkv: "Özel (PKV)",
+            kvdR: "KVdR",
+            zusatzbeitrag: "Ek prim: %{0}",
+            empfehlung: "Öneri",
+            beitragInfo: "💡 Genel prim %14,6, emeklilik sigortası yarısını öder, ek prim emekliye aittir.",
+            partnerLink: "Şimdi bilgi al",
+            communityTitle: "Topluluk Dayanışması",
+            communityText: "Birçok Türk emekli dernek veya DİTİB üyesidir. Yalnız değilsiniz."
+        },
+        en: {
+            title: "HEALTH INSURANCE COMPARISON",
+            back: "← Back",
+            steps: "Step {0} of {1}",
+            footer: "SilverCompass · Your health insurance comparison",
+            resultTitle: "Your Health Insurance Recommendation",
+            gkv: "Statutory (GKV)",
+            pkv: "Private (PKV)",
+            kvdR: "KVdR",
+            zusatzbeitrag: "Additional: {0}%",
+            empfehlung: "Recommendation",
+            beitragInfo: "💡 Contribution 14.6%, pension insurance pays 7.3%, additional paid by retiree.",
+            partnerLink: "Get info",
+            communityTitle: "Community Support",
+            communityText: "Many Turkish retirees are members of associations or DİTİB. You are not alone."
+        }
+    };
+    var krankenkassen = [
+        { name:"Techniker Krankenkasse (TK)", zusatz:1.2, bonus:"Bonusprogramm (bis 240€), Reiseimpfungen", link:"https://www.tk.de" },
+        { name:"AOK Bayern", zusatz:1.6, bonus:"Bonusprogramm, Zuschüsse Vorsorge", link:"https://www.aok.de" },
+        { name:"Barmer", zusatz:1.5, bonus:"Bonusprogramm (bis 300€), Gesundheitskurse", link:"https://www.barmer.de" },
+        { name:"DAK-Gesundheit", zusatz:1.7, bonus:"Bonusprogramm, Osteopathie", link:"https://www.dak.de" },
+        { name:"KKH", zusatz:1.5, bonus:"Bonusprogramm, Sportkurse", link:"https://www.kkh.de" }
+    ];
+    var currentLang = 'de';
+    var currentStep = 0;
+    var answers = {};
+    var questions = [
+        { question:"Sind Sie Rentner oder rentenversichert?", opts:["Ja, Rentner","Ja, rentenversichert","Nein"], key:"rentner", values:["rentner","versichert","nein"] },
+        { question:"Gesetzlich oder privat versichert?", opts:["Gesetzlich (GKV)","Privat (PKV)","Unsicher"], key:"versicherung", values:["gkv","pkv","unsicher"] },
+        { question:"9/10-Regelung erfüllt?", opts:["Ja","Nein","Unsicher"], key:"kvdr", values:["ja","nein","unsicher"] }
+    ];
+    var totalSteps = questions.length;
+
+    function updateLanguage() {
+        var t = langData[currentLang];
+        document.getElementById('footerText').innerText = t.footer;
+        document.getElementById('backBtn').innerText = t.back;
+    }
+    function setLanguage(lang) {
+        currentLang = lang; updateLanguage();
+        var btns = document.querySelectorAll('.lang-btn');
+        for(var i=0;i<btns.length;i++) btns[i].classList.toggle('active', btns[i].getAttribute('data-lang')===lang);
+        if(currentStep < totalSteps) renderQuestion(); else renderResult();
+    }
+    function renderQuestion() {
+        var q = questions[currentStep];
+        var t = langData[currentLang];
+        document.getElementById('stepIndicator').innerText = t.steps.replace('{0}',currentStep+1).replace('{1}',totalSteps);
+        document.getElementById('questionText').innerText = q.question;
+        var grid = document.getElementById('optionsGrid'); grid.innerHTML = '';
+        for(var i=0;i<q.opts.length;i++) {
+            var btn = document.createElement('button'); btn.className='opt-btn'; btn.innerText=q.opts[i];
+            btn.addEventListener('click', (function(key,value){ return function(){
+                answers[key]=value; currentStep++;
+                if(currentStep<totalSteps) renderQuestion(); else renderResult();
+            };})(q.key, q.values[i]));
+            grid.appendChild(btn);
+        }
+        document.getElementById('backBtn').style.display = currentStep>0 ? 'inline-block' : 'none';
+    }
+    function renderResult() {
+        var t = langData[currentLang];
+        var empfehlung = t.gkv;
+        var kvdrStatus = false;
+        if(answers.kvdr === 'ja') { kvdrStatus = true; empfehlung = t.kvdR; }
+        else if(answers.versicherung === 'pkv') empfehlung = t.pkv;
+        else if(answers.rentner === 'nein') empfehlung = t.gkv + " (Pflicht)";
+
+        var html = '<div class="result-box">';
+        html += '<div class="result-title">'+t.resultTitle+'</div>';
+        html += '<div class="result-detail">● <strong>'+t.empfehlung+':</strong> '+empfehlung+'<br>';
+        if(kvdrStatus) html += '● KVdR-berechtigt<br></div>';
+        html += '</div><div class="info-badge">'+t.beitragInfo+'</div>';
+        html += '<table class="kk-table"><tr><th>Kasse</th><th>Zusatzbeitrag</th><th>Bonus</th><th></th></tr>';
+        for(var i=0;i<krankenkassen.length;i++) {
+            var kk = krankenkassen[i];
+            html += '<tr><td>'+kk.name+'</td><td>'+t.zusatzbeitrag.replace('{0}',kk.zusatz.toFixed(1))+'</td><td>'+kk.bonus+'</td><td><a href="'+kk.link+'" target="_blank" class="mini-btn">'+t.partnerLink+'</a></td></tr>';
+        }
+        html += '</table>';
+        html += '<div class="community-box"><strong>🤝 '+t.communityTitle+':</strong><br>'+t.communityText+'</div>';
+        html += '<button class="back-btn" onclick="resetBerater()">Wiederholen</button></div>';
+        document.getElementById('questionArea').innerHTML = html;
+        document.getElementById('backBtn').style.display = 'none';
+    }
+    window.resetBerater = function() {
+        currentStep = 0; answers = {};
+        document.getElementById('questionArea').innerHTML = '<div class="step-indicator" id="stepIndicator"></div><div class="question-text" id="questionText"></div><div class="options-grid" id="optionsGrid"></div><button class="back-btn" id="backBtn" style="display:none;">← Zurück</button>';
+        updateLanguage(); renderQuestion();
+    };
+    document.getElementById('backBtn').addEventListener('click', function(){ if(currentStep>0){ currentStep--; renderQuestion(); } });
+    var langBtns = document.querySelectorAll('.lang-btn');
+    for(var i=0;i<langBtns.length;i++) langBtns[i].addEventListener('click', function(){ var lang=this.getAttribute('data-lang'); if(lang!==currentLang) setLanguage(lang); });
+    setLanguage('de'); renderQuestion();
+})();
+</script>
+</body>
+</html>

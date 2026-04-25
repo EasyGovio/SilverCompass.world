@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Pflegegrad Berater | SilverCompass</title>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; user-select:none; -webkit-tap-highlight-color:transparent; }
+        body { background:#f0e4ce; font-family:"Helvetica Neue",Helvetica,Arial,sans-serif; min-height:100vh; display:flex; justify-content:center; align-items:center; padding:16px; }
+        .game-container { max-width:620px; width:100%; background:#fffaf2; border-radius:48px; padding:20px 16px 24px; box-shadow:0 20px 35px rgba(0,0,0,0.1); border:1px solid #e6d5b8; text-align:center; }
+        .top-bar { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+        .logo { font-size:1.4rem; font-weight:800; color:#1a3a5c; }
+        .logo span { color:#d4af37; }
+        .back-link { color:#d4af37; text-decoration:none; font-weight:bold; font-size:0.78rem; background:#fffaf2; padding:5px 12px; border-radius:40px; border:1px solid #d4af37; }
+        .lang-selector { display:flex; gap:6px; margin-bottom:12px; justify-content:flex-end; }
+        .lang-btn { background:#fffaf2; border:1px solid #1a3a5c; color:#1a3a5c; font-size:0.7rem; padding:3px 10px; border-radius:30px; cursor:pointer; }
+        .lang-btn.active { background:#1a3a5c; color:#fffaf2; }
+        .question-area { background:#faf3e6; border-radius:28px; padding:20px 16px; margin-bottom:20px; text-align:left; }
+        .step-indicator { color:#6c757d; font-size:0.7rem; margin-bottom:10px; }
+        .question-text { font-size:1rem; font-weight:bold; color:#1a3a5c; margin-bottom:16px; }
+        .options-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
+        .opt-btn { background:#fffaf2; border:2px solid #d4af37; border-radius:60px; padding:12px 8px; font-weight:bold; color:#1a3a5c; cursor:pointer; font-size:0.85rem; text-align:center; }
+        .opt-btn:active { background:#d4af37; color:#fffaf2; transform:scale(0.96); }
+        .result-box { background:#faf3e6; border-radius:28px; padding:20px; margin-top:20px; border:2px solid #d4af37; text-align:left; }
+        .result-title { font-size:1.3rem; font-weight:800; color:#1a3a5c; margin-bottom:10px; }
+        .result-detail { color:#333; font-size:0.85rem; line-height:1.6; margin-bottom:12px; }
+        .info-badge { background:rgba(212,175,55,0.15); border:1px solid #d4af37; border-radius:16px; padding:12px; margin:12px 0; font-size:0.78rem; color:#1a3a5c; text-align:left; line-height:1.5; }
+        .video-box { background:rgba(26,58,92,0.05); border-left:4px solid #1a3a5c; padding:12px; border-radius:12px; margin:12px 0; font-size:0.8rem; color:#1a3a5c; }
+        .video-link { color:#d4af37; font-weight:bold; text-decoration:none; }
+        .warning-box { background:rgba(220,53,69,0.1); border-left:4px solid #dc3545; padding:12px; border-radius:12px; margin:12px 0; font-size:0.8rem; }
+        .community-box { background:rgba(40,167,69,0.1); border-left:4px solid #28a745; padding:12px; border-radius:12px; margin:12px 0; font-size:0.8rem; }
+        .btn-group { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; align-items:center; }
+        .action-btn { background:#d4af37; color:#fffaf2; border:none; padding:10px 18px; border-radius:40px; font-weight:bold; cursor:pointer; font-size:0.8rem; text-decoration:none; display:inline-block; }
+        .action-btn.outline { background:transparent; border:2px solid #d4af37; color:#1a3a5c; }
+        .copy-btn { background:#1a3a5c; color:#fffaf2; border:none; padding:6px 12px; border-radius:20px; font-size:0.7rem; cursor:pointer; }
+        .back-btn { background:transparent; border:1px solid #1a3a5c; color:#1a3a5c; padding:8px 16px; border-radius:40px; cursor:pointer; font-weight:bold; margin-top:10px; }
+        .footer { text-align:center; font-size:0.6rem; color:#6c757d; margin-top:12px; }
+        .dilekce-box { background:#fffaf2; border-radius:16px; padding:14px; margin:12px 0; font-size:0.75rem; color:#1a3a5c; white-space:pre-wrap; max-height:200px; overflow-y:auto; border:1px solid #e6d5b8; }
+    </style>
+</head>
+<body>
+<div class="game-container">
+    <div class="top-bar">
+        <div class="logo">Silver<span>Compass</span></div>
+        <a href="index.html" class="back-link" id="backLink">← Zurück</a>
+    </div>
+    <div class="lang-selector" id="langSelector">
+        <button class="lang-btn active" data-lang="de">DE</button>
+        <button class="lang-btn" data-lang="tr">TR</button>
+        <button class="lang-btn" data-lang="en">EN</button>
+    </div>
+    <div class="question-area" id="questionArea">
+        <div class="step-indicator" id="stepIndicator"></div>
+        <div class="question-text" id="questionText"></div>
+        <div class="options-grid" id="optionsGrid"></div>
+        <button class="back-btn" id="backBtn" style="display:none;">← Zurück</button>
+    </div>
+    <div class="footer" id="footerText">SilverCompass · Beratung für Ihre Rechte</div>
+</div>
+<script>
+(function(){
+    var langData = {
+        de: {
+            title: "PFLEGEGRAD BERATER",
+            back: "← Zurück",
+            steps: "Schritt {0} von {1}",
+            footer: "SilverCompass · Beratung für Ihre Rechte",
+            resultTitle1: "Ihr geschätzter Pflegegrad: {0}",
+            resultTitle2: "Kein Pflegegrad",
+            pflegegeld: "Pflegegeld (monatlich): {0} €",
+            sachleistungen: "Pflegesachleistungen (monatlich): {0} €",
+            kombinierbar: "Diese Leistungen sind kombinierbar (Kombinationsleistung). Sie können z.B. 40% als Sachleistung und 60% als Pflegegeld beziehen.",
+            entlastung: "Entlastungsbetrag: 125 € monatlich",
+            nbaInfo: "Diese Ersteinschätzung basiert auf vereinfachten Fragen. Der Medizinische Dienst (MDK) nutzt 6 Module (Mobilität, kognitive Fähigkeiten, Selbstversorgung, etc.) mit einem Punktesystem von 0–100.",
+            widerspruchTitle: "Widerspruch einlegen",
+            widerspruchText: "Wenn Ihr Antrag abgelehnt wurde, klicken Sie auf den Button, um einen Muster-Widerspruch zu sehen.",
+            widerspruchBtn: "📝 Muster-Widerspruch anzeigen",
+            copyBtn: "📋 Text kopieren",
+            copied: "✅ Kopiert!",
+            dilekceMuster: "Widerspruch gegen den Bescheid der Pflegekasse\n\nSehr geehrte Damen und Herren,\n\nhiermit lege ich Widerspruch gegen Ihren Bescheid vom [Datum] ein, mit dem mein Pflegegrad auf [X] festgesetzt wurde.\n\nBegründung:\n- Die Einschränkungen in den Bereichen Mobilität, Selbstversorgung und kognitive Fähigkeiten wurden nicht ausreichend berücksichtigt.\n- Ich bitte um eine erneute Begutachtung durch den MDK.\n\nMit freundlichen Grüßen\n[Name]",
+            gerichtTitle: "Sozialgericht",
+            gerichtText: "Wird Ihr Widerspruch abgelehnt, können Sie vor dem Sozialgericht klagen. Lassen Sie sich von einem Sozialverband (VdK, SoVD) oder einem Anwalt unterstützen.",
+            videoTitle: "🎬 Wichtiger Tipp: MDK-Besuch vorbereiten",
+            videoText: "Sehen Sie unser Video: „So bereiten Sie Ihre Wohnung auf den MDK-Besuch vor\".",
+            videoLinkText: "Video ansehen (YouTube)",
+            communityTitle: "Gemeinschaftshilfe",
+            communityText: "Viele türkische Rentner in Deutschland sind Mitglied in einem Rentnerverein oder einer Gemeinde wie DİTİB. Sie sind nicht allein.",
+            pdfBtn: "📄 Als PDF speichern / drucken"
+        },
+        tr: {
+            title: "PFLEGEGRAD BERATER",
+            back: "← Geri",
+            steps: "Adım {0} / {1}",
+            footer: "SilverCompass · Haklarınız için danışmanlık",
+            resultTitle1: "Tahmini bakım dereceniz: {0}",
+            resultTitle2: "Bakım derecesi yok",
+            pflegegeld: "Bakım parası (aylık): {0} €",
+            sachleistungen: "Bakım hizmet yardımı (aylık): {0} €",
+            kombinierbar: "Bu yardımlar kombine edilebilir (Kombinationsleistung). Örneğin %40 hizmet, %60 nakit olarak alınabilir.",
+            entlastung: "Destek ödeneği: aylık 125 €",
+            nbaInfo: "Bu ön değerlendirme basitleştirilmiş sorulara dayanır. MDK gerçek değerlendirmede 6 modül ve 0–100 puan sistemi kullanır.",
+            widerspruchTitle: "İtiraz hakkı",
+            widerspruchText: "Başvurunuz reddedildiyse, aşağıdaki butona tıklayarak örnek bir itiraz dilekçesi görüntüleyebilirsiniz.",
+            widerspruchBtn: "📝 Örnek itiraz dilekçesi göster",
+            copyBtn: "📋 Metni kopyala",
+            copied: "✅ Kopyalandı!",
+            dilekceMuster: "Pflegekasse kararına itiraz\n\nSayın yetkili,\n\n[ Tarih ] tarihli ve bakım derecemi [X] olarak belirleyen kararınıza itiraz ediyorum.\n\nGerekçe:\n- Hareketlilik, öz bakım ve bilişsel yetilerdeki kısıtlamalar yeterince dikkate alınmamıştır.\n- MDK tarafından yeniden değerlendirme talep ediyorum.\n\nSaygılarımla\n[İsim]",
+            gerichtTitle: "Sosyal Mahkeme",
+            gerichtText: "İtirazınız reddedilirse Sosyal Mahkeme'de dava açabilirsiniz. VdK, SoVD gibi sosyal derneklerden veya bir avukattan destek alın.",
+            videoTitle: "🎬 Önemli Tavsiye: MDK Ziyaretine Hazırlık",
+            videoText: "Videomuzu izleyin: „MDK gelmeden önce evinizi nasıl hazırlamalısınız?\"",
+            videoLinkText: "Videoyu izle (YouTube)",
+            communityTitle: "Topluluk Dayanışması",
+            communityText: "Almanya'daki birçok Türk emekli, bir emekli derneğine veya DİTİB gibi bir cemaate üyedir. Yalnız değilsiniz.",
+            pdfBtn: "📄 PDF olarak kaydet / yazdır"
+        },
+        en: {
+            title: "PFLEGEGRAD BERATER",
+            back: "← Back",
+            steps: "Step {0} of {1}",
+            footer: "SilverCompass · Advice for your rights",
+            resultTitle1: "Your estimated care level: {0}",
+            resultTitle2: "No care level",
+            pflegegeld: "Care allowance (monthly): {0} €",
+            sachleistungen: "Care benefits in kind (monthly): {0} €",
+            kombinierbar: "These benefits can be combined (Kombinationsleistung). E.g. 40% as services, 60% as cash.",
+            entlastung: "Relief amount: 125 € monthly",
+            nbaInfo: "This preliminary assessment is based on simplified questions. The MDK uses 6 modules with a 0–100 point system.",
+            widerspruchTitle: "Filing an Objection",
+            widerspruchText: "If your application was rejected, click the button below to view a sample objection letter.",
+            widerspruchBtn: "📝 Show sample objection",
+            copyBtn: "📋 Copy text",
+            copied: "✅ Copied!",
+            dilekceMuster: "Objection against the care insurance decision\n\nDear Sir or Madam,\n\nI hereby object to your decision dated [date], which set my care level at [X].\n\nReason:\n- The limitations in mobility, self-care and cognitive abilities were not sufficiently taken into account.\n- I request a re-assessment by the MDK.\n\nSincerely,\n[Name]",
+            gerichtTitle: "Social Court",
+            gerichtText: "If your objection is rejected, you can sue at the Social Court. Seek support from a social association (VdK, SoVD) or a lawyer.",
+            videoTitle: "🎬 Important Tip: Preparing for the MDK Visit",
+            videoText: "Watch our video: \"How to prepare your home for the MDK visit\".",
+            videoLinkText: "Watch video (YouTube)",
+            communityTitle: "Community Support",
+            communityText: "Many Turkish retirees in Germany are members of a pensioners' association or a community like DİTİB. You are not alone.",
+            pdfBtn: "📄 Save as PDF / Print"
+        }
+    };
+    var currentLang = 'de';
+    var currentStep = 0;
+    var answers = {};
+    var questions = [
+        { question:"Können Sie sich ohne Hilfe waschen und duschen?", opts:["Ja, ohne Probleme","Nur mit leichter Hilfe","Nur mit starker Hilfe","Überhaupt nicht"], key:"waschen", values:[0,1,2,3] },
+        { question:"Können Sie sich ohne Hilfe an- und ausziehen?", opts:["Ja, ohne Probleme","Nur mit leichter Hilfe","Nur mit starker Hilfe","Überhaupt nicht"], key:"kleiden", values:[0,1,2,3] },
+        { question:"Können Sie ohne Hilfe essen und trinken?", opts:["Ja, ohne Probleme","Nur mit leichter Hilfe","Nur mit starker Hilfe","Überhaupt nicht"], key:"ernaehrung", values:[0,1,2,3] },
+        { question:"Können Sie ohne Hilfe aufstehen und ins Bett gehen?", opts:["Ja, ohne Probleme","Nur mit leichter Hilfe","Nur mit starker Hilfe","Überhaupt nicht"], key:"mobilitaet", values:[0,1,2,3] },
+        { question:"Haben Sie Schwierigkeiten, Ihren Alltag zu strukturieren?", opts:["Keine Schwierigkeiten","Geringe Schwierigkeiten","Deutliche Schwierigkeiten","Sehr große Schwierigkeiten"], key:"alltag", values:[0,1,2,3] },
+        { question:"Haben Sie kognitive Einschränkungen?", opts:["Keine","Leichte Vergesslichkeit","Deutliche Gedächtnislücken","Schwere Demenz"], key:"kognition", values:[0,1,2,3] }
+    ];
+    var totalSteps = questions.length;
+
+    function updateLanguage() {
+        var t = langData[currentLang];
+        document.getElementById('footerText').innerText = t.footer;
+        document.getElementById('backBtn').innerText = t.back;
+    }
+    function setLanguage(lang) {
+        currentLang = lang; updateLanguage();
+        var btns = document.querySelectorAll('.lang-btn');
+        for(var i=0;i<btns.length;i++) btns[i].classList.toggle('active', btns[i].getAttribute('data-lang')===lang);
+        if(currentStep < totalSteps) renderQuestion(); else renderResult();
+    }
+    function renderQuestion() {
+        var q = questions[currentStep];
+        var t = langData[currentLang];
+        document.getElementById('stepIndicator').innerText = t.steps.replace('{0}',currentStep+1).replace('{1}',totalSteps);
+        document.getElementById('questionText').innerText = q.question;
+        var grid = document.getElementById('optionsGrid'); grid.innerHTML = '';
+        for(var i=0;i<q.opts.length;i++) {
+            var btn = document.createElement('button'); btn.className='opt-btn'; btn.innerText=q.opts[i];
+            btn.addEventListener('click', (function(key,value){ return function(){
+                answers[key]=value; currentStep++;
+                if(currentStep<totalSteps) renderQuestion(); else renderResult();
+            }; })(q.key, q.values[i]));
+            grid.appendChild(btn);
+        }
+        document.getElementById('backBtn').style.display = currentStep>0 ? 'inline-block' : 'none';
+    }
+    function renderResult() {
+        var t = langData[currentLang];
+        var totalScore = 0;
+        for(var key in answers) totalScore += answers[key];
+        var pflegegrad = 0;
+        if(totalScore >= 1 && totalScore <= 4) pflegegrad = 1;
+        else if(totalScore >= 5 && totalScore <= 8) pflegegrad = 2;
+        else if(totalScore >= 9 && totalScore <= 12) pflegegrad = 3;
+        else if(totalScore >= 13 && totalScore <= 15) pflegegrad = 4;
+        else if(totalScore >= 16) pflegegrad = 5;
+        var gelds = {
+            pflegegeld: [0, 316, 545, 728, 901, 990],
+            sachleistungen: [0, 761, 1363, 1693, 2099, 2396]
+        };
+
+        var html = '<div class="result-box" id="printArea">';
+        if(pflegegrad > 0) {
+            html += '<div class="result-title">' + t.resultTitle1.replace('{0}', pflegegrad) + '</div>';
+            html += '<div class="result-detail">';
+            html += '● ' + t.pflegegeld.replace('{0}', gelds.pflegegeld[pflegegrad]) + '<br>';
+            html += '● ' + t.sachleistungen.replace('{0}', gelds.sachleistungen[pflegegrad]) + '<br>';
+            html += '● ' + t.entlastung + '</div>';
+            html += '<div class="info-badge">🔀 ' + t.kombinierbar + '</div>';
+        } else {
+            html += '<div class="result-title">' + t.resultTitle2 + '</div>';
+            html += '<div class="result-detail">Basierend auf Ihren Antworten konnte kein Pflegegrad festgestellt werden.</div>';
+        }
+        html += '<div class="info-badge">📋 ' + t.nbaInfo + '</div>';
+        html += '<div class="video-box"><strong>'+t.videoTitle+'</strong><br>'+t.videoText+'<br>';
+        html += '<a href="https://youtube.com/@SilverCompass" target="_blank" class="video-link">▶ '+t.videoLinkText+'</a></div>';
+        html += '<div class="warning-box"><strong>⚠ ' + t.widerspruchTitle + ':</strong><br>' + t.widerspruchText + '</div>';
+        html += '<div class="btn-group">';
+        html += '<button class="action-btn outline" onclick="toggleDilekce()">' + t.widerspruchBtn + '</button>';
+        html += '<button class="copy-btn" onclick="copyDilekce()">' + t.copyBtn + '</button>';
+        html += '</div>';
+        html += '<div class="dilekce-box" id="dilekceBox" style="display:none;">' + t.dilekceMuster + '</div>';
+        html += '<div class="warning-box"><strong>⚖ ' + t.gerichtTitle + ':</strong><br>' + t.gerichtText + '</div>';
+        html += '<div class="community-box"><strong>🤝 ' + t.communityTitle + ':</strong><br>' + t.communityText + '</div>';
+        html += '<button class="action-btn" onclick="window.print()">' + t.pdfBtn + '</button>';
+        html += '<button class="back-btn" onclick="resetBerater()">Wiederholen</button>';
+        html += '</div>';
+        document.getElementById('questionArea').innerHTML = html;
+        document.getElementById('backBtn').style.display = 'none';
+    }
+
+    window.toggleDilekce = function() {
+        var box = document.getElementById('dilekceBox');
+        if(box) box.style.display = box.style.display === 'none' ? 'block' : 'none';
+    };
+    window.copyDilekce = function() {
+        var t = langData[currentLang];
+        var text = t.dilekceMuster;
+        if(navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(function(){ alert(t.copied); });
+        } else {
+            var ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+            document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+            alert(t.copied);
+        }
+    };
+    window.resetBerater = function() {
+        currentStep = 0; answers = {};
+        document.getElementById('questionArea').innerHTML = '<div class="step-indicator" id="stepIndicator"></div><div class="question-text" id="questionText"></div><div class="options-grid" id="optionsGrid"></div><button class="back-btn" id="backBtn" style="display:none;">← Zurück</button>';
+        updateLanguage(); renderQuestion();
+    };
+
+    document.getElementById('backBtn').addEventListener('click', function(){ if(currentStep>0){ currentStep--; renderQuestion(); } });
+    var langBtns = document.querySelectorAll('.lang-btn');
+    for(var i=0;i<langBtns.length;i++) langBtns[i].addEventListener('click', function(){ var lang=this.getAttribute('data-lang'); if(lang!==currentLang) setLanguage(lang); });
+
+    setLanguage('de'); renderQuestion();
+})();
+</script>
+</body>
+</html>
